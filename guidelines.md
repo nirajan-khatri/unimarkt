@@ -4,6 +4,57 @@
 
 This document outlines our team's best practices for branch creation and code merging in GitHub. Following these guidelines will help maintain code quality, prevent conflicts, and ensure a smooth collaborative workflow.
 
+## Basic Git Operations
+
+### Pulling Changes
+
+Pull the latest changes from the remote repository:
+
+```bash
+# Update your current branch with remote changes
+git pull origin your-branch-name
+
+# Specifically for main branch
+git checkout main
+git pull origin main
+```
+
+### Pushing Changes
+
+Push your local commits to the remote repository:
+
+```bash
+# Push changes to your branch
+git push origin your-branch-name
+
+# If it's a new branch
+git push -u origin your-branch-name
+```
+
+### Common Pull/Push Workflow
+
+```bash
+# 1. Before starting work, get latest changes
+git checkout main
+git pull origin main
+
+# 2. Create your branch
+git checkout -b feature/your-feature
+
+# 3. Make changes and commit
+git add .
+git commit -m "Descriptive commit message"
+
+# 4. Push your branch to remote
+git push -u origin feature/your-feature
+
+# 5. Periodically update your branch with main
+git checkout main
+git pull origin main
+git checkout feature/your-feature
+git merge main
+```
+
 ## Branching Strategy
 
 ### Branch Types
