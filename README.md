@@ -1,4 +1,4 @@
-## Team 5 - Contact Information 
+## Team 2 - Contact Information 
 
 | Name                       | Email                                                | GitHub Username        |
 |----------------------------|------------------------------------------------------|------------------------|
