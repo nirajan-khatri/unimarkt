@@ -3,25 +3,38 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Your Name - Team Member</title>
+    <title>Murtaza Dhariwala - Software Developer</title>
     <style>
-      body {
-        font-family: "Arial", sans-serif;
+      :root {
+        --primary: #2c3e50;
+        --secondary: #3498db;
+        --light: #f5f5f5;
+        --text: #333;
+        --accent: #1abc9c;
+      }
+
+      * {
         margin: 0;
         padding: 0;
-        background-color: #f5f5f5;
-        color: #333;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Segoe UI", "Arial", sans-serif;
+        background-color: var(--light);
+        color: var(--text);
+        line-height: 1.6;
       }
 
       header {
-        background-color: #2c3e50;
+        background-color: var(--primary);
         color: white;
-        padding: 1rem;
+        padding: 1.5rem;
         text-align: center;
       }
 
       .container {
-        max-width: 900px;
+        max-width: 1000px;
         margin: 0 auto;
         padding: 2rem;
       }
@@ -30,31 +43,21 @@
         display: flex;
         flex-direction: column;
         align-items: center;
-        margin-bottom: 2rem;
-      }
-
-      @media (min-width: 768px) {
-        .profile-section {
-          flex-direction: row;
-          align-items: flex-start;
-        }
+        margin-bottom: 3rem;
+        background-color: white;
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        padding: 2rem;
       }
 
       .profile-image {
-        width: 250px;
-        height: 250px;
+        width: 200px;
+        height: 200px;
         object-fit: cover;
-        object-position: bottom;
         border-radius: 50%;
-        border: 5px solid #3498db;
-        margin-bottom: 1rem;
-      }
-
-      @media (min-width: 768px) {
-        .profile-image {
-          margin-right: 2rem;
-          margin-bottom: 0;
-        }
+        border: 4px solid var(--secondary);
+        margin-bottom: 1.5rem;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
       }
 
       .profile-info {
@@ -62,145 +65,543 @@
       }
 
       .profile-info h2 {
-        color: #2c3e50;
-        margin-top: 0;
+        color: var(--primary);
         margin-bottom: 0.5rem;
+        font-size: 2.2rem;
       }
 
       .profile-info .role {
-        color: #3498db;
+        color: var(--secondary);
         font-weight: bold;
-        margin-bottom: 1rem;
+        margin-bottom: 1.2rem;
+        font-size: 1.2rem;
       }
 
       .bio {
-        line-height: 1.6;
+        line-height: 1.7;
       }
 
       .section {
-        margin-bottom: 2rem;
+        margin-bottom: 2.5rem;
+        background-color: white;
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        padding: 1.5rem 2rem;
       }
 
       .section h3 {
-        color: #2c3e50;
-        border-bottom: 2px solid #3498db;
+        color: var(--primary);
+        border-bottom: 2px solid var(--secondary);
         padding-bottom: 0.5rem;
+        margin-bottom: 1.2rem;
+        font-size: 1.5rem;
       }
 
       .skills-list {
         display: flex;
         flex-wrap: wrap;
-        gap: 0.5rem;
+        gap: 0.8rem;
       }
 
       .skill-badge {
-        background-color: #3498db;
+        background-color: var(--secondary);
         color: white;
         padding: 0.5rem 1rem;
         border-radius: 20px;
         font-size: 0.9rem;
+        transition: transform 0.2s;
+      }
+
+      .skill-badge:hover {
+        transform: translateY(-3px);
+        background-color: var(--accent);
       }
 
       .button {
         display: inline-block;
-        background-color: #3498db;
+        background-color: var(--secondary);
         color: white;
         padding: 0.75rem 1.5rem;
         text-decoration: none;
         border-radius: 5px;
         margin-top: 1rem;
-        transition: background-color 0.3s;
+        transition: all 0.3s;
+        font-weight: 500;
       }
 
       .button:hover {
-        background-color: #2980b9;
+        background-color: var(--accent);
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
       }
 
       footer {
         text-align: center;
-        padding: 1rem;
-        background-color: #2c3e50;
+        padding: 1.5rem;
+        background-color: var(--primary);
         color: white;
         margin-top: 3rem;
+      }
+
+      .progress-container {
+        margin-bottom: 1.2rem;
+      }
+
+      .progress-label {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 0.5rem;
+      }
+
+      .progress-bar {
+        height: 10px;
+        background-color: #e0e0e0;
+        border-radius: 5px;
+        overflow: hidden;
+      }
+
+      .progress {
+        height: 100%;
+        background-color: var(--secondary);
+        border-radius: 5px;
+        transition: width 1s ease-in-out;
+      }
+
+      .experience-item {
+        margin-bottom: 1.5rem;
+        position: relative;
+        padding-left: 1.5rem;
+        border-left: 2px solid var(--secondary);
+      }
+
+      .experience-item:last-child {
+        margin-bottom: 0;
+      }
+
+      .experience-item::before {
+        content: "";
+        position: absolute;
+        width: 12px;
+        height: 12px;
+        background-color: var(--secondary);
+        border-radius: 50%;
+        left: -7px;
+        top: 5px;
+      }
+
+      .experience-title {
+        font-weight: bold;
+        margin-bottom: 0.3rem;
+      }
+
+      .experience-company {
+        color: var(--secondary);
+        margin-bottom: 0.3rem;
+      }
+
+      .experience-date {
+        font-size: 0.9rem;
+        color: #666;
+        margin-bottom: 0.5rem;
+      }
+
+      .contact-list {
+        list-style: none;
+      }
+
+      .contact-list li {
+        margin-bottom: 0.8rem;
+        display: flex;
+        align-items: center;
+      }
+
+      .contact-list li svg {
+        margin-right: 0.8rem;
+        min-width: 20px;
+      }
+
+      .contact-list a {
+        color: var(--secondary);
+        text-decoration: none;
+        transition: color 0.3s;
+      }
+
+      .contact-list a:hover {
+        color: var(--accent);
+      }
+
+      .interests {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+      }
+
+      .interest-item {
+        display: flex;
+        align-items: center;
+        background-color: #f0f0f0;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+      }
+
+      .interest-item svg {
+        margin-right: 0.5rem;
       }
     </style>
   </head>
   <body>
     <header>
-      <h1>Our Team Project</h1>
+      <h1>Murtaza Dhariwala - Software Developer</h1>
     </header>
 
     <div class="container">
       <div class="profile-section">
-        <img src="images/murtaza.jpg" alt="Your Name" class="profile-image" />
+        <img
+          src="images/murtaza.jpg"
+          alt="Murtaza Dhariwala"
+          class="profile-image"
+        />
         <div class="profile-info">
-          <h2>Your Name</h2>
-          <div class="role">Web Developer</div>
+          <h2>Murtaza Dhariwala</h2>
+          <div class="role">Full Stack Developer</div>
           <div class="bio">
             <p>
-              Hello! I'm a passionate web developer with expertise in frontend
-              and backend technologies. I enjoy building user-friendly
-              interfaces that solve real-world problems. On this project, I
-              focused on implementing the user authentication system and
-              designing responsive layouts.
+              I am a motivated and curious learner with a passion for technology
+              and problem-solving. I'm particularly enthusiastic about new
+              challenges, especially when I have the opportunity to learn modern
+              technologies and develop under the guidance of experienced
+              mentors.
             </p>
             <p>
-              When I'm not coding, you can find me hiking, reading sci-fi
-              novels, or experimenting with new recipes in the kitchen.
+              I enjoy working in teams, taking responsibility, and placing great
+              importance on quality and continuous improvement. My goal is not
+              just to complete tasks, but to truly make a difference and
+              contribute to success.
             </p>
           </div>
         </div>
       </div>
 
       <div class="section">
-        <h3>Skills & Expertise</h3>
-        <div class="skills-list">
-          <span class="skill-badge">HTML5</span>
-          <span class="skill-badge">CSS3</span>
-          <span class="skill-badge">JavaScript</span>
-          <span class="skill-badge">React</span>
-          <span class="skill-badge">Node.js</span>
-          <span class="skill-badge">Git</span>
-          <span class="skill-badge">Responsive Design</span>
+        <h3>Technical Skills</h3>
+
+        <div class="progress-container">
+          <div class="progress-label">
+            <span>HTML</span>
+            <span>Sehr Gut</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress" style="width: 95%"></div>
+          </div>
+        </div>
+
+        <div class="progress-container">
+          <div class="progress-label">
+            <span>CSS</span>
+            <span>Sehr Gut</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress" style="width: 90%"></div>
+          </div>
+        </div>
+
+        <div class="progress-container">
+          <div class="progress-label">
+            <span>JavaScript</span>
+            <span>Sehr Gut</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress" style="width: 90%"></div>
+          </div>
+        </div>
+
+        <div class="progress-container">
+          <div class="progress-label">
+            <span>TypeScript</span>
+            <span>Sehr Gut</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress" style="width: 85%"></div>
+          </div>
+        </div>
+
+        <div class="progress-container">
+          <div class="progress-label">
+            <span>React Native</span>
+            <span>Gut</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress" style="width: 80%"></div>
+          </div>
+        </div>
+
+        <div class="progress-container">
+          <div class="progress-label">
+            <span>NextJS</span>
+            <span>Sehr Gut</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress" style="width: 85%"></div>
+          </div>
+        </div>
+
+        <div class="progress-container">
+          <div class="progress-label">
+            <span>ReactJS</span>
+            <span>Sehr Gut</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress" style="width: 90%"></div>
+          </div>
+        </div>
+
+        <div class="progress-container">
+          <div class="progress-label">
+            <span>Node.JS</span>
+            <span>Sehr Gut</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress" style="width: 85%"></div>
+          </div>
+        </div>
+
+        <div class="progress-container">
+          <div class="progress-label">
+            <span>Express</span>
+            <span>Sehr Gut</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress" style="width: 85%"></div>
+          </div>
         </div>
       </div>
 
       <div class="section">
-        <h3>My Contribution to the Project</h3>
-        <p>For this team project, I was responsible for:</p>
-        <ul>
-          <li>Developing the user authentication system</li>
-          <li>Creating responsive layouts for mobile and desktop</li>
-          <li>Implementing form validation</li>
-          <li>Writing documentation for the codebase</li>
-        </ul>
+        <h3>Work Experience</h3>
+
+        <div class="experience-item">
+          <div class="experience-title">Full Stack Web Developer</div>
+          <div class="experience-company">
+            May53 Technologies Private Limited
+          </div>
+          <div class="experience-date">October 2023 - September 2024</div>
+          <p>
+            Developed full-stack web applications using modern JavaScript
+            frameworks
+          </p>
+        </div>
+      </div>
+      <div class="section">
+        <h3>Internships</h3>
+
+        <div class="experience-item">
+          <div class="experience-title">Full Stack Web Developer</div>
+          <div class="experience-company">VillinTech Solutions (Remote)</div>
+          <div class="experience-date">June 2023 - August 2023</div>
+          <p>
+            Built responsive web applications and implemented backend
+            functionality
+          </p>
+        </div>
+
+        <div class="experience-item">
+          <div class="experience-title">MERN Stack Web Developer</div>
+          <div class="experience-company">Learnalgo Infotech (Remote)</div>
+          <div class="experience-date">January 2023 - March 2023</div>
+          <p>
+            Worked with MongoDB, Express, React, and Node.js to create modern
+            web applications
+          </p>
+        </div>
+
+        <div class="experience-item">
+          <div class="experience-title">WordPress Web Developer</div>
+          <div class="experience-company">Wolf Corp. (Hybrid)</div>
+          <div class="experience-date">August 2022 - October 2022</div>
+          <p>Developed and maintained WordPress websites for clients</p>
+        </div>
+
+        <div class="experience-item">
+          <div class="experience-title">WordPress Web Developer</div>
+          <div class="experience-company">Zensolve (Remote)</div>
+          <div class="experience-date">March 2022 - June 2022</div>
+          <p>Created custom WordPress themes and plugins for client websites</p>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>Education</h3>
+
+        <div class="experience-item">
+          <div class="experience-title">
+            Masters in Applied Computer Science in Global Software Development
+          </div>
+          <div class="experience-company">
+            Hochschule Fulda University of Applied Sciences
+          </div>
+          <div class="experience-date">2024-Present</div>
+        </div>
+
+        <div class="experience-item">
+          <div class="experience-title">
+            Bachelor of Engineering in Computer Engineering
+          </div>
+          <div class="experience-company">Savitribai Phule Pune University</div>
+          <div class="experience-date">2020-2024</div>
+        </div>
+
+        <div class="experience-item">
+          <div class="experience-title">High School & Junior College</div>
+          <div class="experience-company">
+            St. Vincents High School & Junior College
+          </div>
+          <div class="experience-date">2008-2020</div>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>Soft Skills</h3>
+        <div class="skills-list">
+          <span class="skill-badge">Communication</span>
+          <span class="skill-badge">Teamwork</span>
+          <span class="skill-badge">Time Management</span>
+          <span class="skill-badge">Problem Solving</span>
+          <span class="skill-badge">Adaptability</span>
+          <span class="skill-badge">Cultural Sensitivity</span>
+          <span class="skill-badge">Presentation Skills</span>
+          <span class="skill-badge">Professionalism</span>
+          <span class="skill-badge">Flexibility</span>
+          <span class="skill-badge">Critical Thinking</span>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>Technologies I've Worked With</h3>
+        <div class="skills-list">
+          <span class="skill-badge">MongoDB</span>
+          <span class="skill-badge">PostgreSQL</span>
+          <span class="skill-badge">SQL</span>
+          <span class="skill-badge">Appwrite</span>
+          <span class="skill-badge">Prisma</span>
+          <span class="skill-badge">Firebase</span>
+          <span class="skill-badge">GraphQL</span>
+          <span class="skill-badge">Git</span>
+          <span class="skill-badge">Docker</span>
+          <span class="skill-badge">C/C++</span>
+          <span class="skill-badge">Microsoft Office</span>
+        </div>
+      </div>
+
+      <div class="section">
+        <h3>Languages</h3>
+        <div class="skills-list">
+          <span class="skill-badge">German (Gut)</span>
+          <span class="skill-badge">English (Fließend)</span>
+          <span class="skill-badge">Hindi (Fließend)</span>
+          <span class="skill-badge">Gujarati (Muttersprache)</span>
+        </div>
       </div>
 
       <div class="section">
         <h3>Contact Information</h3>
-        <p>Feel free to reach out to me through:</p>
-        <ul>
-          <li>Email: your.email@example.com</li>
+        <ul class="contact-list">
           <li>
-            GitHub:
-            <a href="https://github.com/yourusername"
-              >github.com/yourusername</a
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+              <path
+                d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V4zm2-1a1 1 0 0 0-1 1v.217l7 4.2 7-4.2V4a1 1 0 0 0-1-1H2zm13 2.383-4.708 2.825L15 11.105V5.383zm-.034 6.876-5.64-3.471L8 9.583l-1.326-.795-5.64 3.47A1 1 0 0 0 2 13h12a1 1 0 0 0 .966-.741zM1 11.105l4.708-2.897L1 5.383v5.722z"
+              />
+            </svg>
+            <a href="mailto:murtazadhari1410@gmail.com"
+              >murtazadhari1410@gmail.com</a
             >
           </li>
           <li>
-            LinkedIn:
-            <a href="https://linkedin.com/in/yourprofile"
-              >linkedin.com/in/yourprofile</a
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+              <path
+                d="M3.654 1.328a.678.678 0 0 0-1.015-.063L1.605 2.3c-.483.484-.661 1.169-.45 1.77a17.568 17.568 0 0 0 4.168 6.608 17.569 17.569 0 0 0 6.608 4.168c.601.211 1.286.033 1.77-.45l1.034-1.034a.678.678 0 0 0-.063-1.015l-2.307-1.794a.678.678 0 0 0-.58-.122l-2.19.547a1.745 1.745 0 0 1-1.657-.459L5.482 8.062a1.745 1.745 0 0 1-.46-1.657l.548-2.19a.678.678 0 0 0-.122-.58L3.654 1.328zM1.884.511a1.745 1.745 0 0 1 2.612.163L6.29 2.98c.329.423.445.974.315 1.494l-.547 2.19a.678.678 0 0 0 .178.643l2.457 2.457a.678.678 0 0 0 .644.178l2.189-.547a1.745 1.745 0 0 1 1.494.315l2.306 1.794c.829.645.905 1.87.163 2.611l-1.034 1.034c-.74.74-1.846 1.065-2.877.702a18.634 18.634 0 0 1-7.01-4.42 18.634 18.634 0 0 1-4.42-7.009c-.362-1.03-.037-2.137.703-2.877L1.885.511z"
+              />
+            </svg>
+            <a href="tel:+4915755337922">+49 1575 5337922</a>
+          </li>
+          <li>
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+              <path
+                d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0 0 16 8c0-4.42-3.58-8-8-8z"
+              />
+            </svg>
+            <a href="https://github.com/MurtazaD1410/" target="_blank"
+              >github.com/MurtazaD1410</a
             >
+          </li>
+          <li>
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+              <path
+                d="M0 1.146C0 .513.526 0 1.175 0h13.65C15.474 0 16 .513 16 1.146v13.708c0 .633-.526 1.146-1.175 1.146H1.175C.526 16 0 15.487 0 14.854V1.146zm4.943 12.248V6.169H2.542v7.225h2.401zm-1.2-8.212c.837 0 1.358-.554 1.358-1.248-.015-.709-.52-1.248-1.342-1.248-.822 0-1.359.54-1.359 1.248 0 .694.521 1.248 1.327 1.248h.016zm4.908 8.212V9.359c0-.216.016-.432.08-.586.173-.431.568-.878 1.232-.878.869 0 1.216.662 1.216 1.634v3.865h2.401V9.25c0-2.22-1.184-3.252-2.764-3.252-1.274 0-1.845.7-2.165 1.193v.025h-.016a5.54 5.54 0 0 1 .016-.025V6.169h-2.4c.03.678 0 7.225 0 7.225h2.4z"
+              />
+            </svg>
+            <a
+              href="https://www.linkedin.com/in/murtaza-dhariwala-107295267/"
+              target="_blank"
+              >linkedin.com/in/murtaza-dhariwala</a
+            >
+          </li>
+          <li>
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+              <path
+                d="M12.166 8.94c-.524 1.062-1.234 2.12-1.96 3.07A31.493 31.493 0 0 1 8 14.58a31.481 31.481 0 0 1-2.206-2.57c-.726-.95-1.436-2.008-1.96-3.07C3.304 7.867 3 6.862 3 6a5 5 0 0 1 10 0c0 .862-.305 1.867-.834 2.94zM8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10z"
+              />
+              <path
+                d="M8 8a2 2 0 1 1 0-4 2 2 0 0 1 0 4zm0 1a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"
+              />
+            </svg>
+            <span>Moltkestraße 35, 36039 Fulda, Deutschland</span>
           </li>
         </ul>
       </div>
 
-      <a href="index.html" class="button">Back to Team Page</a>
+      <div class="section">
+        <h3>Interests</h3>
+        <div class="interests">
+          <div class="interest-item">
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+              <path
+                d="M8 14.5a.5.5 0 0 1-.5-.5V2a.5.5 0 0 1 .5-.5h5.5a.5.5 0 0 1 .5.5v12a.5.5 0 0 1-.5.5H8zm5-12H8.5v11h4.5V2.5zM7 9.5a.5.5 0 0 0-.5-.5H1a.5.5 0 0 0-.5.5v5a.5.5 0 0 0 .5.5h5.5a.5.5 0 0 0 .5-.5v-5zm-6 5v-4h5v4H1z"
+              />
+            </svg>
+            Swimming
+          </div>
+          <div class="interest-item">
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+              <path
+                d="M8 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1zm0 13a6 6 0 1 1 0-12 6 6 0 0 1 0 12z"
+              />
+              <path
+                d="M8 4.5a.5.5 0 0 1 .5.5v2h2a.5.5 0 0 1 0 1h-2v2a.5.5 0 0 1-1 0V8h-2a.5.5 0 0 1 0-1h2V5a.5.5 0 0 1 .5-.5z"
+              />
+            </svg>
+            Drawing
+          </div>
+          <div class="interest-item">
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+              <path
+                d="M11.5 6.027a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0zm-1.5 1.5a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1zm2.5-.5a.5.5 0 1 1-1 0 .5.5 0 0 1 1 0zm-1.5 1.5a.5.5 0 1 0 0-1 .5.5 0 0 0 0 1zm-6.5-3h1v1h1v1h-1v1h-1v-1h-1v-1h1v-1z"
+              />
+              <path
+                d="M3.051 3.26a.5.5 0 0 1 .354-.613l1.932-.518a.5.5 0 0 1 .62.39c.655-.079 1.35-.117 2.043-.117.72 0 1.443.041 2.12.126a.5.5 0 0 1 .622-.399l1.932.518a.5.5 0 0 1 .306.729c.14.09.266.19.373.297.408.408.78 1.05 1.095 1.772.32.733.599 1.591.805 2.466.206.875.34 1.78.364 2.606.024.816-.059 1.602-.328 2.21a1.42 1.42 0 0 1-1.445.83c-.636-.067-1.115-.394-1.513-.773-.245-.232-.496-.526-.739-.808-.126-.148-.25-.292-.368-.423-.728-.804-1.597-1.527-3.224-1.527-1.627 0-2.496.723-3.224 1.527-.119.131-.242.275-.368.423-.243.282-.494.575-.739.808-.398.38-.877.706-1.513.773a1.42 1.42 0 0 1-1.445-.83c-.27-.608-.352-1.395-.329-2.21.024-.826.16-1.73.365-2.606.206-.875.486-1.733.805-2.466.315-.722.687-1.364 1.094-1.772a2.34 2.34 0 0 1 .382-.306.5.5 0 0 1 .298-.722z"
+              />
+            </svg>
+            Traveling
+          </div>
+          <div class="interest-item">
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+              <path
+                d="M4 4.5a.5.5 0 0 1 .5-.5H6a.5.5 0 0 1 0 1v.5h4.14l.386-1.158A.5.5 0 0 1 11 4h1a.5.5 0 0 1 0 1h-.64l-.311.935.807 1.29a3 3 0 1 1-.848.53l-.508-.812-2.076 3.322A.5.5 0 0 1 8 10.5H5.959a3 3 0 1 1-1.815-3.274L5 5.856V5h-.5a.5.5 0 0 1-.5-.5zm1.5 2.443-.508.814c.5.444.85 1.054.967 1.743h1.139L8.5 6.5l-1-1v1.443zm7.5 5.057a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM7 13.5a2 2 0 1 0 0-4 2 2 0 0 0 0 4z"
+              />
+            </svg>
+            Cycling
+          </div>
+        </div>
+      </div>
     </div>
-
-    <footer>
-      <p>&copy; 2025 Our Team Project. All rights reserved.</p>
-    </footer>
   </body>
 </html>
