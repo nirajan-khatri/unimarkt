@@ -80,6 +80,28 @@
         padding-left: 1rem;
       }
 
+      .contributions {
+        list-style-type: none;
+        padding: 0;
+        margin: 1rem 0;
+        font-size: 1.1rem;
+        color: #333;
+      }
+
+      .contributions li {
+        margin: 0.5rem 0;
+        position: relative;
+        padding-left: 1.5rem;
+      }
+
+      .contributions li:before {
+        content: "•";
+        color: #3498db;
+        position: absolute;
+        left: 0;
+        font-size: 1.2rem;
+      }
+
       .button {
         display: inline-block;
         background-color: #3498db;
@@ -124,7 +146,7 @@
   </head>
   <body>
     <header>
-      <h1>About Rohan Kolagada</h1>
+      <h1>About Rohan</h1>
     </header>
 
     <div class="container">
@@ -152,11 +174,20 @@
         </div>
       </div>
 
+      <div class="section">
+        <h3>What Do I Bring</h3>
+        <ul class="contributions">
+          <li>Enthusiasm and energy to keep the team spirited and motivated</li>
+          <li>Creative problem-solving to navigate any wild situation or challenge</li>
+          <li>A knack for storytelling that brings fun and engagement to projects</li>
+        </ul>
+      </div>
+
       <a href="index.html" class="button">Back to Team Page</a>
     </div>
 
     <footer>
-      <p>© 2025 Our Team Project. All rights reserved.</p>
+      <p>© This project is developed solely for educational purposes at Hochschule Fulda.</p>
     </footer>
   </body>
 </html>
