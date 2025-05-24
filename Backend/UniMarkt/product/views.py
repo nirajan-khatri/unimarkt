@@ -8,7 +8,6 @@ from .filters import ProductFilter
 from .models import Product
 from .serializers import ProductSerializer
 
-
 class ProductViewSet(viewsets.ModelViewSet):
     http_method_names = ['get', 'post', 'put', 'delete']
     queryset = Product.objects.filter()
