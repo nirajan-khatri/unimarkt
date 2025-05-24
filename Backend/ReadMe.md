@@ -49,6 +49,12 @@ python manage.py loaddata users.json,products.json
 ```bash
 python manage.py runserver
 ```
+
+### 7. Run this command to create super user account (super user or admin permission is required to visit admin panel)
+```bash
+python manage.py createsuperuser
+```
+
 ### 8. Access the app
 Admin panel: http://127.0.0.1:8000/admin
 Swagger docs: http://127.0.0.1:8000/swagger/
