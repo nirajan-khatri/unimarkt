@@ -1,0 +1,44 @@
+[
+  {
+    "model": "uniMarktAuth.role",
+    "pk": 1,
+    "fields": {
+      "name": "admin"
+    }
+  },
+  {
+    "model": "uniMarktAuth.role",
+    "pk": 2,
+    "fields": {
+      "name": "user"
+    }
+  },
+  {
+    "model": "uniMarktAuth.user",
+    "pk": 1,
+    "fields": {
+      "name": "Alice Chan",
+      "email": "alice@example.com",
+      "contact_number": "1234567890",
+      "role": 1,
+      "is_active": true,
+      "is_staff": true,
+      "is_superuser": false,
+      "password": "pbkdf2_sha256$260000$6cCkSiJjq7yH$+b4DAbTZrs/YVTFIlJGr9+XN2X/7FZlMiQqT0kXmMIQ="
+    }
+  },
+  {
+    "model": "uniMarktAuth.user",
+    "pk": 2,
+    "fields": {
+      "name": "Bob Lee",
+      "email": "bob@example.com",
+      "contact_number": "0987654321",
+      "role": 2,
+      "is_active": true,
+      "is_staff": false,
+      "is_superuser": false,
+      "password": "pbkdf2_sha256$260000$6cCkSiJjq7yH$+b4DAbTZrs/YVTFIlJGr9+XN2X/7FZlMiQqT0kXmMIQ="
+    }
+  }
+]
