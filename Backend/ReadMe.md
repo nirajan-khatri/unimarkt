@@ -14,15 +14,15 @@ git clone <repo-url>
 cd Backend/UniMarkt
 ```
 
-### 2. create .env file (for local development below is the .env file, for production ask .env file from the backend developer)
+### 2. Create  .env file in the root directory based on your local mysql credentials(for local development below is the example .env file, for production ask .env file from the backend developer)
 
 ```bash
 DEBUG=True
-DB_NAME=postgres
-DB_USER=postgres
-DB_PASSWORD=postgres
+DB_NAME=unimarkt
+DB_USER=root
+DB_PASSWORD=password
 DB_HOST=localhost
-DB_PORT=5432
+DB_PORT=3306
 ```
 
 ### 3. Create an activate virtual environment
@@ -39,6 +39,7 @@ pip install -r requirements.txt
 ```
 ### 5. Run migrations
 ```bash
+python manage.py makemigrations
 python manage.py migrate
 ```
 ### 6. Load initial data fixtures - dev environment
