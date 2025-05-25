@@ -27,8 +27,8 @@ DB_PORT=3306
 
 ### 3. Create an activate virtual environment
 ```bash
-python -m venv venv
 # Windows
+python -m venv venv
 venv\Scripts\activate
 # macOS/Linux
 source venv/bin/activate
@@ -62,5 +62,56 @@ Admin panel: http://127.0.0.1:8000/admin
 Swagger docs: http://127.0.0.1:8000/swagger/
 
 
-## Docker Setup
-Follow these steps to set up and run the app in docker
+# Docker Setup
+
+Follow these steps to set up and run the app in Docker:
+
+## 🔧 Step 1: Build the Docker Images
+
+```bash
+docker-compose build
+```
+
+## 🚀 Step 2: Start the Containers(wait for sometime for build to be complete)
+
+```bash
+docker compose up
+```
+
+The Django app will be available at: [http://localhost:8000/](http://localhost:8000/)
+
+On first startup, the app will:
+- Run migrations
+- Load fixture data (users and products) once
+- Start the Django development server
+
+## 🛑 Stop the Containers
+
+```bash
+docker compose down
+```
+
+To also remove all database data:
+
+```bash
+docker compose down --volumes
+```
+
+## 👤 Create a Django Superuser
+
+```bash
+#cd Backend/UniMarkt
+docker-compose exec web sh
+python manage.py createsuperuser
+```
+
+## 🗃️ Access the MySQL Database
+
+```bash
+docker exec -it unimarkt-db-1 mysql -u root -p
+```
+
+
+
+
+
