@@ -3,9 +3,11 @@ from rest_framework import viewsets, filters
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework.parsers import MultiPartParser
+from rest_framework.decorators import action
+from rest_framework.response import Response
 
 from .filters import ProductFilter
-from .models import Product
+from .models import Product,Category,SubCategory
 from .serializers import ProductSerializer
 
 class ProductViewSet(viewsets.ModelViewSet):
@@ -62,3 +64,32 @@ class ProductViewSet(viewsets.ModelViewSet):
     @swagger_auto_schema(tags=["Products"])
     def destroy(self, request, *args, **kwargs):
         return super().destroy(request, *args, **kwargs)
+   
+    @action(detail=False, methods=["get"], url_path="filter-by-category")
+    @swagger_auto_schema(tags=["Products"],manual_parameters=[openapi.Parameter("category_name", openapi.IN_QUERY, type=openapi.TYPE_STRING, required=True,
+                description="Name of the category to filter by")])
+    def filter_by_category(self, request):
+        
+        category_name = request.query_params.get("category_name")
+        category = Category.objects.filter(name__iexact=category_name).first()
+        if not category:
+            return Response({"error": f"No category found with name '{category_name}'"}, status=status.HTTP_404_NOT_FOUND)
+
+        products = self.queryset.filter(category=category)
+        serializer = self.get_serializer(products, many=True)
+        return Response(serializer.data)
+
+
+    @action(detail=False, methods=["get"], url_path="filter-by-subcategory")
+    @swagger_auto_schema( tags=["Products"],manual_parameters=[openapi.Parameter("subcategory_name", openapi.IN_QUERY, type=openapi.TYPE_STRING, required=True,
+                description="Name of the subcategory to filter by")] )
+    def filter_by_subcategory(self, request):
+        
+        subcategory_name = request.query_params.get("subcategory_name")
+        subcategory = SubCategory.objects.filter(name__iexact=subcategory_name).first()
+        if not subcategory:
+            return Response({"error": f"No subcategory found with name '{subcategory_name}'"}, status=status.HTTP_404_NOT_FOUND)
+
+        products = self.queryset.filter(sub_category=subcategory)
+        serializer = self.get_serializer(products, many=True)
+        return Response(serializer.data)
