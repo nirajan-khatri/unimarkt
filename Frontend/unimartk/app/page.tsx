@@ -5,6 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Search, X, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
+import Image from "next/image";
 import { Sidebar } from '@/components/Sidebar';
 import { Header } from '@/components/Header';
 import { ProductCard } from '@/components/ProductCard';
@@ -158,7 +159,7 @@ export default function Home() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {data?.map((product: any) => (
-            <ProductCard key={product?.product_ id} product={product} />
+            <ProductCard key={product?.product_id} product={product} />
           ))}
         </div>
 
