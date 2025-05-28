@@ -1,103 +1,194 @@
-import Image from "next/image";
+'use client';
+
+import * as React from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Search, X, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
+import { Sidebar } from '@/components/Sidebar';
+import { Header } from '@/components/Header';
+import { ProductCard } from '@/components/ProductCard';
+
+async function fetchFilteredProducts(page: number, searchTerm: string, category?: string, subcategory?: string) {
+  let url;
+  if (category) {
+    url = new URL(`http://localhost:8000/api/products/filter-by-category/`);
+    url.searchParams.append('category_name', category);
+  } else if (subcategory) {
+    url = new URL(`http://localhost:8000/api/products/filter-by-subcategory/`);
+    url.searchParams.append('subcategory_name', subcategory);
+  } else {
+    url = new URL('http://localhost:8000/api/products/');
+  }
+
+  url.searchParams.append('page', page.toString());
+  url.searchParams.append('page_size', '10');
+
+  if (searchTerm) {
+    url.searchParams.append('name', searchTerm);
+  }
+
+  const response = await fetch(url.toString(), {
+    headers: {
+      'accept': 'application/json',
+      'X-CSRFTOKEN': 'E1QRLlXIS1RE4mx3QX9ECchSoKYaa58qiMmyPDtUbcutPpk3M4GxmqCOOyt47pV2'
+    }
+  });
+
+  if (!response.ok) throw new Error('Failed to fetch products');
+  return response.json();
+}
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const [currentPage, setCurrentPage] = React.useState(1);
+  const [searchTerm, setSearchTerm] = React.useState('');
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = React.useState('');
+  const [selectedCategory, setSelectedCategory] = React.useState<string | null>(null);
+  const [selectedSubcategory, setSelectedSubcategory] = React.useState<string | null>(null);
+  const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  // Debounce search term
+  React.useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm);
+      setCurrentPage(1);
+      // Clear filters when searching
+      setSelectedCategory(null);
+      setSelectedSubcategory(null);
+    }, 500);
+
+    return () => clearTimeout(handler);
+  }, [searchTerm]);
+
+  const { data, isLoading, isError, error } = useQuery({
+    queryKey: ['products', currentPage, debouncedSearchTerm, selectedCategory, selectedSubcategory],
+    queryFn: () => fetchFilteredProducts(
+      currentPage,
+      debouncedSearchTerm,
+      selectedCategory || undefined,
+      selectedSubcategory || undefined
+    ),
+    keepPreviousData: true
+  });
+
+  const handleClearSearch = () => {
+    setSearchTerm('');
+    setDebouncedSearchTerm('');
+    setSelectedCategory(null);
+    setSelectedSubcategory(null);
+  };
+
+  const handleCategorySelect = (category: string) => {
+    setSelectedCategory(category);
+    setSelectedSubcategory(null);
+    setCurrentPage(1);
+  };
+
+  const handleSubcategorySelect = (subcategory: string) => {
+    setSelectedSubcategory(subcategory);
+    setSelectedCategory(null);
+    setCurrentPage(1);
+  };
+
+  return (
+    <div className="font-[family-name:var(--font-geist-sans)]">
+      <Header isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
+      <Sidebar
+        isSidebarOpen={isSidebarOpen}
+        setIsSidebarOpen={setIsSidebarOpen}
+        onCategorySelect={handleCategorySelect}
+        onSubcategorySelect={handleSubcategorySelect}
+      />
+      <main className="p-6">
+        {/* Loader */}
+        {isLoading && (
+          <div className="fixed inset-0 bg-white/50 flex items-center justify-center z-50">
+            <Loader2 className="h-12 w-12 text-blue-500 animate-spin" />
+          </div>
+        )}
+
+        <div className="relative w-full mb-6">
+          <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400 dark:text-slate-500" />
+          <Input
+            type="text"
+            placeholder="Search products..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full rounded-lg bg-slate-50 py-3 pl-10 pr-10 text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-blue-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-50 dark:placeholder-slate-500 dark:focus:ring-blue-600"
+            aria-label="Search"
+          />
+          {(searchTerm || selectedCategory || selectedSubcategory) && (
+            <Button
+              variant="ghost"
+              size="icon"
+              className="absolute right-2 top-1/2 h-8 w-8 -translate-y-1/2 rounded-full text-slate-500 hover:bg-slate-200 hover:text-slate-700 dark:text-slate-400 dark:hover:bg-slate-700 dark:hover:text-slate-200"
+              onClick={handleClearSearch}
+              aria-label="Clear search"
+            >
+              <X className="h-5 w-5" />
+            </Button>
+          )}
         </div>
+
+        {/* Active Filters */}
+        {(selectedCategory || selectedSubcategory) && (
+          <div className="mb-4 flex gap-2">
+            {selectedCategory && (
+              <span className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm">
+                Category: {selectedCategory}
+              </span>
+            )}
+            {selectedSubcategory && (
+              <span className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm">
+                Subcategory: {selectedSubcategory}
+              </span>
+            )}
+          </div>
+        )}
+
+        {isError && (
+          <div className="text-center text-red-500">Error: {error.message}</div>
+        )}
+
+        {!isLoading && data?.length === 0 && (
+          <div className="text-center py-12 text-gray-500">
+            No results found
+          </div>
+        )}
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {data?.map((product: any) => (
+            <ProductCard key={product?.product_ id} product={product} />
+          ))}
+        </div>
+
+        {/* Simplified Pagination */}
+        {(data?.length > 0) && (
+          <div className="mt-6 flex items-center justify-center gap-4">
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => setCurrentPage(old => Math.max(old - 1, 1))}
+              disabled={currentPage === 1}
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+
+            <span className="text-sm text-slate-600 dark:text-slate-300">
+              Page {currentPage}
+            </span>
+
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={() => setCurrentPage(old => old + 1)}
+              disabled={data.length < 10}
+            >
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
+        )}
       </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
     </div>
   );
 }
