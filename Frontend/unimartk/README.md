@@ -34,3 +34,22 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+
+# Docker Setup
+
+Follow these steps to set up and run the frontend app in Docker:
+
+## Step 1: Build the Docker Image
+
+```bash
+docker build -t unimartk-frontend .
+
+```
+
+## Step 2: Run the Docker container
+
+```bash
+docker run -p 3000:3000 unimartk-frontend
+```
+
