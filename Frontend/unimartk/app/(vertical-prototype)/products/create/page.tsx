@@ -52,7 +52,7 @@ const productSchema = z.object({
 
 type ProductFormData = z.infer<typeof productSchema>;
 
-const ProductForm = () => {
+const Page = () => {
   const form = useForm<ProductFormData>({
     resolver: zodResolver(productSchema),
     defaultValues: {
@@ -76,6 +76,7 @@ const ProductForm = () => {
     },
     onSuccess: () => {
       toast.success("Product created successfully!");
+      window.location.href = "/";
     },
   });
 
@@ -136,7 +137,7 @@ const ProductForm = () => {
   };
 
   return (
-    <div className="max-w-2xl mx-auto p-6">
+    <div className="max-w-2xl w-full mx-auto p-6">
       <Card>
         <CardHeader>
           <CardTitle>Create New Product</CardTitle>
@@ -315,4 +316,4 @@ const ProductForm = () => {
   );
 };
 
-export default ProductForm;
+export default Page;
