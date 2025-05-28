@@ -1,7 +1,7 @@
-'use client';
-import * as React from 'react';
-import { Button } from '@/components/ui/button';
-import { ChevronLeft } from 'lucide-react';
+"use client";
+import * as React from "react";
+import { Button } from "@/components/ui/button";
+import { ChevronLeft } from "lucide-react";
 
 interface MenuItem {
   id: string;
@@ -10,50 +10,49 @@ interface MenuItem {
 }
 
 interface SidebarProps {
+  isSidebarOpen: boolean;
   onCategorySelect: (category: string) => void;
   onSubcategorySelect: (subcategory: string) => void;
 }
 
-export function Sidebar({ onCategorySelect, onSubcategorySelect, isSidebarOpen, setIsSidebarOpen }: SidebarProps) {
+export function Sidebar({
+  onCategorySelect,
+  onSubcategorySelect,
+  isSidebarOpen,
+}: SidebarProps) {
   const [currentParent, setCurrentParent] = React.useState<string | null>(null);
   const [parentStack, setParentStack] = React.useState<string[]>([]);
-  
+
   const [menuData] = React.useState<MenuItem[]>([
     {
-      id: 'electronics',
-      label: 'Electronics',
-      children: [
-        { id: 'mobile-phones', label: 'Mobile Phones' }
-      ]
+      id: "electronics",
+      label: "Electronics",
+      children: [{ id: "mobile-phones", label: "Mobile Phones" }],
     },
     {
-      id: 'books',
-      label: 'Books',
-      children: [
-        { id: 'fiction', label: 'Fiction' }
-      ]
+      id: "books",
+      label: "Books",
+      children: [{ id: "fiction", label: "Fiction" }],
     },
     {
-      id: 'clothing',
-      label: 'Clothing',
-      children: [
-        { id: 'tshirts', label: 'Tshirts' }
-      ]
+      id: "clothing",
+      label: "Clothing",
+      children: [{ id: "tshirts", label: "Tshirts" }],
     },
     {
-      id: 'furniture',
-      label: 'Furniture',
-      children: []
+      id: "furniture",
+      label: "Furniture",
+      children: [],
     },
     {
-      id: 'sports',
-      label: 'Sports',
-      children: []
-    }
+      id: "sports",
+      label: "Sports",
+      children: [],
+    },
   ]);
 
   const currentItems = currentParent
-    ? menuData.find(item => item.id === currentParent)?.children || []
+    ? menuData.find((item) => item.id === currentParent)?.children || []
     : menuData;
 
   const handleItemClick = (item: MenuItem) => {
@@ -61,7 +60,7 @@ export function Sidebar({ onCategorySelect, onSubcategorySelect, isSidebarOpen, 
       // Category selection
       onCategorySelect(item.label);
       if (item.children && item.children.length > 0) {
-        setParentStack([...parentStack, 'root']);
+        setParentStack([...parentStack, "root"]);
         setCurrentParent(item.id);
       }
     } else {
@@ -73,13 +72,17 @@ export function Sidebar({ onCategorySelect, onSubcategorySelect, isSidebarOpen, 
   const handleBack = () => {
     const newStack = [...parentStack];
     const previousParent = newStack.pop();
-    setCurrentParent(previousParent === 'root' ? null : previousParent || null);
+    setCurrentParent(previousParent === "root" ? null : previousParent || null);
     setParentStack(newStack);
-    onCategorySelect(''); // Clear category filter when going back
+    onCategorySelect(""); // Clear category filter when going back
   };
 
   return (
-    <div className={`w-64 h-screen border-r bg-white dark:bg-gray-800 fixed z-10 ${!isSidebarOpen && "hidden"}`}>
+    <div
+      className={`w-64 h-screen border-r bg-white dark:bg-gray-800 fixed z-10 ${
+        !isSidebarOpen && "hidden"
+      }`}
+    >
       <div className="p-4">
         {/* Header with Back Button */}
         <div className="mb-4 flex items-center gap-2">

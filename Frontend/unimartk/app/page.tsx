@@ -1,51 +1,64 @@
-'use client';
+"use client";
 
-import * as React from 'react';
-import { useQuery } from '@tanstack/react-query';
+import * as React from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, X, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
-import Image from "next/image";
-import { Sidebar } from '@/components/Sidebar';
-import { Header } from '@/components/Header';
-import { ProductCard } from '@/components/ProductCard';
+import { Search, X, Loader2 } from "lucide-react";
+import { Sidebar } from "@/components/Sidebar";
+import { Header } from "@/components/Header";
+import { ProductCard } from "@/components/ProductCard";
 
-async function fetchFilteredProducts(page: number, searchTerm: string, category?: string, subcategory?: string) {
+async function fetchFilteredProducts(
+  page: number,
+  searchTerm: string,
+  category?: string,
+  subcategory?: string
+) {
   let url;
   if (category) {
-    url = new URL(`http://localhost:8000/api/products/filter-by-category/`);
-    url.searchParams.append('category_name', category);
+    url = new URL(
+      `${process.env.NEXT_PUBLIC_BASE_API_URL!}products/filter-by-category/`
+    );
+    url.searchParams.append("category_name", category);
   } else if (subcategory) {
-    url = new URL(`http://localhost:8000/api/products/filter-by-subcategory/`);
-    url.searchParams.append('subcategory_name', subcategory);
+    url = new URL(
+      `${process.env.NEXT_PUBLIC_BASE_API_URL!}products/filter-by-subcategory/`
+    );
+    url.searchParams.append("subcategory_name", subcategory);
   } else {
-    url = new URL('http://localhost:8000/api/products/');
+    url = new URL(`${process.env.NEXT_PUBLIC_BASE_API_URL!}products/`);
   }
 
-  url.searchParams.append('page', page.toString());
-  url.searchParams.append('page_size', '10');
+  url.searchParams.append("page", page.toString());
+  url.searchParams.append("page_size", "10");
 
   if (searchTerm) {
-    url.searchParams.append('name', searchTerm);
+    url.searchParams.append("name", searchTerm);
   }
 
   const response = await fetch(url.toString(), {
     headers: {
-      'accept': 'application/json',
-      'X-CSRFTOKEN': 'E1QRLlXIS1RE4mx3QX9ECchSoKYaa58qiMmyPDtUbcutPpk3M4GxmqCOOyt47pV2'
-    }
+      accept: "application/json",
+      "X-CSRFTOKEN":
+        "E1QRLlXIS1RE4mx3QX9ECchSoKYaa58qiMmyPDtUbcutPpk3M4GxmqCOOyt47pV2",
+    },
   });
 
-  if (!response.ok) throw new Error('Failed to fetch products');
+  if (!response.ok) throw new Error("Failed to fetch products");
   return response.json();
 }
 
 export default function Home() {
   const [currentPage, setCurrentPage] = React.useState(1);
-  const [searchTerm, setSearchTerm] = React.useState('');
-  const [debouncedSearchTerm, setDebouncedSearchTerm] = React.useState('');
-  const [selectedCategory, setSelectedCategory] = React.useState<string | null>(null);
-  const [selectedSubcategory, setSelectedSubcategory] = React.useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = React.useState("");
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = React.useState("");
+  const [selectedCategory, setSelectedCategory] = React.useState<string | null>(
+    null
+  );
+  const [selectedSubcategory, setSelectedSubcategory] = React.useState<
+    string | null
+  >(null);
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
 
   // Debounce search term
@@ -62,19 +75,25 @@ export default function Home() {
   }, [searchTerm]);
 
   const { data, isLoading, isError, error } = useQuery({
-    queryKey: ['products', currentPage, debouncedSearchTerm, selectedCategory, selectedSubcategory],
-    queryFn: () => fetchFilteredProducts(
+    queryKey: [
+      "products",
       currentPage,
       debouncedSearchTerm,
-      selectedCategory || undefined,
-      selectedSubcategory || undefined
-    ),
-    keepPreviousData: true
+      selectedCategory,
+      selectedSubcategory,
+    ],
+    queryFn: () =>
+      fetchFilteredProducts(
+        currentPage,
+        debouncedSearchTerm,
+        selectedCategory || undefined,
+        selectedSubcategory || undefined
+      ),
   });
 
   const handleClearSearch = () => {
-    setSearchTerm('');
-    setDebouncedSearchTerm('');
+    setSearchTerm("");
+    setDebouncedSearchTerm("");
     setSelectedCategory(null);
     setSelectedSubcategory(null);
   };
@@ -93,10 +112,12 @@ export default function Home() {
 
   return (
     <div className="font-[family-name:var(--font-geist-sans)]">
-      <Header isSidebarOpen={isSidebarOpen} setIsSidebarOpen={setIsSidebarOpen} />
-      <Sidebar
+      <Header
         isSidebarOpen={isSidebarOpen}
         setIsSidebarOpen={setIsSidebarOpen}
+      />
+      <Sidebar
+        isSidebarOpen={isSidebarOpen}
         onCategorySelect={handleCategorySelect}
         onSubcategorySelect={handleSubcategorySelect}
       />
@@ -164,12 +185,12 @@ export default function Home() {
         </div>
 
         {/* Simplified Pagination */}
-        {(data?.length > 0) && (
+        {/* {data?.length > 0 && (
           <div className="mt-6 flex items-center justify-center gap-4">
             <Button
               variant="outline"
               size="icon"
-              onClick={() => setCurrentPage(old => Math.max(old - 1, 1))}
+              onClick={() => setCurrentPage((old) => Math.max(old - 1, 1))}
               disabled={currentPage === 1}
             >
               <ChevronLeft className="h-4 w-4" />
@@ -182,13 +203,13 @@ export default function Home() {
             <Button
               variant="outline"
               size="icon"
-              onClick={() => setCurrentPage(old => old + 1)}
+              onClick={() => setCurrentPage((old) => old + 1)}
               disabled={data.length < 10}
             >
               <ChevronRight className="h-4 w-4" />
             </Button>
           </div>
-        )}
+        )} */}
       </main>
     </div>
   );
