@@ -1,11 +1,9 @@
-'use client'
+import type { Metadata } from "next";
 
-import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-
-const queryClient = new QueryClient()
+import Providers from "./providers/provider";
+import { Toaster } from "sonner";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -28,13 +26,10 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased flex min-h-screen flex-col`}
       >
-        <QueryClientProvider client={queryClient}>
+        <Providers>
           {children}
-          <ReactQueryDevtools initialIsOpen={false} />
-        </QueryClientProvider>
-        <footer className="border-2 p-4 sticky top-[100vh]">
-          © UniMarkt 2025, Educational use only, Hochschule Fulda
-        </footer>
+          <Toaster />
+        </Providers>
       </body>
     </html>
   );

@@ -8,6 +8,7 @@ import { Search, X, Loader2 } from "lucide-react";
 import { Sidebar } from "@/components/Sidebar";
 import { Header } from "@/components/Header";
 import { ProductCard } from "@/components/ProductCard";
+import Link from "next/link";
 
 async function fetchFilteredProducts(
   page: number,
@@ -129,27 +130,32 @@ export default function Home() {
           </div>
         )}
 
-        <div className="relative w-full mb-6">
-          <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400 dark:text-slate-500" />
-          <Input
-            type="text"
-            placeholder="Search products..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full rounded-lg bg-slate-50 py-3 pl-10 pr-10 text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-blue-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-50 dark:placeholder-slate-500 dark:focus:ring-blue-600"
-            aria-label="Search"
-          />
-          {(searchTerm || selectedCategory || selectedSubcategory) && (
-            <Button
-              variant="ghost"
-              size="icon"
-              className="absolute right-2 top-1/2 h-8 w-8 -translate-y-1/2 rounded-full text-slate-500 hover:bg-slate-200 hover:text-slate-700 dark:text-slate-400 dark:hover:bg-slate-700 dark:hover:text-slate-200"
-              onClick={handleClearSearch}
-              aria-label="Clear search"
-            >
-              <X className="h-5 w-5" />
-            </Button>
-          )}
+        <div className="flex flex-row justify-between gap-4">
+          <div className="relative w-full mb-6">
+            <Search className="absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400 dark:text-slate-500" />
+            <Input
+              type="text"
+              placeholder="Search products..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="w-full rounded-lg bg-slate-50 py-3 pl-10 pr-10 text-slate-900 placeholder-slate-400 focus:ring-2 focus:ring-blue-500 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-50 dark:placeholder-slate-500 dark:focus:ring-blue-600"
+              aria-label="Search"
+            />
+            {(searchTerm || selectedCategory || selectedSubcategory) && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="absolute right-2 top-1/2 h-8 w-8 -translate-y-1/2 rounded-full text-slate-500 hover:bg-slate-200 hover:text-slate-700 dark:text-slate-400 dark:hover:bg-slate-700 dark:hover:text-slate-200"
+                onClick={handleClearSearch}
+                aria-label="Clear search"
+              >
+                <X className="h-5 w-5" />
+              </Button>
+            )}
+          </div>
+          <Button asChild>
+            <Link href={"/products/create"}>Create New Product</Link>
+          </Button>
         </div>
 
         {/* Active Filters */}
