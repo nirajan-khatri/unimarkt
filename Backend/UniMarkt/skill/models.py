@@ -30,6 +30,7 @@ class Skill(models.Model):
     degree = models.ForeignKey(Degree, on_delete=models.PROTECT, related_name='skills')
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='skills')
 
+
     def __str__(self):
         return f"{self.description} - {self.user.email}"
 

@@ -1,5 +1,7 @@
 from rest_framework import serializers
 from .models import Department, Degree, AvailableTimeSlot, Skill
+from uniMarktAuth.models import User
+from uniMarktAuth.serializers import UserSerializer
 
 
 class DepartmentSerializer(serializers.ModelSerializer):
@@ -9,6 +11,8 @@ class DepartmentSerializer(serializers.ModelSerializer):
 
 
 class DegreeSerializer(serializers.ModelSerializer):
+    department = DepartmentSerializer(read_only=True)
+    department_id = serializers.PrimaryKeyRelatedField(queryset=Department.objects.all(), source='department', write_only=True)
     class Meta:
         model = Degree
         fields = '__all__'
@@ -22,11 +26,19 @@ class AvailableTimeSlotSerializer(serializers.ModelSerializer):
 class SkillSerializer(serializers.ModelSerializer):
     available_time_week = AvailableTimeSlotSerializer(many=True)
 
+    department_id = serializers.PrimaryKeyRelatedField(queryset=Department.objects.all(), source='department', write_only=True)
+    degree_id = serializers.PrimaryKeyRelatedField(queryset=Degree.objects.all(), source='degree', write_only=True)
+    user_id = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), source='user', write_only=True)
+
+    department = DepartmentSerializer(read_only=True)
+    degree = DegreeSerializer(read_only=True)
+    user = UserSerializer(read_only=True)
+
     class Meta:
         model = Skill
         fields = [
             'skill_id', 'status', 'module', 'description', 'charge_per_hour',
-            'department', 'degree', 'user', 'available_time_week'
+            'department_id', 'degree_id', 'user_id', 'department', 'degree', 'user', 'available_time_week'
         ]
 
     def create(self, validated_data):
