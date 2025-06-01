@@ -52,22 +52,12 @@ python manage.py loaddata products.json
 python manage.py runserver
 ```
 
-### 7. Run this command to create super user account (super user or admin permission is required to visit admin panel)
+### 8. Run this command to create super user account (super user or admin permission is required to visit admin panel)
 ```bash
 python manage.py createsuperuser
 ```
 
-### 8. Run this command to create admin user account (super user or admin permission is required to visit admin panel)
-```bash
-python manage.py createadminuser
-```
-
-### 9. Run this command to create user account 
-```bash
-python manage.py createuser
-```
-
-### 10. Access the app
+### 9. Access the app
 Admin panel: http://127.0.0.1:8000/admin
 Swagger docs: http://127.0.0.1:8000/swagger/
 
@@ -113,16 +103,6 @@ docker compose down --volumes
 #cd Backend/UniMarkt
 docker-compose exec web sh
 python manage.py createsuperuser
-```
-
-### Create UniMarkt adminuser
-```bash
-python manage.py createadminuser
-```
-
-### Create UniMarkt user
-```bash
-python manage.py createuser
 ```
 
 ## 🗃️ Access the MySQL Database
