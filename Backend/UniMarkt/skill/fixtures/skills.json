@@ -1,0 +1,50 @@
+[
+  {
+    "model": "skill.department",
+    "pk": 1,
+    "fields": {
+      "name": "Computer Science"
+    }
+  },
+  {
+    "model": "skill.degree",
+    "pk": 1,
+    "fields": {
+      "name": "BSc in Computer Science",
+      "department": 1
+    }
+  },
+  {
+    "model": "skill.skill",
+    "pk": 1,
+    "fields": {
+      "status": "approved",
+      "module": 101,
+      "description": "Python programming for beginners",
+      "charge_per_hour": "25.00",
+      "department": 1,
+      "degree": 1,
+      "user": 1
+    }
+  },
+  {
+    "model": "skill.availabletimeslot",
+    "pk": 1,
+    "fields": {
+      "skill": 1,
+      "day": "Monday",
+      "start_time": "09:00:00",
+      "end_time": "11:00:00"
+    }
+  },
+  {
+    "model": "skill.availabletimeslot",
+    "pk": 2,
+    "fields": {
+      "skill": 1,
+      "day": "Wednesday",
+      "start_time": "14:00:00",
+      "end_time": "16:00:00"
+    }
+  }
+]
