@@ -1,5 +1,5 @@
 from drf_yasg import openapi
-from rest_framework import viewsets, filters
+from rest_framework import viewsets, filters, mixins, status
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework.parsers import MultiPartParser
@@ -8,7 +8,7 @@ from rest_framework.response import Response
 
 from .filters import ProductFilter
 from .models import Product,Category,SubCategory
-from .serializers import ProductSerializer
+from .serializers import ProductSerializer, CategorySerializer, SubCategorySerializer
 
 class ProductViewSet(viewsets.ModelViewSet):
     http_method_names = ['get', 'post', 'put', 'delete']
@@ -92,4 +92,43 @@ class ProductViewSet(viewsets.ModelViewSet):
 
         products = self.queryset.filter(sub_category=subcategory)
         serializer = self.get_serializer(products, many=True)
+        return Response(serializer.data)
+    
+class CategoryViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+    """
+    List all categories or retrieve a specific category_id.
+    """
+    queryset = Category.objects.all()
+    serializer_class = CategorySerializer
+
+    @swagger_auto_schema(
+        tags=["Categories"],
+        manual_parameters=[openapi.Parameter("name", openapi.IN_QUERY, type=openapi.TYPE_STRING,
+                              required=False, description="Optional category name to filter by")])
+    def list(self, request, *args, **kwargs):
+        name = request.query_params.get('name')
+        if name:
+            queryset = self.queryset.filter(name=name)
+            if not queryset.exists():
+                return Response({'detail': f'Category with name={name} not found.'}, status=status.HTTP_404_NOT_FOUND)
+        else:
+            queryset = self.queryset
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
+
+class SubCategoryViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+    queryset = SubCategory.objects.all()
+    serializer_class = SubCategorySerializer
+
+    @swagger_auto_schema( ags=["SubCategories"], manual_parameters=[openapi.Parameter("category_id", openapi.IN_QUERY, type=openapi.TYPE_INTEGER, required=False, 
+         description="Filter subcategories by category ID")])
+    def list(self, request, *args, **kwargs):
+        category_id = request.query_params.get("category_id")
+        queryset = self.queryset
+
+        if category_id:
+            queryset = queryset.filter(category__category_id=category_id)
+
+        serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
