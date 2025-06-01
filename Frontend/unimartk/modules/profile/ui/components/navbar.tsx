@@ -33,7 +33,7 @@ const NavbarItem = ({ children, href, isActive }: NavbarItemProps) => {
   return (
     <Button
       asChild
-      variant={"outline"}
+      variant={"ghost"}
       className={cn(
         "bg-transparent hover:bg-transparent rounded-full hover:border-primary border-transparent px-3.5 text-lg",
         isActive && "bg-black text-white hover:bg-black hover:text-white"

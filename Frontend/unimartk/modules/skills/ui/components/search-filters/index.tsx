@@ -8,14 +8,30 @@ import { DEFAULT_BG_COLOR } from "@/modules/home/constants";
 import { BreadcrumbNavigation } from "./breadcrumb-navigation";
 import { Categories } from "./categories";
 import { SearchInput } from "./search-input";
-import { categories } from "@/constants/product-categories";
+import { skillCategories } from "@/constants/skills-categories";
+
+function normalizeCategory(raw: any): Category {
+  const subcategoryList = Array.isArray(raw.subcategories)
+    ? raw.subcategories
+    : Array.isArray(raw.subcategories?.docs)
+      ? raw.subcategories.docs
+      : [];
+
+  return {
+    id: raw.id,
+    name: raw.name,
+    slug: raw.slug,
+    color: raw.color ?? undefined,
+    subcategories: subcategoryList.map(normalizeCategory),
+  };
+}
 
 export const SearchFilters = () => {
   const params = useParams();
   const categoryParam = params.category as string | undefined;
   const activeCategorySlug = categoryParam || "all";
 
-  const activeCategoryData = categories.find(
+  const activeCategoryData = skillCategories.find(
     (category) => category.slug === activeCategorySlug
   );
   const activeCategoryColor = activeCategoryData?.color || DEFAULT_BG_COLOR;
@@ -35,7 +51,7 @@ export const SearchFilters = () => {
     >
       <SearchInput />
       <div className="hidden lg:block">
-        <Categories data={categories} />
+        <Categories data={skillCategories.map(normalizeCategory)} />
       </div>
       <BreadcrumbNavigation
         activeCategorySlug={activeCategorySlug}

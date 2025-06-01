@@ -10,7 +10,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
-import { categories } from "@/constants/product-categories";
+import { skillCategories } from "@/constants/skills-categories";
 
 interface Props {
   open: boolean;
@@ -46,7 +46,7 @@ export const CategoriesSidebar = ({ onOpenChange, open }: Props) => {
 
   // if we have parent categories, show those, otherwisenshow root categories
   const currentCategories =
-    parentCategories ?? categories.map(normalizeCategory) ?? [];
+    parentCategories ?? skillCategories.map(normalizeCategory) ?? [];
 
   const handleOpenChange = (open: boolean) => {
     setSelectedCategory(null);
@@ -63,14 +63,14 @@ export const CategoriesSidebar = ({ onOpenChange, open }: Props) => {
       // leaf category (no subcategories)
       if (parentCategories && selectedCategory) {
         //  This is a subcategory - naigate to /category/subcategory
-        router.push(`/${selectedCategory.slug}/${category.slug}`);
+        router.push(`/skills/${selectedCategory.slug}/${category.slug}`);
       } else {
         // This is a root category - navigate to /category
         if (category.slug === "all") {
           // If the category is "all", navigate to the home page
-          router.push("/");
+          router.push("/skills/");
         } else {
-          router.push(`/${category.slug}`);
+          router.push(`/skills/${category.slug}`);
         }
       }
 
