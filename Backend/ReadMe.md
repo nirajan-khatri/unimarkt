@@ -22,7 +22,7 @@ DB_NAME=unimarkt
 DB_USER=root
 DB_PASSWORD=password
 DB_HOST=localhost
-DB_PORT=3306
+DB_PORT=3307
 ```
 
 ### 3. Create an activate virtual environment
@@ -57,7 +57,17 @@ python manage.py runserver
 python manage.py createsuperuser
 ```
 
-### 8. Access the app
+### 8. Run this command to create admin user account (super user or admin permission is required to visit admin panel)
+```bash
+python manage.py createadminuser
+```
+
+### 9. Run this command to create user account 
+```bash
+python manage.py createuser
+```
+
+### 10. Access the app
 Admin panel: http://127.0.0.1:8000/admin
 Swagger docs: http://127.0.0.1:8000/swagger/
 
@@ -97,12 +107,22 @@ To also remove all database data:
 docker compose down --volumes
 ```
 
-## 👤 Create a Django Superuser
+## 👤 Create UniMarkt Superuser
 
 ```bash
 #cd Backend/UniMarkt
 docker-compose exec web sh
 python manage.py createsuperuser
+```
+
+### Create UniMarkt adminuser
+```bash
+python manage.py createadminuser
+```
+
+### Create UniMarkt user
+```bash
+python manage.py createuser
 ```
 
 ## 🗃️ Access the MySQL Database
