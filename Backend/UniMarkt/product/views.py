@@ -1,8 +1,8 @@
 from drf_yasg import openapi
-from rest_framework import viewsets, filters
+from rest_framework import viewsets, filters, status
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_yasg.utils import swagger_auto_schema
-from rest_framework.parsers import MultiPartParser
+from rest_framework.parsers import MultiPartParser, JSONParser
 from rest_framework.decorators import action
 from rest_framework.response import Response
 
@@ -20,19 +20,18 @@ class ProductViewSet(viewsets.ModelViewSet):
         filters.OrderingFilter,
     ]
     filterset_class = ProductFilter
-    search_fields = ['name', 'description', 'category__name', 'sub_category__name']
     ordering_fields = ['created_at', 'price']
     ordering = ['-created_at']
 
-    parser_classes = [MultiPartParser]
-
-    # TODO: Add permissions later
+    parser_classes = [JSONParser]
 
     @swagger_auto_schema(tags=["Products"],
                          operation_description="Filter products by price, category name, sub category name, name, description, status and order by created_at or price",
                          manual_parameters=[
-                             openapi.Parameter("price", openapi.IN_QUERY, type=openapi.TYPE_NUMBER,
-                                               description="Filter by price"),
+                             openapi.Parameter("price_min", openapi.IN_QUERY, type=openapi.TYPE_NUMBER,
+                                               description="Filter by min price"),
+                             openapi.Parameter("price_max", openapi.IN_QUERY, type=openapi.TYPE_NUMBER,
+                                               description="Filter by max price"),
                              openapi.Parameter("category__name", openapi.IN_QUERY, type=openapi.TYPE_STRING,
                                                description="Filter by category name"),
                              openapi.Parameter("sub_category__name", openapi.IN_QUERY, type=openapi.TYPE_STRING,
