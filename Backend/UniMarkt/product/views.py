@@ -2,13 +2,13 @@ from drf_yasg import openapi
 from rest_framework import viewsets, filters, mixins, status
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_yasg.utils import swagger_auto_schema
-from rest_framework.parsers import MultiPartParser, JSONParser
-from rest_framework.decorators import action
+from rest_framework.parsers import  JSONParser
 from rest_framework.response import Response
 
 from .filters import ProductFilter
 from .models import Product,Category,SubCategory
-from .serializers import ProductSerializer, SubCategorySerializer, CategorySerializer
+from .serializers import ProductSerializer, SubCategorySerializer, CategorySerializer, ProductCreateSerializer, \
+    ProductUpdateSerializer
 
 
 class ProductViewSet(viewsets.ModelViewSet):
@@ -53,11 +53,11 @@ class ProductViewSet(viewsets.ModelViewSet):
     def retrieve(self, request, *args, **kwargs):
         return super().retrieve(request, *args, **kwargs)
 
-    @swagger_auto_schema(tags=["Products"])
+    @swagger_auto_schema(request_body=ProductCreateSerializer, tags=["Products"])
     def create(self, request, *args, **kwargs):
         return super().create(request, *args, **kwargs)
 
-    @swagger_auto_schema(tags=["Products"])
+    @swagger_auto_schema(request_body=ProductUpdateSerializer, tags=["Products"])
     def update(self, request, *args, **kwargs):
         return super().update(request, *args, **kwargs)
 

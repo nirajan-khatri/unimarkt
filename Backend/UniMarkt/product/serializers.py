@@ -21,20 +21,21 @@ class SubCategorySerializer(serializers.ModelSerializer):
 
 
 class ProductSerializer(serializers.ModelSerializer):
-    category = CategorySerializer(read_only=True)
     category_id = serializers.PrimaryKeyRelatedField(
         queryset=Category.objects.all(), source='category', write_only=True
     )
 
-    sub_category = SubCategorySerializer(read_only=True)
     sub_category_id = serializers.PrimaryKeyRelatedField(
         queryset=SubCategory.objects.all(), source='sub_category', write_only=True
     )
 
-    user = UserSerializer(read_only=True)
     user_id = serializers.PrimaryKeyRelatedField(
         queryset=User.objects.all(), source='user', write_only=True
     )
+
+    category = CategorySerializer(read_only=True)
+    sub_category = SubCategorySerializer(read_only=True)
+    user = UserSerializer(read_only=True)
 
     class Meta:
         model = Product
@@ -42,5 +43,37 @@ class ProductSerializer(serializers.ModelSerializer):
             'product_id', 'name', 'category', 'category_id',
             'sub_category', 'sub_category_id',
             'description', 'price', 'images',
-            'user', 'user_id', 'status', 'created_at'
+            'user', 'user_id', 'status', 'created_at', 'pickup_location'
         ]
+
+class ProductCreateSerializer(serializers.ModelSerializer):
+    category_id = serializers.PrimaryKeyRelatedField(
+        queryset=Category.objects.all(), source='category', write_only=True
+    )
+
+    sub_category_id = serializers.PrimaryKeyRelatedField(
+        queryset=SubCategory.objects.all(), source='sub_category', write_only=True
+    )
+
+    user_id = serializers.PrimaryKeyRelatedField(
+        queryset=User.objects.all(), source='user', write_only=True
+    )
+    class Meta:
+        model = Product
+        fields = ['name', 'description', 'price', 'category_id', 'sub_category_id', 'user_id', 'images', 'pickup_location', 'status']
+
+class ProductUpdateSerializer(serializers.ModelSerializer):
+    category_id = serializers.PrimaryKeyRelatedField(
+        queryset=Category.objects.all(), source='category', write_only=True
+    )
+
+    sub_category_id = serializers.PrimaryKeyRelatedField(
+        queryset=SubCategory.objects.all(), source='sub_category', write_only=True
+    )
+    user_id = serializers.PrimaryKeyRelatedField(
+        queryset=User.objects.all(), source='user', write_only=True
+    )
+    class Meta:
+        model = Product
+        fields = ['name', 'description', 'price', 'category_id', 'sub_category_id', 'user_id', 'images', 'pickup_location', 'status']
+
