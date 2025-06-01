@@ -5,7 +5,7 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "../ui/select";
+} from "../../../../components/ui/select";
 
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -16,16 +16,16 @@ import {
   FormControl,
   FormMessage,
   Form,
-} from "../ui/form";
-import { Input } from "../ui/input";
-import { Textarea } from "../ui/textarea";
+} from "../../../../components/ui/form";
+import { Input } from "../../../../components/ui/input";
+import { Textarea } from "../../../../components/ui/textarea";
 import { Status } from "@/modules/products/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { productSchema } from "./schemas";
+import { productSchema } from "../../schemas";
 import { useMutation } from "@tanstack/react-query";
 import axios from "@/lib/axios";
-import { Button } from "../ui/button";
+import { Button } from "../../../../components/ui/button";
 import { UploadCloud } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -51,6 +51,7 @@ const CreateProductForm = () => {
       category_id: "",
       sub_category_id: "",
       description: "",
+      location: "",
       price: "",
       user_id: "",
       status: Status.PENDING,
@@ -244,6 +245,20 @@ const CreateProductForm = () => {
                     className="pl-7"
                   />
                 </div>
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="location"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Location (City)</FormLabel>
+              <FormControl>
+                <Input placeholder="Enter Location" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>

@@ -19,6 +19,7 @@ export const productSchema = z.object({
     .refine((val) => parseFloat(val) > 0, "Price must be greater than 0"),
   user_id: z.string().min(1, "Please select a user"),
   status: z.nativeEnum(Status),
+  location: z.string().min(1, "Location is required"),
   images: z
     .custom<File[]>()
     .refine((files) => files.length > 0, {

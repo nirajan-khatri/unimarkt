@@ -28,8 +28,8 @@ import {
 import { useMutation } from "@tanstack/react-query";
 import { Status } from "@/modules/products/types";
 import { toast } from "sonner";
-import CreateProductForm from "@/components/forms/create-product-form";
-import CreateSkillForm from "@/components/forms/create-skill-form";
+import CreateProductForm from "@/modules/profile/ui/forms/create-product-form";
+import CreateSkillForm from "@/modules/profile/ui/forms/create-skill-form";
 
 const Page = () => {
   const [activeForm, setActiveForm] = useState<"job" | "skill" | "product">(

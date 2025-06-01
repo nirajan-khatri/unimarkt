@@ -19,14 +19,18 @@ interface Props {
 }
 
 function normalizeCategory(raw: any): Category {
+  const subcategoryList = Array.isArray(raw.subcategories)
+    ? raw.subcategories
+    : Array.isArray(raw.subcategories?.docs)
+      ? raw.subcategories.docs
+      : [];
+
   return {
     id: raw.id,
     name: raw.name,
     slug: raw.slug,
     color: raw.color ?? undefined,
-    subcategories: Array.isArray(raw.subcategories?.docs)
-      ? raw.subcategories.docs.map(normalizeCategory)
-      : [], // handle no subcategories
+    subcategories: subcategoryList.map(normalizeCategory),
   };
 }
 
@@ -51,6 +55,7 @@ export const CategoriesSidebar = ({ onOpenChange, open }: Props) => {
   };
 
   const handleCategoryClick = (category: Category) => {
+    console.log(category);
     if (category.subcategories && category.subcategories.length > 0) {
       setParentCategories(category.subcategories as Category[]);
       setSelectedCategory(category);
