@@ -1,9 +1,11 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import ProductViewSet  # Make sure this is your actual viewset import
+from .views import ProductViewSet, CategoryViewSet, SubCategoryViewSet
 
 router = DefaultRouter()
 router.register(r'products', ProductViewSet, basename='product')
+router.register(r'categories', CategoryViewSet, basename='category')
+router.register(r'subcategories', SubCategoryViewSet, basename='subcategory')
 
 urlpatterns = [
     path('', include(router.urls)),

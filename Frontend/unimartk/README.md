@@ -1,5 +1,13 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## Current Routes
+
+`/profile` goes to profile page (create can be found here)
+`/profile/create` to create products and skills
+`/products/(category)/(subcategory)` products
+`/skills/(department)/(module)` skills
+`dashboard` button goes to `/admin`
+
 ## Getting Started
 
 First, run the development server:
@@ -35,7 +43,6 @@ The easiest way to deploy your Next.js app is to use the [Vercel Platform](https
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
 
-
 # Docker Setup
 
 Follow these steps to set up and run the frontend app in Docker:
@@ -52,4 +59,3 @@ docker build -t unimartk-frontend .
 ```bash
 docker run -p 3000:3000 unimartk-frontend
 ```
-
