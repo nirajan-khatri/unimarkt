@@ -26,7 +26,6 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { useMutation } from "@tanstack/react-query";
-import { Status } from "@/modules/products/types";
 import { toast } from "sonner";
 
 // Zod Schema
@@ -47,7 +46,11 @@ const productSchema = z.object({
     )
     .refine((val) => parseFloat(val) > 0, "Price must be greater than 0"),
   user_id: z.string().min(1, "Please select a user"),
-  status: z.nativeEnum(Status),
+  status: z.nativeEnum({
+    PENDING: "PENDING",
+    APPROVED: "APPROVED",
+    REJECTED: "REJECTED",
+  }),
 });
 
 type ProductFormData = z.infer<typeof productSchema>;
@@ -62,7 +65,7 @@ const Page = () => {
       description: "",
       price: "",
       user_id: "",
-      status: Status.PENDING,
+      status: "PENDING",
     },
   });
 
