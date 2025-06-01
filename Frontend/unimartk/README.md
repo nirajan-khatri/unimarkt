@@ -3,7 +3,9 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 ## Current Routes
 
 `/profile` goes to profile page (create can be found here)
-`/skills` from navbar is working with department and module
+`/profile/create` to create products and skills
+`/products/(category)/(subcategory)` products
+`/skills/(department)/(module)` skills
 `dashboard` button goes to `/admin`
 
 ## Getting Started
