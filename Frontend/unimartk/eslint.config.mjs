@@ -11,6 +11,29 @@ const compat = new FlatCompat({
 
 const eslintConfig = [
   ...compat.extends("next/core-web-vitals", "next/typescript"),
+  {
+    plugins: {
+      "simple-import-sort": eslintPluginSimpleImportSort,
+      prettier: prettierPlugin,
+    },
+    rules: {
+      "no-unused-vars": ["off"], // Turn off the no-unused-vars rule
+      "@typescript-eslint/no-unused-vars": "warn", // Also turn off the TypeScript version of the rule
+      "simple-import-sort/imports": "error",
+      "simple-import-sort/exports": "error",
+      "prettier/prettier": 0,
+      // "sort-imports": [
+      //   "error",
+      //   {
+      //     ignoreCase: false,
+      //     ignoreDeclarationSort: false,
+      //     ignoreMemberSort: false,
+      //     memberSyntaxSortOrder: ["none", "all", "multiple", "single"],
+      //     allowSeparatedGroups: false,
+      //   },
+      // ],
+    },
+  },
 ];
 
 export default eslintConfig;
