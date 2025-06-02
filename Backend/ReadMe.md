@@ -44,8 +44,7 @@ python manage.py migrate
 ```
 ### 6. Load initial data fixtures - dev environment
 ```bash
-python manage.py loaddata users.json
-python manage.py loaddata products.json
+python manage.py loaddata users.json products.json
 ```
 ### 7. Run the development server   
 ```bash
