@@ -19,7 +19,6 @@ import {
 } from "../../../../components/ui/form";
 import { Input } from "../../../../components/ui/input";
 import { Textarea } from "../../../../components/ui/textarea";
-import { Status } from "@/modules/products/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { skillSchema } from "../../schemas";
@@ -49,7 +48,7 @@ const CreateSkillForm = () => {
       description: "",
       price: "",
       user_id: "",
-      status: Status.PENDING,
+      status: "PENDING",
       skill_cover: "",
     },
   });

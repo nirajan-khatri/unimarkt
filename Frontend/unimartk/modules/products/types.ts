@@ -1,15 +1,25 @@
-export interface Product {
-  category_id: string;
-  sub_category_id: string;
-  user_id: string;
-  price: string;
-  description: string;
+type Role = {
+  id: number;
   name: string;
-  status: Status;
-}
+};
 
-export enum Status {
-  PENDING = "pending",
-  APPROVED = "approved",
-  REJECTED = "rejected",
-}
+type User = {
+  id: string;
+  name: string;
+  email: string;
+  contact_number?: string;
+  role: Role;
+};
+
+type Product = {
+  id: string;
+  name: string;
+  category: Category;
+  subCategory: Category;
+  description: string;
+  price: string;
+  images?: string[];
+  user?: User;
+  status: "pending" | "approved" | "rejected";
+  created_at: string;
+};

@@ -26,7 +26,6 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { useMutation } from "@tanstack/react-query";
-import { Status } from "@/modules/products/types";
 import { toast } from "sonner";
 import CreateProductForm from "@/modules/profile/ui/forms/create-product-form";
 import CreateSkillForm from "@/modules/profile/ui/forms/create-skill-form";

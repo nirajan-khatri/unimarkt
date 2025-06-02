@@ -42,6 +42,8 @@ import {
 } from "@/components/ui/table";
 import { users as allUsers } from "@/constants/users";
 import { useRouter } from "next/navigation";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 
 export type UserApproval = {
   id: string;
@@ -95,7 +97,17 @@ export const columns: ColumnDef<UserApproval>[] = [
     accessorKey: "status",
     header: "Status",
     cell: ({ row }) => (
-      <span className="capitalize">{row.getValue("status")}</span>
+      <Badge
+        className={cn(
+          "px-2 uppercase",
+          row.getValue("status") === "approved" &&
+            "bg-emerald-200 border-emerald-500 text-emerald-600",
+          row.getValue("status") === "pending" &&
+            "bg-orange-200 border-orange-500 text-orange-600"
+        )}
+      >
+        {row.getValue("status")}
+      </Badge>
     ),
   },
   {
@@ -115,7 +127,6 @@ export const columns: ColumnDef<UserApproval>[] = [
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
             {!isAdmin && (
               <DropdownMenuItem
                 onClick={() => alert(`Approved as Admin: ${user.name}`)}
