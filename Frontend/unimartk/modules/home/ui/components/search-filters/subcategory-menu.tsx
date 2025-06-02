@@ -1,11 +1,8 @@
-import Link from 'next/link';
-import React from 'react';
-
-import { CategoriesGetManyOutput } from '@/modules/categories/types';
-import { Category } from '@/payload-types';
+import Link from "next/link";
+import React from "react";
 
 interface Props {
-  category: CategoriesGetManyOutput[1];
+  category: Category;
   isOpen: boolean;
 }
 
@@ -18,13 +15,10 @@ const SubcategoryMenu = ({ category, isOpen }: Props) => {
     return null;
   }
 
-  const backgroundColor = category.color || '#f5f5f5';
+  const backgroundColor = category.color || "#f5f5f5";
 
   return (
-    <div
-      className="absolute z-10"
-      style={{ top: '100%', left: 0 }}
-    >
+    <div className="absolute z-10" style={{ top: "100%", left: 0 }}>
       {/* invisible bridge to maintain hover */}
       <div className="h-3 w-60"></div>
       <div
@@ -32,17 +26,15 @@ const SubcategoryMenu = ({ category, isOpen }: Props) => {
         className="w-60 text-black rounded-md overflow-hidden border shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] -translate-x-[2px] -translate-y-[2px]"
       >
         <div className="">
-          {category.subcategories.map(
-            (subcategory: Category) => (
-              <Link
-                key={subcategory.slug}
-                href={`/${category.slug}/${subcategory.slug}`}
-                className="w-full text-left p-4 hover:bg-black hover:text-white flex justify-between items-center underline font-medium"
-              >
-                {subcategory.name}
-              </Link>
-            )
-          )}
+          {category.subcategories.map((subcategory: Category) => (
+            <Link
+              key={subcategory.slug}
+              href={`/${category.slug}/${subcategory.slug}`}
+              className="w-full text-left p-4 hover:bg-black hover:text-white flex justify-between items-center underline font-medium"
+            >
+              {subcategory.name}
+            </Link>
+          ))}
         </div>
       </div>
     </div>
