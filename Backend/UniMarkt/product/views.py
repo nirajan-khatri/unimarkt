@@ -27,7 +27,7 @@ class ProductViewSet(viewsets.ModelViewSet):
     parser_classes = [JSONParser]
 
     @swagger_auto_schema(tags=["Products"],
-                         operation_description="Filter products by price, category name, sub category name, name, description, status and order by created_at or price",
+                         operation_description="Filter products by min-price, max-price, category name, sub category name, name, description, status and order by created_at or price",
                          manual_parameters=[
                              openapi.Parameter("price_min", openapi.IN_QUERY, type=openapi.TYPE_NUMBER,
                                                description="Filter by min price"),
