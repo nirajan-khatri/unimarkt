@@ -1,4 +1,4 @@
-import { Footer } from "@/components/footer";
+import { Footer } from "@/components/Footer";
 import { Navbar } from "@/modules/skills/ui/components/navbar";
 
 import { SearchFilters } from "@/modules/skills/ui/components/search-filters";

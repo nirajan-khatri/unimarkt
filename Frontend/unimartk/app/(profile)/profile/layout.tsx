@@ -1,4 +1,4 @@
-import { Footer } from "@/components/footer";
+import { Footer } from "@/components/Footer";
 import { Navbar } from "@/modules/profile/ui/components/navbar";
 
 import React from "react";
