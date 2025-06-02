@@ -2,13 +2,14 @@ from drf_yasg import openapi
 from rest_framework import viewsets, filters, mixins, status
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_yasg.utils import swagger_auto_schema
-from rest_framework.parsers import MultiPartParser
-from rest_framework.decorators import action
+from rest_framework.parsers import  JSONParser
 from rest_framework.response import Response
 
 from .filters import ProductFilter
 from .models import Product,Category,SubCategory
-from .serializers import ProductSerializer, CategorySerializer, SubCategorySerializer
+from .serializers import ProductSerializer, SubCategorySerializer, CategorySerializer, ProductCreateSerializer, \
+    ProductUpdateSerializer
+
 
 class ProductViewSet(viewsets.ModelViewSet):
     http_method_names = ['get', 'post', 'put', 'delete']
@@ -20,19 +21,18 @@ class ProductViewSet(viewsets.ModelViewSet):
         filters.OrderingFilter,
     ]
     filterset_class = ProductFilter
-    search_fields = ['name', 'description', 'category__name', 'sub_category__name']
     ordering_fields = ['created_at', 'price']
     ordering = ['-created_at']
 
-    parser_classes = [MultiPartParser]
-
-    # TODO: Add permissions later
+    parser_classes = [JSONParser]
 
     @swagger_auto_schema(tags=["Products"],
-                         operation_description="Filter products by price, category name, sub category name, name, description, status and order by created_at or price",
+                         operation_description="Filter products by min-price, max-price, category name, sub category name, name, description, status and order by created_at or price",
                          manual_parameters=[
-                             openapi.Parameter("price", openapi.IN_QUERY, type=openapi.TYPE_NUMBER,
-                                               description="Filter by price"),
+                             openapi.Parameter("price_min", openapi.IN_QUERY, type=openapi.TYPE_NUMBER,
+                                               description="Filter by min price"),
+                             openapi.Parameter("price_max", openapi.IN_QUERY, type=openapi.TYPE_NUMBER,
+                                               description="Filter by max price"),
                              openapi.Parameter("category__name", openapi.IN_QUERY, type=openapi.TYPE_STRING,
                                                description="Filter by category name"),
                              openapi.Parameter("sub_category__name", openapi.IN_QUERY, type=openapi.TYPE_STRING,
@@ -53,11 +53,11 @@ class ProductViewSet(viewsets.ModelViewSet):
     def retrieve(self, request, *args, **kwargs):
         return super().retrieve(request, *args, **kwargs)
 
-    @swagger_auto_schema(tags=["Products"])
+    @swagger_auto_schema(request_body=ProductCreateSerializer, tags=["Products"])
     def create(self, request, *args, **kwargs):
         return super().create(request, *args, **kwargs)
 
-    @swagger_auto_schema(tags=["Products"])
+    @swagger_auto_schema(request_body=ProductUpdateSerializer, tags=["Products"])
     def update(self, request, *args, **kwargs):
         return super().update(request, *args, **kwargs)
 
@@ -65,34 +65,7 @@ class ProductViewSet(viewsets.ModelViewSet):
     def destroy(self, request, *args, **kwargs):
         return super().destroy(request, *args, **kwargs)
    
-    @action(detail=False, methods=["get"], url_path="filter-by-category")
-    @swagger_auto_schema(tags=["Products"],manual_parameters=[openapi.Parameter("category_name", openapi.IN_QUERY, type=openapi.TYPE_STRING, required=True,
-                description="Name of the category to filter by")])
-    def filter_by_category(self, request):
-        
-        category_name = request.query_params.get("category_name")
-        category = Category.objects.filter(name__iexact=category_name).first()
-        if not category:
-            return Response({"error": f"No category found with name '{category_name}'"}, status=status.HTTP_404_NOT_FOUND)
 
-        products = self.queryset.filter(category=category)
-        serializer = self.get_serializer(products, many=True)
-        return Response(serializer.data)
-
-
-    @action(detail=False, methods=["get"], url_path="filter-by-subcategory")
-    @swagger_auto_schema( tags=["Products"],manual_parameters=[openapi.Parameter("subcategory_name", openapi.IN_QUERY, type=openapi.TYPE_STRING, required=True,
-                description="Name of the subcategory to filter by")] )
-    def filter_by_subcategory(self, request):
-        
-        subcategory_name = request.query_params.get("subcategory_name")
-        subcategory = SubCategory.objects.filter(name__iexact=subcategory_name).first()
-        if not subcategory:
-            return Response({"error": f"No subcategory found with name '{subcategory_name}'"}, status=status.HTTP_404_NOT_FOUND)
-
-        products = self.queryset.filter(sub_category=subcategory)
-        serializer = self.get_serializer(products, many=True)
-        return Response(serializer.data)
     
 class CategoryViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     """
