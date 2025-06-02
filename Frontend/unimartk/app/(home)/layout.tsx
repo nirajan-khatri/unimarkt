@@ -1,6 +1,6 @@
-import { Footer } from "@/components/footer";
-import { Navbar } from "@/modules/home/ui/components/navbar";
-import { SearchFilters } from "@/modules/home/ui/components/search-filters";
+import { Footer } from "@/components/Footer";
+import { Header } from "@/components/Header";
+import { SearchBar } from "@/modules/home/ui/components/SearchBar";
 import React from "react";
 
 interface Props {
@@ -10,9 +10,7 @@ interface Props {
 const Layout = async ({ children }: Props) => {
   return (
     <div className="flex flex-col min-h-screen">
-      <Navbar />
-      <SearchFilters />
-      <div className="flex-1 bg-[#f4f4f0]">{children}</div>
+        <div className="flex-1 bg-[#f4f4f0]">{children}</div>
       <Footer />
     </div>
   );
