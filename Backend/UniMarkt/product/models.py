@@ -7,6 +7,8 @@ from django.conf import settings
 class Category(models.Model):
     category_id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=100)
+    color = models.CharField(max_length=100,default='default_value')
+    slug = models.SlugField(max_length=100,default='default_value')
 
     def __str__(self):
         return self.name
@@ -16,6 +18,8 @@ class SubCategory(models.Model):
     sub_category_id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=100)
     category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='subcategories')
+    color = models.CharField(default='default_value',max_length=100)
+    slug = models.SlugField(default='default_value',max_length=100)
 
     def __str__(self):
         return f"{self.name} ({self.category.name})"

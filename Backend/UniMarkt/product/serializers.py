@@ -4,21 +4,21 @@ from uniMarktAuth.models import User
 from uniMarktAuth.serializers import UserSerializer
 
 
-class CategorySerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Category
-        fields = ['category_id', 'name']
-
 class SubCategorySerializer(serializers.ModelSerializer):
-    category = CategorySerializer(read_only=True)
     category_id = serializers.PrimaryKeyRelatedField(
         queryset=Category.objects.all(), source='category', write_only=True
     )
 
     class Meta:
         model = SubCategory
-        fields = ['sub_category_id', 'name', 'category', 'category_id']
+        fields = ['sub_category_id', 'name', 'category_id','color','slug']
 
+class CategorySerializer(serializers.ModelSerializer):
+    subcategories = SubCategorySerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Category
+        fields = ['category_id', 'name','color','slug','subcategories']
 
 class ProductSerializer(serializers.ModelSerializer):
     category_id = serializers.PrimaryKeyRelatedField(
