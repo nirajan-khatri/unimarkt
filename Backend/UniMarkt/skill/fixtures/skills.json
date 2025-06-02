@@ -1,17 +1,74 @@
 [
   {
+    "model": "skill.skillcategory",
+    "pk": 1,
+    "fields": {
+      "name": "Programming"
+    }
+  },
+    {
+    "model": "skill.skillcategory",
+    "pk": 2,
+    "fields": {
+      "name": "Language"
+    }
+  },
+    {
+    "model": "skill.skillcategory",
+    "pk": 3,
+    "fields": {
+      "name": "Music"
+    }
+  },
+    {
+    "model": "skill.skillcategory",
+    "pk": 4,
+    "fields": {
+      "name": "Soft Skills"
+    }
+  },
+    {
+    "model": "skill.skillcategory",
+    "pk": 5,
+    "fields": {
+      "name": "Creative"
+    }
+  },
+    {
+    "model": "skill.skillcategory",
+    "pk": 6,
+    "fields": {
+      "name": "Fitness"
+    }
+  },
+  {
     "model": "skill.department",
     "pk": 1,
     "fields": {
-      "name": "Computer Science"
+      "name": "Department of Applied Computer Science"
     }
   },
   {
     "model": "skill.degree",
     "pk": 1,
     "fields": {
-      "name": "BSc in Computer Science",
+      "name": "Bachelor Angewandte Informatik",
       "department": 1
+    }
+  },
+    {
+    "model": "skill.department",
+    "pk": 2,
+    "fields": {
+      "name": "Department of Electrical Engineering and Information Technology"
+    }
+  },
+  {
+    "model": "skill.degree",
+    "pk": 2,
+    "fields": {
+      "name": "Bachelor Electrical Engineering and Information Technology",
+      "department": 2
     }
   },
   {
@@ -24,7 +81,10 @@
       "charge_per_hour": "25.00",
       "department": 1,
       "degree": 1,
-      "user": 1
+      "user": 1,
+      "skill_category": 1,
+      "created_at": "2025-05-01T10:00:00Z"
+
     }
   },
   {
@@ -45,6 +105,41 @@
       "day": "Wednesday",
       "start_time": "14:00:00",
       "end_time": "16:00:00"
+    }
+  },
+  {
+    "model": "skill.skill",
+    "pk": 2,
+    "fields": {
+      "status": "approved",
+      "module": 102,
+      "description": "Java programming for intermediate learners",
+      "charge_per_hour": "30.00",
+      "department": 2,
+      "degree": 2,
+      "user": 2,
+      "skill_category": 1,
+      "created_at": "2025-05-15T09:00:00Z"
+    }
+  },
+  {
+    "model": "skill.availabletimeslot",
+    "pk": 3,
+    "fields": {
+      "skill": 2,
+      "day": "Tuesday",
+      "start_time": "10:00:00",
+      "end_time": "12:00:00"
+    }
+  },
+  {
+    "model": "skill.availabletimeslot",
+    "pk": 4,
+    "fields": {
+      "skill": 2,
+      "day": "Thursday",
+      "start_time": "15:00:00",
+      "end_time": "17:00:00"
     }
   }
 ]
