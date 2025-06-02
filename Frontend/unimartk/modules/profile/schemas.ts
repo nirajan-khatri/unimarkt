@@ -1,4 +1,3 @@
-import { Status } from "@/modules/products/types";
 import { z } from "zod";
 
 export const productSchema = z.object({
@@ -18,7 +17,11 @@ export const productSchema = z.object({
     )
     .refine((val) => parseFloat(val) > 0, "Price must be greater than 0"),
   user_id: z.string().min(1, "Please select a user"),
-  status: z.nativeEnum(Status),
+  status: z.nativeEnum({
+    PENDING: "PENDING",
+    APPROVED: "APPROVED",
+    REJECTED: "REJECTED",
+  }),
   location: z.string().min(1, "Location is required"),
   images: z
     .custom<File[]>()
@@ -47,6 +50,10 @@ export const skillSchema = z.object({
   department: z.string().min(1, "Department is required"),
   module: z.string().min(1, "Module is required"),
   user_id: z.string().min(1, "Please select a user"),
-  status: z.nativeEnum(Status),
+  status: z.nativeEnum({
+    PENDING: "PENDING",
+    APPROVED: "APPROVED",
+    REJECTED: "REJECTED",
+  }),
   skill_cover: z.string().min(1, "Image is required"),
 });

@@ -1,6 +1,6 @@
 import AdminApprovalTable from "@/modules/admin/ui/views/admin-admins-table";
 import FacultyApprovalTable from "@/modules/admin/ui/views/admin-faculty-table";
-import ProductApprovalTable from "@/modules/admin/ui/views/admin-products-pending-table";
+import PendingApprovalTable from "@/modules/admin/ui/views/admin-approval-pending-table";
 import React from "react";
 
 interface Props {
@@ -16,10 +16,10 @@ const Page = async ({ params }: Props) => {
     <div className="max-w-7xl mx-auto mt-10">
       {type === "faculty" ? (
         <FacultyApprovalTable />
-      ) : type === "admin" ? (
+      ) : type === "admins" ? (
         <AdminApprovalTable />
       ) : (
-        <ProductApprovalTable />
+        <PendingApprovalTable />
       )}
     </div>
   );

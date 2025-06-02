@@ -67,6 +67,8 @@ export const Categories = ({ data }: Props) => {
     return () => resizeObserver.disconnect();
   }, [data.length]);
 
+  console.log(activeCategory);
+
   return (
     <div className="relative w-full">
       {/* Categories Sidebar */}

@@ -18,22 +18,6 @@ interface Props {
   onOpenChange: (open: boolean) => void;
 }
 
-function normalizeCategory(raw: any): Category {
-  const subcategoryList = Array.isArray(raw.subcategories)
-    ? raw.subcategories
-    : Array.isArray(raw.subcategories?.docs)
-      ? raw.subcategories.docs
-      : [];
-
-  return {
-    id: raw.id,
-    name: raw.name,
-    slug: raw.slug,
-    color: raw.color ?? undefined,
-    subcategories: subcategoryList.map(normalizeCategory),
-  };
-}
-
 export const CategoriesSidebar = ({ onOpenChange, open }: Props) => {
   const router = useRouter();
 
@@ -45,8 +29,7 @@ export const CategoriesSidebar = ({ onOpenChange, open }: Props) => {
   );
 
   // if we have parent categories, show those, otherwisenshow root categories
-  const currentCategories =
-    parentCategories ?? skillCategories.map(normalizeCategory) ?? [];
+  const currentCategories = parentCategories ?? skillCategories ?? [];
 
   const handleOpenChange = (open: boolean) => {
     setSelectedCategory(null);

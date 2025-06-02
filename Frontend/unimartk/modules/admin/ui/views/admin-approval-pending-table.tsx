@@ -40,19 +40,13 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { users as allUsers } from "@/constants/users";
+
 import { useRouter } from "next/navigation";
+import { products } from "@/constants/products";
+import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 
-export type ProductApproval = {
-  id: string;
-  name: string;
-  email: string;
-  requestedRoles: ("admin" | "faculty")[];
-  approvedRoles: ("admin" | "faculty")[];
-  status: "pending" | "approved" | "rejected";
-};
-
-export const columns: ColumnDef<ProductApproval>[] = [
+export const columns: ColumnDef<Product>[] = [
   {
     id: "select",
     header: ({ table }) => (
@@ -87,25 +81,52 @@ export const columns: ColumnDef<ProductApproval>[] = [
     ),
   },
   {
-    accessorKey: "email",
-    header: "Email",
-    cell: ({ row }) => <div className="lowercase">{row.getValue("email")}</div>,
+    accessorKey: "price",
+    header: "Price",
+    cell: ({ row }) => <div className="lowercase">{row.getValue("price")}</div>,
+  },
+  {
+    accessorKey: "category",
+    header: "Category",
+
+    cell: ({ row }) => (
+      <div className="lowercase">
+        {(row.getValue("category") as Category).name}
+      </div>
+    ),
+  },
+  {
+    accessorKey: "subCategory",
+    header: "SubCategory",
+    cell: ({ row }) => {
+      return (
+        <div className="lowercase">
+          {(row.getValue("subCategory") as Category).name}
+        </div>
+      );
+    },
   },
   {
     accessorKey: "status",
     header: "Status",
     cell: ({ row }) => (
-      <span className="capitalize">{row.getValue("status")}</span>
+      <Badge
+        className={cn(
+          "px-2 uppercase",
+          row.getValue("status") === "pending" &&
+            "bg-orange-200 border-orange-500 text-orange-600",
+          row.getValue("status") === "rejected" &&
+            "bg-red-200 border-red-500 text-red-600"
+        )}
+      >
+        {row.getValue("status")}
+      </Badge>
     ),
   },
   {
     id: "actions",
     enableHiding: false,
     cell: ({ row }) => {
-      const user = row.original;
-
-      const isAdmin = user.approvedRoles.includes("admin");
-
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -115,31 +136,18 @@ export const columns: ColumnDef<ProductApproval>[] = [
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
-            <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            {!isAdmin && (
-              <DropdownMenuItem
-                onClick={() => alert(`Approved as Admin: ${user.name}`)}
-              >
-                Make Admin
-              </DropdownMenuItem>
-            )}
-            {
-              <DropdownMenuItem
-                onClick={() => alert(`Approved as Faculty: ${user.name}`)}
-              >
-                Make Faculty
-              </DropdownMenuItem>
-            }
-            {isAdmin && (
-              <DropdownMenuItem
-                onClick={() => alert(`Removed Admin: ${user.name}`)}
-              >
-                Remove Admin
+            {row.getValue("status") !== "rejected" && (
+              <DropdownMenuItem onClick={() => alert(`Approved listing `)}>
+                Reject Listing
               </DropdownMenuItem>
             )}
 
+            <DropdownMenuItem onClick={() => alert(`Rejected Listing `)}>
+              Approve Listing
+            </DropdownMenuItem>
+
             <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => alert(`Delete ${user.name}`)}>
+            <DropdownMenuItem onClick={() => alert(`Delete `)}>
               Delete
             </DropdownMenuItem>
           </DropdownMenuContent>
@@ -149,7 +157,7 @@ export const columns: ColumnDef<ProductApproval>[] = [
   },
 ];
 
-const ProductApprovalTable = () => {
+const PendingApprovalTable = () => {
   const router = useRouter();
 
   const [sorting, setSorting] = React.useState<SortingState>([]);
@@ -161,11 +169,7 @@ const ProductApprovalTable = () => {
   const [rowSelection, setRowSelection] = React.useState({});
 
   const data = React.useMemo(() => {
-    return allUsers.filter(
-      (user) =>
-        user.requestedRoles.includes("admin") ||
-        user.approvedRoles.includes("admin")
-    );
+    return products.filter((product) => product.status !== "approved");
   }, []);
 
   const table = useReactTable({
@@ -200,10 +204,10 @@ const ProductApprovalTable = () => {
       </div>
       <div className="flex items-center justify-between py-4">
         <Input
-          placeholder="Filter emails..."
-          value={(table.getColumn("email")?.getFilterValue() as string) ?? ""}
+          placeholder="Filter name..."
+          value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
           onChange={(event) =>
-            table.getColumn("email")?.setFilterValue(event.target.value)
+            table.getColumn("name")?.setFilterValue(event.target.value)
           }
           className="max-w-sm"
         />
@@ -356,4 +360,4 @@ const ProductApprovalTable = () => {
   );
 };
 
-export default ProductApprovalTable;
+export default PendingApprovalTable;

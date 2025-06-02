@@ -10,25 +10,11 @@ import { Categories } from "./categories";
 import { SearchInput } from "./search-input";
 import { skillCategories } from "@/constants/skills-categories";
 
-function normalizeCategory(raw: any): Category {
-  const subcategoryList = Array.isArray(raw.subcategories)
-    ? raw.subcategories
-    : Array.isArray(raw.subcategories?.docs)
-      ? raw.subcategories.docs
-      : [];
-
-  return {
-    id: raw.id,
-    name: raw.name,
-    slug: raw.slug,
-    color: raw.color ?? undefined,
-    subcategories: subcategoryList.map(normalizeCategory),
-  };
-}
-
 export const SearchFilters = () => {
   const params = useParams();
-  const categoryParam = params.category as string | undefined;
+
+  const categoryParam = params.department as string | undefined;
+
   const activeCategorySlug = categoryParam || "all";
 
   const activeCategoryData = skillCategories.find(
@@ -37,7 +23,7 @@ export const SearchFilters = () => {
   const activeCategoryColor = activeCategoryData?.color || DEFAULT_BG_COLOR;
   const activeCategoryName = activeCategoryData?.name || "All";
 
-  const activeSubcategory = params.subcategory as string | undefined;
+  const activeSubcategory = params.module as string | undefined;
 
   const activeSubcategoryName =
     activeCategoryData?.subcategories?.find(
@@ -51,7 +37,7 @@ export const SearchFilters = () => {
     >
       <SearchInput />
       <div className="hidden lg:block">
-        <Categories data={skillCategories.map(normalizeCategory)} />
+        <Categories data={skillCategories} />
       </div>
       <BreadcrumbNavigation
         activeCategorySlug={activeCategorySlug}
