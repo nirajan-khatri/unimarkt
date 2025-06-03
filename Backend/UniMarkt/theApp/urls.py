@@ -33,9 +33,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('product.urls')),
     path('api/', include('skill.urls')),
-
+    path('api/', include('job_posting.urls')),  # Add this line
+    
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
-
-
 ]
-

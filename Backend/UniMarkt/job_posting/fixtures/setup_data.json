@@ -1,0 +1,78 @@
+[
+  {
+    "model": "skill.department",
+    "pk": 1,
+    "fields": {
+      "name": "Computer Science"
+    }
+  },
+  {
+    "model": "skill.department",
+    "pk": 2,
+    "fields": {
+      "name": "Mathematics"
+    }
+  },
+  {
+    "model": "skill.department",
+    "pk": 3,
+    "fields": {
+      "name": "International Office"
+    }
+  },
+  {
+    "model": "uniMarktAuth.user",
+    "pk": 1,
+    "fields": {
+      "email": "prof.schmidt@hs-fulda.de",
+      "password": "pbkdf2_sha256$390000$test$test",
+      "is_active": true,
+      "is_staff": false,
+      "is_superuser": false
+    }
+  },
+  {
+    "model": "uniMarktAuth.user",
+    "pk": 2,
+    "fields": {
+      "email": "admin@informatik.hs-fulda.de",
+      "password": "pbkdf2_sha256$390000$test$test",
+      "is_active": true,
+      "is_staff": false,
+      "is_superuser": false
+    }
+  },
+  {
+    "model": "uniMarktAuth.user",
+    "pk": 3,
+    "fields": {
+      "email": "dr.mueller@hs-fulda.de",
+      "password": "pbkdf2_sha256$390000$test$test",
+      "is_active": true,
+      "is_staff": false,
+      "is_superuser": false
+    }
+  },
+  {
+    "model": "uniMarktAuth.user",
+    "pk": 4,
+    "fields": {
+      "email": "ms.weber@hs-fulda.de",
+      "password": "pbkdf2_sha256$390000$test$test",
+      "is_active": true,
+      "is_staff": false,
+      "is_superuser": false
+    }
+  },
+  {
+    "model": "uniMarktAuth.user",
+    "pk": 5,
+    "fields": {
+      "email": "dipl.fischer@hs-fulda.de",
+      "password": "pbkdf2_sha256$390000$test$test",
+      "is_active": true,
+      "is_staff": false,
+      "is_superuser": false
+    }
+  }
+]
