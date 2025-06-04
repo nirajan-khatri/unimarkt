@@ -1,10 +1,8 @@
 "use client";
 
 import * as React from "react";
-import { Button } from "@/components/ui/button";
 import { Sidebar } from "@/modules/home/ui/components/Sidebar";
 import { Header } from "@/components/Header";
-import Link from "next/link";
 import { useProducts } from "@/hooks/useProducts";
 import { SearchBar } from "@/modules/home/ui/components/SearchBar";
 import { ActiveFilters } from "@/modules/home/ui/components/ActiveFilters";
