@@ -85,7 +85,7 @@
       "price": "799.99",
       "images": ["iphone13-front.jpg", "iphone13-back.jpg"],
       "user": 1,
-      "status": "available",
+      "status": "approved",
       "created_at": "2025-05-01T10:00:00Z"
     }
   },
@@ -100,7 +100,7 @@
       "price": "15.00",
       "images": ["gatsby-cover.jpg"],
       "user": 2,
-      "status": "available",
+      "status": "approved",
       "created_at": "2025-05-02T12:00:00Z"
     }
   },
@@ -115,7 +115,7 @@
       "price": "20.00",
       "images": ["tshirt-front.jpg", "tshirt-back.jpg"],
       "user": 1,
-      "status": "available",
+      "status": "approved",
       "created_at": "2025-05-03T14:00:00Z"
     }
   },
@@ -130,7 +130,7 @@
       "price": "150.00",
       "images": ["chair1.jpg"],
       "user": 1,
-      "status": "available",
+      "status": "approved",
       "created_at": "2025-05-04T09:00:00Z"
     }
   },
@@ -145,7 +145,7 @@
       "price": "120.00",
       "images": ["tent1.jpg"],
       "user": 2,
-      "status": "available",
+      "status": "approved",
       "created_at": "2025-05-05T16:00:00Z"
     }
   }
