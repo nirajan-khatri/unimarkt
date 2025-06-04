@@ -7,14 +7,12 @@ export async function fetchFilteredProducts(
   let url;
   const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
 
+  url = new URL(`${baseUrl}/products/`);
+
   if (category) {
-    url = new URL(`${baseUrl}/products/filter-by-category/`);
-    url.searchParams.append("category_name", category);
+    url.searchParams.append("category__name", category);
   } else if (subcategory) {
-    url = new URL(`${baseUrl}/products/filter-by-subcategory/`);
-    url.searchParams.append("subcategory_name", subcategory);
-  } else {
-    url = new URL(`${baseUrl}/products/`);
+    url.searchParams.append("sub_category__name", subcategory);
   }
 
   url.searchParams.append("page", page.toString());
