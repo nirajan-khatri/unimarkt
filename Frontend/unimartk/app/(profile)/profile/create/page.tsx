@@ -1,13 +1,6 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import axios from "@/lib/axios";
+import React, { useState } from "react";
 
 import {
   Select,
@@ -17,16 +10,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { useMutation } from "@tanstack/react-query";
-import { toast } from "sonner";
 import CreateProductForm from "@/modules/profile/ui/forms/create-product-form";
 import CreateSkillForm from "@/modules/profile/ui/forms/create-skill-form";
 

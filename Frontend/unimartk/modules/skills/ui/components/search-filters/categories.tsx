@@ -67,8 +67,6 @@ export const Categories = ({ data }: Props) => {
     return () => resizeObserver.disconnect();
   }, [data.length]);
 
-  console.log(activeCategory);
-
   return (
     <div className="relative w-full">
       {/* Categories Sidebar */}
@@ -86,7 +84,7 @@ export const Categories = ({ data }: Props) => {
       >
         {data.map((category) => {
           return (
-            <div className="" key={category.id}>
+            <div className="" key={category.category_id}>
               <CategoryDropdown
                 category={category}
                 isActive={activeCategory === category.slug}
@@ -106,7 +104,7 @@ export const Categories = ({ data }: Props) => {
       >
         {data.slice(0, visibleCount).map((category) => {
           return (
-            <div className="" key={category.id}>
+            <div className="" key={category.category_id}>
               <CategoryDropdown
                 category={category}
                 isActive={activeCategory === category.slug}

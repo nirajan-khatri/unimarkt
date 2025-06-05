@@ -2,7 +2,7 @@ import Link from "next/link";
 import React from "react";
 
 interface Props {
-  category: Category;
+  category: OldCategory;
   isOpen: boolean;
 }
 
@@ -26,7 +26,7 @@ const SubcategoryMenu = ({ category, isOpen }: Props) => {
         className="w-60 text-black rounded-md overflow-hidden border shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] -translate-x-[2px] -translate-y-[2px]"
       >
         <div className="">
-          {category.subcategories.map((subcategory: Category) => (
+          {category.subcategories.map((subcategory: OldCategory) => (
             <Link
               key={subcategory.slug}
               href={`/${category.slug}/${subcategory.slug}`}

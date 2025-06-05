@@ -1,7 +1,7 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
@@ -10,7 +10,8 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
-import { categories } from "@/constants/product-categories";
+import { fetchCategories } from "@/modules/home/api";
+import { normalizeCategories } from "@/lib/utils";
 
 interface Props {
   open: boolean;
@@ -21,10 +22,24 @@ interface Props {
 export const CategoriesSidebar = ({ onOpenChange, open }: Props) => {
   const router = useRouter();
 
-  const [parentCategories, setParentCategories] = useState<Category[] | null>(
-    null
-  );
-  const [selectedCategory, setSelectedCategory] = useState<Category | null>(
+  const [categories, setCategories] = useState<OldCategory[]>([]);
+
+  const { data, isLoading, error } = useSuspenseQuery({
+    queryKey: ["categories"],
+    queryFn: fetchCategories,
+  });
+
+  useEffect(() => {
+    if (data) {
+      // Optionally normalize data here if needed
+      setCategories(normalizeCategories(data));
+    }
+  }, [data]);
+
+  const [parentCategories, setParentCategories] = useState<
+    OldCategory[] | null
+  >(null);
+  const [selectedCategory, setSelectedCategory] = useState<OldCategory | null>(
     null
   );
 
@@ -37,10 +52,10 @@ export const CategoriesSidebar = ({ onOpenChange, open }: Props) => {
     onOpenChange(open);
   };
 
-  const handleCategoryClick = (category: Category) => {
+  const handleCategoryClick = (category: OldCategory) => {
     console.log(category);
     if (category.subcategories && category.subcategories.length > 0) {
-      setParentCategories(category.subcategories as Category[]);
+      setParentCategories(category.subcategories as OldCategory[]);
       setSelectedCategory(category);
     } else {
       // leaf category (no subcategories)
@@ -93,7 +108,7 @@ export const CategoriesSidebar = ({ onOpenChange, open }: Props) => {
           {currentCategories.map((category) => (
             <button
               key={category.slug}
-              onClick={() => handleCategoryClick(category)}
+              onClick={() => handleCategoryClick(category as OldCategory)}
               className="w-full text-left p-4 hover:bg-black hover:text-white flex items-center justify-between text-base font-medium cursor-pointer"
             >
               {category.name}

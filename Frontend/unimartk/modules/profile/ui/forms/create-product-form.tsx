@@ -50,7 +50,7 @@ const CreateProductForm = () => {
       category_id: "",
       sub_category_id: "",
       description: "",
-      location: "",
+      pickup_location: "",
       price: "",
       user_id: "",
       status: "PENDING",
@@ -252,7 +252,7 @@ const CreateProductForm = () => {
 
         <FormField
           control={form.control}
-          name="location"
+          name="pickup_location"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Location (City)</FormLabel>
@@ -264,31 +264,6 @@ const CreateProductForm = () => {
           )}
         />
 
-        {/* User */}
-        <FormField
-          control={form.control}
-          name="user_id"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>User </FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a user" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  {users.map((user) => (
-                    <SelectItem key={user.id} value={user.id.toString()}>
-                      {user.name} ({user.email})
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
         {/* <FormField
           control={form.control}
           name="images"

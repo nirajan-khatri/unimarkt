@@ -37,7 +37,7 @@ export const SearchFilters = () => {
     >
       <SearchInput />
       <div className="hidden lg:block">
-        <Categories data={skillCategories} />
+        {/* <Categories data={skillCategories} /> */}
       </div>
       <BreadcrumbNavigation
         activeCategorySlug={activeCategorySlug}

@@ -11,7 +11,7 @@ import { CategoriesSidebar } from "./categories-sidebar";
 import { CategoryDropdown } from "./category-dropdown";
 
 interface Props {
-  data: Category[];
+  data: OldCategory[];
 }
 
 export const Categories = ({ data }: Props) => {
@@ -84,7 +84,7 @@ export const Categories = ({ data }: Props) => {
       >
         {data.map((category) => {
           return (
-            <div className="" key={category.id}>
+            <div className="" key={category.category_id}>
               <CategoryDropdown
                 category={category}
                 isActive={activeCategory === category.slug}
@@ -104,7 +104,7 @@ export const Categories = ({ data }: Props) => {
       >
         {data.slice(0, visibleCount).map((category) => {
           return (
-            <div className="" key={category.id}>
+            <div className="" key={category.category_id}>
               <CategoryDropdown
                 category={category}
                 isActive={activeCategory === category.slug}

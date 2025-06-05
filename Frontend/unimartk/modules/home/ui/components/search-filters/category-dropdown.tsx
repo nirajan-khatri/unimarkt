@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
 import SubcategoryMenu from "./subcategory-menu";
 
 interface Props {
-  category: Category;
+  category: OldCategory;
   isActive?: boolean;
   isNavigationHovered?: boolean;
 }

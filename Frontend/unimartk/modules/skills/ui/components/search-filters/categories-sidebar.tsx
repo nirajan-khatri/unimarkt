@@ -21,10 +21,10 @@ interface Props {
 export const CategoriesSidebar = ({ onOpenChange, open }: Props) => {
   const router = useRouter();
 
-  const [parentCategories, setParentCategories] = useState<Category[] | null>(
-    null
-  );
-  const [selectedCategory, setSelectedCategory] = useState<Category | null>(
+  const [parentCategories, setParentCategories] = useState<
+    OldCategory[] | null
+  >(null);
+  const [selectedCategory, setSelectedCategory] = useState<OldCategory | null>(
     null
   );
 
@@ -37,10 +37,9 @@ export const CategoriesSidebar = ({ onOpenChange, open }: Props) => {
     onOpenChange(open);
   };
 
-  const handleCategoryClick = (category: Category) => {
-    console.log(category);
+  const handleCategoryClick = (category: OldCategory) => {
     if (category.subcategories && category.subcategories.length > 0) {
-      setParentCategories(category.subcategories as Category[]);
+      setParentCategories(category.subcategories as OldCategory[]);
       setSelectedCategory(category);
     } else {
       // leaf category (no subcategories)
@@ -93,7 +92,7 @@ export const CategoriesSidebar = ({ onOpenChange, open }: Props) => {
           {currentCategories.map((category) => (
             <button
               key={category.slug}
-              onClick={() => handleCategoryClick(category)}
+              onClick={() => handleCategoryClick(category as OldCategory)}
               className="w-full text-left p-4 hover:bg-black hover:text-white flex items-center justify-between text-base font-medium cursor-pointer"
             >
               {category.name}
