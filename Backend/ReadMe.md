@@ -18,9 +18,9 @@ cd Backend/UniMarkt
 
 ```bash
 DEBUG=True
-DB_NAME=unimarkt
+DB_NAME=unimartk
 DB_USER=root
-DB_PASSWORD=password
+DB_PASSWORD=1234
 DB_HOST=localhost
 DB_PORT=3307
 ```

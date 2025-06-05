@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'skill',
     'product',
+    'job_posting',  # Add this line
     'uniMarktAuth',
     'drf_yasg',
     'django_filters',
