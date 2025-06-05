@@ -1,31 +1,53 @@
+interface PriceFilters {
+  minPrice: string;
+  maxPrice: string;
+  selectedCities: string[];
+}
+
 export async function fetchFilteredProducts(
   page: number,
   searchTerm: string,
   category?: string,
-  subcategory?: string
+  subcategory?: string,
+  priceFilters?: PriceFilters
 ) {
-  let url;
-  const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+  const baseUrl = "http://localhost:8000/api";
+  const url = new URL(`${baseUrl}/products/`);
 
-  url = new URL(`${baseUrl}/products/`);
+  // Add pagination
+  url.searchParams.append("page", page.toString());
 
+  // Add search term
+  if (searchTerm) {
+    url.searchParams.append("name", searchTerm);
+  }
+
+  // Add category filters
   if (category) {
     url.searchParams.append("category__name", category);
   } else if (subcategory) {
     url.searchParams.append("sub_category__name", subcategory);
   }
 
-  url.searchParams.append("page", page.toString());
-  url.searchParams.append("page_size", "10");
-  if (searchTerm) url.searchParams.append("name", searchTerm);
+  // Add price filters
+  if (priceFilters?.minPrice) {
+    url.searchParams.append("price_min", priceFilters.minPrice);
+  }
+  if (priceFilters?.maxPrice) {
+    url.searchParams.append("price_max", priceFilters.maxPrice);
+  }
 
-  const response = await fetch(url.toString(), {
-    headers: {
-      accept: "application/json",
-      "X-CSRFTOKEN": "E1QRLlXIS1RE4mx3QX9ECchSoKYaa58qiMmyPDtUbcutPpk3M4GxmqCOOyt47pV2",
-    },
-  });
+  if (priceFilters?.selectedCities && priceFilters.selectedCities.length > 0) {
+    priceFilters.selectedCities.forEach(city => {
+      url.searchParams.append("city", city);
+    });
+  }
 
-  if (!response.ok) throw new Error("Failed to fetch products");
+  const response = await fetch(url.toString());
+  
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+
   return response.json();
 }
