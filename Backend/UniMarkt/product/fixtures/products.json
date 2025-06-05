@@ -3,35 +3,54 @@
     "model": "product.category",
     "pk": 1,
     "fields": {
-      "name": "Electronics"
+      "name": "All",
+      "color": "#CCCCCC",
+      "slug": "all"
     }
   },
   {
     "model": "product.category",
     "pk": 2,
     "fields": {
-      "name": "Books"
+      "name": "Electronics",
+      "color": "#0000FF",
+      "slug": "electronics"
     }
   },
   {
     "model": "product.category",
     "pk": 3,
     "fields": {
-      "name": "Clothing"
+      "name": "Books",
+      "color": "#8B4513",
+      "slug": "books"
     }
   },
   {
     "model": "product.category",
     "pk": 4,
     "fields": {
-      "name": "Furniture"
+      "name": "Clothing",
+      "color": "#FF69B4",
+      "slug": "clothing"
     }
   },
   {
     "model": "product.category",
     "pk": 5,
     "fields": {
-      "name": "Sports"
+      "name": "Furniture",
+      "color": "#A52A2A",
+      "slug": "furniture"
+    }
+  },
+  {
+    "model": "product.category",
+    "pk": 5,
+    "fields": {
+      "name": "Sports",
+      "color": "#228B22",
+      "slug": "sports"
     }
   },
   {
@@ -39,7 +58,9 @@
     "pk": 1,
     "fields": {
       "name": "Mobile Phones",
-      "category": 1
+      "category": 2,
+      "color": null,
+      "slug": "mobile-phones"
     }
   },
   {
@@ -47,7 +68,9 @@
     "pk": 2,
     "fields": {
       "name": "Fiction",
-      "category": 2
+      "category":3,
+      "color": null,
+      "slug": "fiction"
     }
   },
   {
@@ -55,7 +78,9 @@
     "pk": 3,
     "fields": {
       "name": "Tshirts",
-      "category": 3
+      "category": 4,
+      "color": null,
+      "slug": "tshirts"
     }
   },
   {
@@ -63,7 +88,9 @@
     "pk": 4,
     "fields": {
       "name": "Office Furniture",
-      "category": 4
+      "category": 5,
+      "color": null,
+      "slug": "office-furniture"
     }
   },
   {
@@ -71,7 +98,9 @@
     "pk": 5,
     "fields": {
       "name": "Outdoor",
-      "category": 5
+      "category": 6,
+      "color": null,
+      "slug": "outdoor"
     }
   },
   {
@@ -86,6 +115,7 @@
       "images": ["iphone13-front.jpg", "iphone13-back.jpg"],
       "user": 1,
       "status": "approved",
+      "pickup_location": null,
       "created_at": "2025-05-01T10:00:00Z"
     }
   },
@@ -101,6 +131,7 @@
       "images": ["gatsby-cover.jpg"],
       "user": 2,
       "status": "approved",
+      "pickup_location": null,
       "created_at": "2025-05-02T12:00:00Z"
     }
   },
@@ -116,6 +147,7 @@
       "images": ["tshirt-front.jpg", "tshirt-back.jpg"],
       "user": 1,
       "status": "approved",
+      "pickup_location": null,
       "created_at": "2025-05-03T14:00:00Z"
     }
   },
@@ -131,6 +163,7 @@
       "images": ["chair1.jpg"],
       "user": 1,
       "status": "approved",
+      "pickup_location": null,
       "created_at": "2025-05-04T09:00:00Z"
     }
   },
@@ -146,6 +179,7 @@
       "images": ["tent1.jpg"],
       "user": 2,
       "status": "approved",
+      "pickup_location": null,
       "created_at": "2025-05-05T16:00:00Z"
     }
   }

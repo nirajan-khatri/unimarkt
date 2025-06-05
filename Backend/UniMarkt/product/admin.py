@@ -3,11 +3,11 @@ from .models import Category, SubCategory, Product
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
-    list_display = ['category_id', 'name']
+    list_display = ['id', 'name']
 
 @admin.register(SubCategory)
 class SubCategoryAdmin(admin.ModelAdmin):
-    list_display = ['sub_category_id', 'name', 'category']
+    list_display = ['id', 'name', 'category']
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):

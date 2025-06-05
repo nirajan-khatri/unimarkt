@@ -15,15 +15,19 @@ class Migration(migrations.Migration):
         migrations.CreateModel(
             name='Category',
             fields=[
-                ('category_id', models.AutoField(primary_key=True, serialize=False)),
+                ('id', models.AutoField(primary_key=True, serialize=False)),
                 ('name', models.CharField(max_length=100)),
+                ('color', models.CharField(max_length=100, null=True, blank=True)),
+                ('slug', models.SlugField(max_length=100, null=True, blank=True)),
             ],
         ),
         migrations.CreateModel(
             name='SubCategory',
             fields=[
-                ('sub_category_id', models.AutoField(primary_key=True, serialize=False)),
+                ('id', models.AutoField(primary_key=True, serialize=False)),
                 ('name', models.CharField(max_length=100)),
+                ('color', models.CharField(max_length=100, default='default_value')),
+                ('slug', models.SlugField(max_length=100, default='default_value')),
                 ('category', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='subcategories', to='product.category')),
             ],
         ),
