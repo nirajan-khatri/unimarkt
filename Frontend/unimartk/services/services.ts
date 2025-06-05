@@ -1,45 +1,45 @@
-interface PriceFilters {
+interface ServiceFilters {
   minPrice: string;
   maxPrice: string;
-  pickupLocation: string;
+  module: string;
 }
 
-export async function fetchFilteredProducts(
+export async function fetchFilteredServices(
   page: number,
   searchTerm: string,
   category?: string,
   subcategory?: string,
-  priceFilters?: PriceFilters
+  serviceFilters?: ServiceFilters
 ) {
   const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
-  const url = new URL(`${baseUrl}/products/`);
+  const url = new URL(`${baseUrl}/skills/`);
 
   // Add pagination
   url.searchParams.append("page", page.toString());
 
   // Add search term
   if (searchTerm) {
-    url.searchParams.append("name", searchTerm);
+    url.searchParams.append("module", searchTerm);
   }
 
   // Add category filters
   if (category) {
-    url.searchParams.append("category__name", category);
+    url.searchParams.append("skill_category__name", category);
   } else if (subcategory) {
     url.searchParams.append("sub_category__name", subcategory);
   }
 
   // Add price filters
-  if (priceFilters?.minPrice) {
-    url.searchParams.append("price_min", priceFilters.minPrice);
+  if (serviceFilters?.minPrice) {
+    url.searchParams.append("price_min", serviceFilters.minPrice);
   }
-  if (priceFilters?.maxPrice) {
-    url.searchParams.append("price_max", priceFilters.maxPrice);
+  if (serviceFilters?.maxPrice) {
+    url.searchParams.append("price_max", serviceFilters.maxPrice);
   }
 
-  // Add pickup location filter
-  if (priceFilters?.pickupLocation) {
-    url.searchParams.append("pickup_location", priceFilters.pickupLocation);
+  // Add module filter
+  if (serviceFilters?.module) {
+    url.searchParams.append("module", serviceFilters.module);
   }
 
   const response = await fetch(url.toString());

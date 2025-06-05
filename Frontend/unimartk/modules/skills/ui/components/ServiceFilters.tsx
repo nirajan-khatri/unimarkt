@@ -6,61 +6,59 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 
-interface PriceFilters {
+interface ServiceFilters {
   minPrice: string;
   maxPrice: string;
-  pickupLocation: string;
+  module: string;
 }
 
-interface FiltersProps {
-  filters: PriceFilters;
-  onFiltersChange: (filters: PriceFilters) => void;
+interface ServiceFiltersProps {
+  filters: ServiceFilters;
+  onFiltersChange: (filters: ServiceFilters) => void;
 }
 
-export function Filters({ filters, onFiltersChange }: FiltersProps) {
-  const [localFilters, setLocalFilters] = React.useState<PriceFilters>(filters);
+export function ServiceFilters({ filters, onFiltersChange }: ServiceFiltersProps) {
+  const [localFilters, setLocalFilters] = React.useState<ServiceFilters>(filters);
 
   React.useEffect(() => {
     setLocalFilters(filters);
   }, [filters]);
 
-  // Debounce price and pickup location filter changes
+  // Debounce filter changes
   React.useEffect(() => {
     const handler = setTimeout(() => {
       if (
         localFilters.minPrice !== filters.minPrice || 
         localFilters.maxPrice !== filters.maxPrice ||
-        localFilters.pickupLocation !== filters.pickupLocation
+        localFilters.module !== filters.module
       ) {
         onFiltersChange(localFilters);
       }
     }, 500); // 500ms delay
 
     return () => clearTimeout(handler);
-  }, [localFilters.minPrice, localFilters.maxPrice, localFilters.pickupLocation, filters.minPrice, filters.maxPrice, filters.pickupLocation, localFilters, onFiltersChange]);
+  }, [localFilters.minPrice, localFilters.maxPrice, localFilters.module, filters.minPrice, filters.maxPrice, filters.module, localFilters, onFiltersChange]);
 
-  const handleInputChange = (field: keyof PriceFilters, value: string) => {
+  const handleInputChange = (field: keyof ServiceFilters, value: string) => {
     const updatedFilters = {
       ...localFilters,
       [field]: value
     };
     
     setLocalFilters(updatedFilters);
-    
-    // All fields now use debouncing - no immediate updates
   };
 
   const clearAllFilters = () => {
     const clearedFilters = {
       minPrice: '',
       maxPrice: '',
-      pickupLocation: ''
+      module: ''
     };
     setLocalFilters(clearedFilters);
     onFiltersChange(clearedFilters);
   };
 
-  const hasActiveFilters = localFilters.minPrice || localFilters.maxPrice || localFilters.pickupLocation;
+  const hasActiveFilters = localFilters.minPrice || localFilters.maxPrice || localFilters.module;
 
   return (
     <div className="lg:col-span-2 rounded-lg border bg-card text-card-foreground shadow-sm h-fit">
@@ -78,14 +76,14 @@ export function Filters({ filters, onFiltersChange }: FiltersProps) {
         )}
       </div>
 
-      <Accordion type="multiple" defaultValue={['price', 'location']} className="w-full">
+      <Accordion type="multiple" defaultValue={['price', 'module']} className="w-full">
         <AccordionItem value="price">
-          <AccordionTrigger className="p-4">Price</AccordionTrigger>
+          <AccordionTrigger className="p-4">Price Range</AccordionTrigger>
           <AccordionContent className="p-4 pt-0">
             <div className="grid gap-2">
               <Label htmlFor="min-price">Min Price</Label>
               <div className="relative flex items-center">
-                <span className="absolute left-3 text-muted-foreground">€</span>
+                <span className="absolute left-3 text-muted-foreground">$</span>
                 <Input
                   id="min-price"
                   type="number"
@@ -97,7 +95,7 @@ export function Filters({ filters, onFiltersChange }: FiltersProps) {
               </div>
               <Label htmlFor="max-price" className="mt-2">Max Price</Label>
               <div className="relative flex items-center">
-                <span className="absolute left-3 text-muted-foreground">€</span>
+                <span className="absolute left-3 text-muted-foreground">$</span>
                 <Input
                   id="max-price"
                   type="number"
@@ -111,16 +109,16 @@ export function Filters({ filters, onFiltersChange }: FiltersProps) {
           </AccordionContent>
         </AccordionItem>
 
-        <AccordionItem value="location">
-          <AccordionTrigger className="p-4">Pickup Location</AccordionTrigger>
+        <AccordionItem value="module">
+          <AccordionTrigger className="p-4">Technology/Module</AccordionTrigger>
           <AccordionContent className="p-4 pt-0">
             <div className="grid gap-4">
               <div>
                 <Input
-                  id="pickup-location"
-                  placeholder="Enter pickup location"
-                  value={localFilters.pickupLocation}
-                  onChange={(e) => handleInputChange('pickupLocation', e.target.value)}
+                  id="module"
+                  placeholder="Enter technology or module"
+                  value={localFilters.module}
+                  onChange={(e) => handleInputChange('module', e.target.value)}
                 />
               </div>
             </div>
