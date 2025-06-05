@@ -1,15 +1,19 @@
 "use client";
 
 import * as React from "react";
-import { Button } from "@/components/ui/button";
 import { Sidebar } from "@/modules/home/ui/components/Sidebar";
 import { Header } from "@/components/Header";
-import Link from "next/link";
 import { useProducts } from "@/hooks/useProducts";
 import { SearchBar } from "@/modules/home/ui/components/SearchBar";
 import { ActiveFilters } from "@/modules/home/ui/components/ActiveFilters";
 import { ProductGrid } from "@/modules/home/ui/components/ProductGrid";
 import { Filters } from "@/modules/home/ui/components/Filters";
+
+interface PriceFilters {
+  minPrice: string;
+  maxPrice: string;
+  selectedCities: string[];
+}
 
 export default function Home() {
   const [currentPage, setCurrentPage] = React.useState(1);
@@ -18,6 +22,13 @@ export default function Home() {
   const [selectedCategory, setSelectedCategory] = React.useState<string | null>(null);
   const [selectedSubcategory, setSelectedSubcategory] = React.useState<string | null>(null);
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
+  
+  // Add price filter state
+  const [priceFilters, setPriceFilters] = React.useState<PriceFilters>({
+    minPrice: "",
+    maxPrice: "",
+    selectedCities: []
+  });
 
   // Debounce search term
   React.useEffect(() => {
@@ -31,17 +42,28 @@ export default function Home() {
     return () => clearTimeout(handler);
   }, [searchTerm]);
 
+  // Reset page when filters change
+  React.useEffect(() => {
+    setCurrentPage(1);
+  }, [priceFilters]);
+
   const { data, isLoading, isError, error } = useProducts(
     currentPage,
     debouncedSearchTerm,
     selectedCategory,
-    selectedSubcategory
+    selectedSubcategory,
+    priceFilters
   );
 
   const handleClearSearch = () => {
     setSearchTerm("");
     setSelectedCategory(null);
     setSelectedSubcategory(null);
+    setPriceFilters({
+      minPrice: "",
+      maxPrice: "",
+      selectedCities: []
+    });
   };
 
   const handleCategorySelect = (category: string) => {
@@ -54,6 +76,19 @@ export default function Home() {
     setSelectedSubcategory(subcategory);
     setSelectedCategory(null);
     setCurrentPage(1);
+  };
+
+  const handleFiltersChange = (filters: PriceFilters) => {
+    setPriceFilters(filters);
+  };
+
+  // Clear price filters handler
+  const handleClearPriceFilters = () => {
+    setPriceFilters({
+      minPrice: "",
+      maxPrice: "",
+      selectedCities: []
+    });
   };
 
   return (
@@ -73,16 +108,29 @@ export default function Home() {
             value={searchTerm}
             onChange={setSearchTerm}
             onClear={handleClearSearch}
-            hasFilters={!!(searchTerm || selectedCategory || selectedSubcategory)}
+            hasFilters={!!(
+              searchTerm || 
+              selectedCategory || 
+              selectedSubcategory ||
+              priceFilters.minPrice ||
+              priceFilters.maxPrice ||
+              priceFilters.selectedCities.length > 0
+            )}
           />
         </div>
 
         <ActiveFilters
           category={selectedCategory}
           subcategory={selectedSubcategory}
+          priceFilters={priceFilters}
+          onClearPriceFilters={handleClearPriceFilters}
         />
+        
         <div className="grid grid-cols-1 lg:grid-cols-6 xl:grid-cols-8 gap-y-6 gap-x-12">
-          <Filters />
+          <Filters 
+            filters={priceFilters}
+            onFiltersChange={handleFiltersChange}
+          />
           <ProductGrid
             products={data || []}
             isLoading={isLoading}

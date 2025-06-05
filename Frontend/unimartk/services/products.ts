@@ -1,33 +1,53 @@
+interface PriceFilters {
+  minPrice: string;
+  maxPrice: string;
+  selectedCities: string[];
+}
+
 export async function fetchFilteredProducts(
   page: number,
   searchTerm: string,
   category?: string,
-  subcategory?: string
+  subcategory?: string,
+  priceFilters?: PriceFilters
 ) {
-  let url;
-  const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL;
+  const baseUrl = "http://localhost:8000/api";
+  const url = new URL(`${baseUrl}/products/`);
 
-  if (category) {
-    url = new URL(`${baseUrl}/products/filter-by-category/`);
-    url.searchParams.append("category_name", category);
-  } else if (subcategory) {
-    url = new URL(`${baseUrl}/products/filter-by-subcategory/`);
-    url.searchParams.append("subcategory_name", subcategory);
-  } else {
-    url = new URL(`${baseUrl}/products/`);
+  // Add pagination
+  url.searchParams.append("page", page.toString());
+
+  // Add search term
+  if (searchTerm) {
+    url.searchParams.append("name", searchTerm);
   }
 
-  url.searchParams.append("page", page.toString());
-  url.searchParams.append("page_size", "10");
-  if (searchTerm) url.searchParams.append("name", searchTerm);
+  // Add category filters
+  if (category) {
+    url.searchParams.append("category__name", category);
+  } else if (subcategory) {
+    url.searchParams.append("sub_category__name", subcategory);
+  }
 
-  const response = await fetch(url.toString(), {
-    headers: {
-      accept: "application/json",
-      "X-CSRFTOKEN": "E1QRLlXIS1RE4mx3QX9ECchSoKYaa58qiMmyPDtUbcutPpk3M4GxmqCOOyt47pV2",
-    },
-  });
+  // Add price filters
+  if (priceFilters?.minPrice) {
+    url.searchParams.append("price_min", priceFilters.minPrice);
+  }
+  if (priceFilters?.maxPrice) {
+    url.searchParams.append("price_max", priceFilters.maxPrice);
+  }
 
-  if (!response.ok) throw new Error("Failed to fetch products");
+  if (priceFilters?.selectedCities && priceFilters.selectedCities.length > 0) {
+    priceFilters.selectedCities.forEach(city => {
+      url.searchParams.append("city", city);
+    });
+  }
+
+  const response = await fetch(url.toString());
+  
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+
   return response.json();
 }
