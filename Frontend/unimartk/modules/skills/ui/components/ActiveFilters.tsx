@@ -1,34 +1,34 @@
-interface PriceFilters {
+interface ServiceFilters {
   minPrice: string;
   maxPrice: string;
-  pickupLocation: string;
+  module: string;
 }
 
 interface ActiveFiltersProps {
   category?: string | null;
   subcategory?: string | null;
-  priceFilters?: PriceFilters;
+  serviceFilters?: ServiceFilters;
   onClearPriceFilters?: () => void;
   onClearCategory?: () => void;
   onClearSubcategory?: () => void;
-  onClearPickupLocation?: () => void;
+  onClearModule?: () => void;
 }
 
 export function ActiveFilters({
   category,
   subcategory,
-  priceFilters,
+  serviceFilters,
   onClearPriceFilters,
   onClearCategory,
   onClearSubcategory,
-  onClearPickupLocation
+  onClearModule
 }: ActiveFiltersProps) {
   const hasFilters = !!(
     category ||
     subcategory ||
-    priceFilters?.minPrice ||
-    priceFilters?.maxPrice ||
-    priceFilters?.pickupLocation
+    serviceFilters?.minPrice ||
+    serviceFilters?.maxPrice ||
+    serviceFilters?.module
   );
 
   if (!hasFilters) return null;
@@ -61,9 +61,9 @@ export function ActiveFilters({
           )}
         </span>
       )}
-      {priceFilters && (priceFilters.minPrice || priceFilters.maxPrice) && (
+      {serviceFilters && (serviceFilters.minPrice || serviceFilters.maxPrice) && (
         <span className="px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-sm flex items-center gap-1">
-          Price: €{priceFilters.minPrice || '0'} - €{priceFilters.maxPrice || '∞'}
+          Price: ${serviceFilters.minPrice || '0'} - ${serviceFilters.maxPrice || '∞'}
           {onClearPriceFilters && (
             <button
               onClick={onClearPriceFilters}
@@ -74,12 +74,12 @@ export function ActiveFilters({
           )}
         </span>
       )}
-      {priceFilters?.pickupLocation && (
+      {serviceFilters?.module && (
         <span className="px-3 py-1 bg-orange-100 text-orange-800 rounded-full text-sm flex items-center gap-1">
-          Pickup: {priceFilters.pickupLocation}
-          {onClearPickupLocation && (
+          Module: {serviceFilters.module}
+          {onClearModule && (
             <button
-              onClick={onClearPickupLocation}
+              onClick={onClearModule}
               className="ml-1 text-orange-600 hover:text-orange-800"
             >
               ×

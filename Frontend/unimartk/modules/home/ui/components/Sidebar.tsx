@@ -36,9 +36,9 @@ export function Sidebar({
     if (!categories) return [];
     
     return categories.map(category => ({
-      id: `category-${category.category_id}`,
+      id: `category-${category.id}`,
       label: category.name,
-      children: subcategoryCache[category.category_id] || []
+      children: subcategoryCache[category.id] || []
     }));
   }, [categories, subcategoryCache]);
 
@@ -61,7 +61,7 @@ export function Sidebar({
 
       // Convert to MenuItem format
       const formattedSubcategories = subcategories.map(sub => ({
-        id: `subcategory-${sub.sub_category_id}`,
+        id: `subcategory-${sub.id}`,
         label: sub.name
       }));
 

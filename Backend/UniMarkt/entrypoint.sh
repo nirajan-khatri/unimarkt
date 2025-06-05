@@ -6,7 +6,7 @@ python manage.py migrate
 
 echo "Loading initial data fixtures..."
 python manage.py loaddata users.json products.json skills.json
-python manage.py loaddata job_posting/fixtures/setup_data.json job_posting/fixtures/initial_job_postings.json
+
 touch /app/.fixtures_loaded
 
 

@@ -12,7 +12,7 @@ import { Filters } from "@/modules/home/ui/components/Filters";
 interface PriceFilters {
   minPrice: string;
   maxPrice: string;
-  selectedCities: string[];
+  pickupLocation: string;
 }
 
 export default function Home() {
@@ -27,7 +27,7 @@ export default function Home() {
   const [priceFilters, setPriceFilters] = React.useState<PriceFilters>({
     minPrice: "",
     maxPrice: "",
-    selectedCities: []
+    pickupLocation: ""
   });
 
   // Debounce search term
@@ -62,7 +62,7 @@ export default function Home() {
     setPriceFilters({
       minPrice: "",
       maxPrice: "",
-      selectedCities: []
+      pickupLocation: ""
     });
   };
 
@@ -82,13 +82,31 @@ export default function Home() {
     setPriceFilters(filters);
   };
 
+  // Clear individual filter handlers
+  const handleClearCategory = () => {
+    setSelectedCategory(null);
+    setCurrentPage(1);
+  };
+
+  const handleClearSubcategory = () => {
+    setSelectedSubcategory(null);
+    setCurrentPage(1);
+  };
+
+  const handleClearPickupLocation = () => {
+    setPriceFilters(prev => ({
+      ...prev,
+      pickupLocation: ""
+    }));
+  };
+
   // Clear price filters handler
   const handleClearPriceFilters = () => {
-    setPriceFilters({
+    setPriceFilters(prev => ({
+      ...prev,
       minPrice: "",
-      maxPrice: "",
-      selectedCities: []
-    });
+      maxPrice: ""
+    }));
   };
 
   return (
@@ -114,7 +132,7 @@ export default function Home() {
               selectedSubcategory ||
               priceFilters.minPrice ||
               priceFilters.maxPrice ||
-              priceFilters.selectedCities.length > 0
+              priceFilters.pickupLocation
             )}
           />
         </div>
@@ -124,6 +142,9 @@ export default function Home() {
           subcategory={selectedSubcategory}
           priceFilters={priceFilters}
           onClearPriceFilters={handleClearPriceFilters}
+          onClearCategory={handleClearCategory}
+          onClearSubcategory={handleClearSubcategory}
+          onClearPickupLocation={handleClearPickupLocation}
         />
         
         <div className="grid grid-cols-1 lg:grid-cols-6 xl:grid-cols-8 gap-y-6 gap-x-12">
