@@ -1,13 +1,6 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import axios from "@/lib/axios";
+import React from "react";
 
 import {
   Select,
@@ -17,22 +10,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { useMutation } from "@tanstack/react-query";
-import { toast } from "sonner";
 import CreateProductForm from "@/modules/profile/ui/forms/create-product-form";
 import CreateSkillForm from "@/modules/profile/ui/forms/create-skill-form";
+import { parseAsStringEnum, useQueryState } from "nuqs";
 
 const Page = () => {
-  const [activeForm, setActiveForm] = useState<"job" | "skill" | "product">(
-    "product"
+  const [type, setType] = useQueryState<"job" | "skill" | "product">(
+    "type",
+    parseAsStringEnum(["job", "skill", "product"]).withDefault("product")
   );
 
   return (
@@ -41,16 +26,12 @@ const Page = () => {
         <CardHeader className="flex flex-row justify-between items-center">
           <CardTitle>
             Create New{" "}
-            {activeForm === "product"
-              ? "Product"
-              : activeForm === "job"
-                ? "Job"
-                : "Skill"}
+            {type === "product" ? "Product" : type === "job" ? "Job" : "Skill"}
           </CardTitle>
           <Select
-            value={activeForm}
+            value={type}
             onValueChange={(value: "job" | "skill" | "product") =>
-              setActiveForm(value)
+              setType(value)
             }
           >
             <SelectTrigger className="w-40 text-primary">
@@ -64,9 +45,9 @@ const Page = () => {
           </Select>
         </CardHeader>
         <CardContent>
-          {activeForm === "product" && <CreateProductForm />}
-          {activeForm === "job" && <CreateProductForm />}
-          {activeForm === "skill" && <CreateSkillForm />}
+          {type === "product" && <CreateProductForm />}
+          {type === "job" && <CreateProductForm />}
+          {type === "skill" && <CreateSkillForm />}
         </CardContent>
       </Card>
     </div>

@@ -7,7 +7,7 @@ import {
   SelectValue,
 } from "../../../../components/ui/select";
 
-import { useForm } from "react-hook-form";
+import { useFieldArray, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import {
   FormField,
@@ -21,7 +21,7 @@ import { Input } from "../../../../components/ui/input";
 import { Textarea } from "../../../../components/ui/textarea";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { skillSchema } from "../../schemas";
+import { DayEnum, skillSchema } from "../../schemas";
 import { useMutation } from "@tanstack/react-query";
 import axios from "@/lib/axios";
 import { Button } from "../../../../components/ui/button";
@@ -34,7 +34,10 @@ import {
   Lightbulb,
   Music,
   Palette,
+  Plus,
+  Trash2,
 } from "lucide-react";
+import { degrees, departments } from "@/constants/departments";
 
 type SkillFormData = z.infer<typeof skillSchema>;
 
@@ -43,26 +46,36 @@ const CreateSkillForm = () => {
     resolver: zodResolver(skillSchema),
     defaultValues: {
       name: "",
-      department: "",
+      department_id: "",
+      degree_id: "",
+      available_time_week: [
+        { day: "Monday", start_time: "", end_time: "", status: "open" },
+      ],
+      skill_category_id: "",
       module: "",
       description: "",
-      price: "",
-      user_id: "",
-      status: "PENDING",
+      charge_per_hour: "",
       skill_cover: "",
     },
   });
 
+  const categories = [
+    { category_id: 1, name: "Programming" },
+    { category_id: 2, name: "Creative" },
+    { category_id: 3, name: "Maths" },
+    { category_id: 4, name: "Fitness" },
+  ];
+
   const mutation = useMutation({
-    mutationFn: (newProduct) => {
-      return axios.post("/products/", newProduct);
+    mutationFn: (newSkill: SkillFormData) => {
+      return axios.post("/skills/", newSkill);
     },
     onError: () => {
       // An error happened!
       toast.error("Something went wrong!");
     },
     onSuccess: () => {
-      toast.success("Product created successfully!");
+      toast.success("Skill created successfully!");
       window.location.href = "/";
     },
   });
@@ -77,29 +90,45 @@ const CreateSkillForm = () => {
     { value: "fitness", label: "Fitness", icon: Dumbbell },
     { value: "softskills", label: "Soft Skills", icon: Lightbulb },
   ];
-  const users = [
-    { id: 1, name: "John Doe", email: "john@example.com" },
-    { id: 2, name: "Jane Smith", email: "jane@example.com" },
-    { id: 3, name: "Bob Johnson", email: "bob@example.com" },
-  ];
+
+  const filteredDegrees = useMemo(() => {
+    return degrees.filter(
+      (degree) =>
+        degree.department_id === parseInt(form.getValues("department_id"))
+    );
+  }, [form.watch("department_id")]);
+
+  const { fields, append, remove } = useFieldArray({
+    control: form.control,
+    name: "available_time_week",
+  });
 
   const onSubmit = async (data: SkillFormData) => {
     try {
       const payload = {
         ...data,
-        price: parseFloat(data.price),
-        user_id: parseInt(data.user_id),
+        user_id: "1",
+        status: "pending",
       };
 
       console.log("Submitting payload:", payload);
 
-      // mutation.mutate(payload);
+      mutation.mutate(payload);
       form.reset();
     } catch (error) {
       console.error("Submit error:", error);
       toast.error("Failed to submit product");
     }
   };
+
+  const addNewSlot = () =>
+    append({
+      day: "Monday",
+      start_time: "",
+      end_time: "",
+      status: "open",
+    });
+
   return (
     <Form {...form}>
       <div className="space-y-6">
@@ -109,7 +138,7 @@ const CreateSkillForm = () => {
           name="name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Product Name</FormLabel>
+              <FormLabel>Skill Name</FormLabel>
               <FormControl>
                 <Input placeholder="Enter product name" {...field} />
               </FormControl>
@@ -119,9 +148,67 @@ const CreateSkillForm = () => {
         />
 
         {/* Category */}
-        {/* <FormField
+        <FormField
           control={form.control}
-          name="dep"
+          name="department_id"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Department</FormLabel>
+              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a department" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  {departments.map((department) => (
+                    <SelectItem
+                      key={department.id}
+                      value={department.id.toString()}
+                    >
+                      {department.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {/* Sub Category */}
+        <FormField
+          control={form.control}
+          name="degree_id"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Degree</FormLabel>
+              <Select
+                onValueChange={field.onChange}
+                defaultValue={field.value}
+                disabled={form.watch("department_id") === ""}
+              >
+                <FormControl>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a degree" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  {filteredDegrees.map((degree) => (
+                    <SelectItem key={degree.id} value={degree.id.toString()}>
+                      {degree.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="skill_category_id"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Category </FormLabel>
@@ -145,20 +232,6 @@ const CreateSkillForm = () => {
               <FormMessage />
             </FormItem>
           )}
-        /> */}
-
-        <FormField
-          control={form.control}
-          name="department"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Department</FormLabel>
-              <FormControl>
-                <Input placeholder="Enter department" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
         />
 
         <FormField
@@ -174,35 +247,6 @@ const CreateSkillForm = () => {
             </FormItem>
           )}
         />
-
-        {/* Sub Category */}
-        {/* <FormField
-          control={form.control}
-          name="sub_category_id"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Sub Category </FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a sub category" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  {filteredSubcategories.map((subCategory) => (
-                    <SelectItem
-                      key={subCategory.sub_category_id}
-                      value={subCategory.sub_category_id.toString()}
-                    >
-                      {subCategory.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        /> */}
 
         {/* Description */}
         <FormField
@@ -226,7 +270,7 @@ const CreateSkillForm = () => {
         {/* Price */}
         <FormField
           control={form.control}
-          name="price"
+          name="charge_per_hour"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Price (€/hr)</FormLabel>
@@ -247,32 +291,126 @@ const CreateSkillForm = () => {
             </FormItem>
           )}
         />
+        {fields.map((field, index) => (
+          <div
+            key={field.id}
+            className="flex items-end gap-3 border p-3 rounded-md"
+          >
+            {/* Day */}
+            <FormField
+              control={form.control}
+              name={`available_time_week.${index}.day`}
+              render={({ field }) => (
+                <FormItem className="flex-1">
+                  <FormLabel className="text-sm">Day</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <FormControl>
+                      <SelectTrigger className="text-sm">
+                        <SelectValue placeholder="Day" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {DayEnum.options.map((day) => (
+                        <SelectItem key={day} value={day}>
+                          {day}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-        {/* User */}
-        <FormField
-          control={form.control}
-          name="user_id"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>User </FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a user" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  {users.map((user) => (
-                    <SelectItem key={user.id} value={user.id.toString()}>
-                      {user.name} ({user.email})
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
+            {/* Start */}
+            <FormField
+              control={form.control}
+              name={`available_time_week.${index}.start_time`}
+              render={({ field }) => (
+                <FormItem className="flex-1">
+                  <FormLabel className="text-sm">Start</FormLabel>
+                  <FormControl>
+                    <Input type="time" className="text-sm" {...field} />
+                  </FormControl>
+                  {/* <FormMessage /> */}
+                </FormItem>
+              )}
+            />
+
+            {/* End */}
+            <FormField
+              control={form.control}
+              name={`available_time_week.${index}.end_time`}
+              render={({ field }) => (
+                <FormItem className="flex-1">
+                  <FormLabel className="text-sm">End</FormLabel>
+                  <FormControl>
+                    <Input type="time" className="text-sm" {...field} />
+                  </FormControl>
+                  {/* <FormMessage /> */}
+                </FormItem>
+              )}
+            />
+
+            {/* Status */}
+            {/* <FormField
+              control={form.control}
+              name={`available_time_week.${index}.status`}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-sm">Status</FormLabel>
+                  <Select onValueChange={field.onChange} value={field.value}>
+                    <FormControl>
+                      <SelectTrigger className="text-sm">
+                        <SelectValue placeholder="Status" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="open">Open</SelectItem>
+                      <SelectItem value="booked">Booked</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            /> */}
+
+            {/* Remove */}
+            <div className="flex items-center justify-end">
+              <Button
+                type="button"
+                size="icon"
+                variant="ghost"
+                onClick={() => remove(index)}
+              >
+                <Trash2 className="h-4 w-4 text-red-500" />
+              </Button>
+            </div>
+          </div>
+        ))}
+        {/* Add Slot Button */}
+        <div className="flex items-center gap-4">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={addNewSlot}
+          >
+            <Plus className="h-4 w-4 mr-1" /> Add Availability
+          </Button>
+          {form.formState.errors.available_time_week && (
+            <p className="text-sm text-red-500 mt-1">
+              {form.formState.errors.available_time_week?.root?.message}
+            </p>
           )}
-        />
+
+          {fields.length === 0 && (
+            <span className="text-sm text-muted-foreground">
+              No availability added yet.
+            </span>
+          )}
+        </div>
+
         <FormField
           control={form.control}
           name="skill_cover"
