@@ -101,7 +101,7 @@ class SubCategoryViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
         queryset = self.queryset
 
         if category_id:
-            queryset = queryset.filter(category__category_id=category_id)
+            queryset = queryset.filter(category__id=category_id)
 
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
