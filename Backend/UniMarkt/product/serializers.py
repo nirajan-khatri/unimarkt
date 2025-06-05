@@ -5,20 +5,20 @@ from uniMarktAuth.serializers import UserSerializer
 
 
 class SubCategorySerializer(serializers.ModelSerializer):
-    category_id = serializers.PrimaryKeyRelatedField(
-        queryset=Category.objects.all(), source='category', write_only=True
-    )
+    
+    subcategories = serializers.ListField(child=serializers.CharField(), allow_null=True, required=False, default=list)  # dummy nullable list field
 
     class Meta:
         model = SubCategory
-        fields = ['sub_category_id', 'name', 'category_id','color','slug']
+        fields = ['id', 'name', 'color','slug', 'category_id','subcategories']
 
 class CategorySerializer(serializers.ModelSerializer):
     subcategories = SubCategorySerializer(many=True, read_only=True)
+    category_id = serializers.CharField(allow_null=True, required=False, default=None)  # dummy nullable field
 
     class Meta:
         model = Category
-        fields = ['category_id', 'name','color','slug','subcategories']
+        fields = ['id', 'name','color','slug', 'category_id','subcategories']
 
 class ProductSerializer(serializers.ModelSerializer):
     category_id = serializers.PrimaryKeyRelatedField(

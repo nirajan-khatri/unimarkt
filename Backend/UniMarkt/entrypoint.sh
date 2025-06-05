@@ -6,7 +6,6 @@ python manage.py migrate
 
 echo "Loading initial data fixtures..."
 python manage.py loaddata users.json products.json
-
 touch /app/.fixtures_loaded
 
 
