@@ -41,6 +41,8 @@ class ProductViewSet(viewsets.ModelViewSet):
                                                description="Search product name"),
                              openapi.Parameter("description", openapi.IN_QUERY, type=openapi.TYPE_STRING,
                                                description="Search product description"),
+                             openapi.Parameter("pickup_location", openapi.IN_QUERY, type=openapi.TYPE_STRING,
+                                               description="Search product pickup location"),
                              openapi.Parameter("status", openapi.IN_QUERY, type=openapi.TYPE_STRING,
                                                description="product status - pending, approved, sold-out, rejected"),
 

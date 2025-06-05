@@ -30,7 +30,7 @@ class Skill(models.Model):
     skill_id = models.AutoField(primary_key=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES)
     skill_category = models.ForeignKey(SkillCategory, on_delete=models.PROTECT, related_name='skills', default=None, null=True, blank=True)
-    module = models.IntegerField()
+    module = models.CharField(max_length=100, null=True, blank=True)
     description = models.TextField()
     charge_per_hour = models.DecimalField(max_digits=6, decimal_places=2)
     department = models.ForeignKey(Department, on_delete=models.PROTECT, related_name='skills')
