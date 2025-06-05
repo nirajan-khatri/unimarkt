@@ -46,7 +46,7 @@
   },
   {
     "model": "product.category",
-    "pk": 5,
+    "pk": 6,
     "fields": {
       "name": "Sports",
       "color": "#228B22",
