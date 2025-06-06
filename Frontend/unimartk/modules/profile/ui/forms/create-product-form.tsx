@@ -171,7 +171,6 @@ const CreateProductForm = () => {
 
   const onSubmit = async (data: ProductFormData) => {
     try {
-      console.log("clicked");
       const payload = {
         ...data,
         price: data.price,

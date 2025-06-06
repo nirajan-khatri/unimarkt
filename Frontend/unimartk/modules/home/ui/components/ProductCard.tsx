@@ -1,7 +1,7 @@
 import Image from "next/image";
 
 export const ProductCard = ({ product }: { product: any }) => (
-  <div className="border rounded-lg  bg-white dark:bg-slate-800">
+  <div className="border rounded-lg">
     <div className="relative h-48 mb-4">
       <Image
         src={"/placeholder.jpg"}
