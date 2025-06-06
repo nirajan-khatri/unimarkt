@@ -1,3 +1,4 @@
+from django_filters.rest_framework import DjangoFilterBackend
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import viewsets, filters
@@ -14,7 +15,7 @@ class SkillViewSet(viewsets.ModelViewSet):
     serializer_class = SkillSerializer
 
     filter_backends = [
-        filters.SearchFilter,
+        DjangoFilterBackend,
         filters.OrderingFilter
     ]
 

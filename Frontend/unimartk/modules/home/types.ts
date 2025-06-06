@@ -17,7 +17,16 @@ type SubCategory = {
 type OldCategory = {
   id: string;
   name: string;
-  slug: string;
-  color?: string | null;
-  subcategories: OldCategory[];
 };
+
+export interface MenuItem {
+  id: string;
+  label: string;
+  children?: MenuItem[];
+}
+
+export interface SidebarProps {
+  isSidebarOpen: boolean;
+  onCategorySelect: (category: string) => void;
+  onSubcategorySelect: (subcategory: string) => void;
+}

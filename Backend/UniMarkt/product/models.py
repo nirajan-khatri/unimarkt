@@ -25,6 +25,11 @@ class SubCategory(models.Model):
 
 
 class Product(models.Model):
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected'),
+    ]
     product_id = models.AutoField(primary_key=True)
     name = models.TextField(null=True, blank=True)
     category = models.ForeignKey(Category, on_delete=models.PROTECT, related_name='products')
