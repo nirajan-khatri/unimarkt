@@ -7,6 +7,7 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 `/products/(category)/(subcategory)` products
 `/skills/(department)/(module)` skills
 `dashboard` button goes to `/admin`
+`/uitesting` goes to the theme page
 
 ## Getting Started
 
