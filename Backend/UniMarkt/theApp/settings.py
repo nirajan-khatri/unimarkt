@@ -66,7 +66,11 @@ CHANNEL_LAYERS = {
     },
 }
 
+WHITENOISE_AUTOREFRESH = True  # useful in dev, disables caching
+WHITENOISE_USE_FINDERS = True  
+
 MIDDLEWARE = [
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -148,6 +152,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
 STATIC_URL = 'static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
