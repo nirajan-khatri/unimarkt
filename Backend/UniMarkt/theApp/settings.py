@@ -28,10 +28,18 @@ SECRET_KEY = 'django-insecure-+xqfw6@hrn5%r9ohd+jfz2n*3!jj*dh+wn7#n31&jyw12)c%46
 DEBUG = True
 
 ALLOWED_HOSTS = []
+ASGI_APPLICATION = 'theApp.asgi.application'
 
 AUTH_USER_MODEL = "uniMarktAuth.User"
 
+from decouple import config
+
+REDIS_HOST = config("REDIS_HOST", default="localhost")
+REDIS_PORT = config("REDIS_PORT", default=6379, cast=int)
+
+
 INSTALLED_APPS = [
+    'channels',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -46,8 +54,17 @@ INSTALLED_APPS = [
     'django_filters',
     'rest_framework',
     'corsheaders',
-    'admin_dashboard'
+    'admin_dashboard',
+    'chat'
 ]
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [(REDIS_HOST, int(REDIS_PORT))],
+        },
+    },
+}
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
