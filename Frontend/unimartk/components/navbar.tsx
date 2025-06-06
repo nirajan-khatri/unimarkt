@@ -1,6 +1,6 @@
 "use client";
 
-import { MenuIcon, MessageSquare } from "lucide-react";
+import { MenuIcon, MessageSquare, Moon, Sun } from "lucide-react";
 import { Poppins } from "next/font/google";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -19,6 +19,7 @@ import {
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 import { Avatar, AvatarImage, AvatarFallback } from "./ui/avatar";
+import { useTheme } from "next-themes";
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -44,7 +45,7 @@ const NavbarItem = ({ children, href, isActive }: NavbarItemProps) => {
       variant={"ghost"}
       className={cn(
         "bg-transparent hover:bg-transparent rounded-full hover:border-primary border-transparent px-3.5 text-lg",
-        isActive && "bg-black text-white hover:bg-black hover:text-white"
+        isActive && "bg-primary/70"
       )}
     >
       <Link href={href}>{children}</Link>
@@ -56,6 +57,7 @@ export const Navbar = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
+  const { setTheme } = useTheme();
 
   const handleProfile = () => router.push("/profile");
   const handleAdminDashboard = () => router.push("/admin");
@@ -65,12 +67,13 @@ export const Navbar = () => {
   };
 
   return (
-    <nav className="h-20 flex border-b justify-between font-medium bg-white">
-      <Link href={"/"} className="pl-6 flex items-center">
+    <nav className="h-20 flex border-b justify-between font-medium px-6">
+      <Link href={"/"} className=" flex items-center">
         <span className={cn("text-5xl  font-semibold", poppins.className)}>
           UniMarkt
         </span>
       </Link>
+
       <NavbarSidebar
         items={navbarItems}
         open={isSidebarOpen}
@@ -96,8 +99,28 @@ export const Navbar = () => {
           </NavbarItem>
         ))}
       </div>
-      {true ? (
+      {false ? (
         <div className="hidden lg:flex px-10 xl:px-12 gap-4 items-center">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="icon">
+                <Sun className="h-[1.2rem] w-[1.2rem] scale-100 rotate-0 transition-all dark:scale-0 dark:-rotate-90" />
+                <Moon className="absolute h-[1.2rem] w-[1.2rem] scale-0 rotate-90 transition-all dark:scale-100 dark:rotate-0" />
+                <span className="sr-only">Toggle theme</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => setTheme("light")}>
+                Light
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setTheme("dark")}>
+                Dark
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setTheme("system")}>
+                System
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
           <Button variant="outline" className="rounded-full size-14 ">
             <MessageSquare className="size-8" strokeWidth={1} />
           </Button>
@@ -113,7 +136,7 @@ export const Navbar = () => {
                 </Avatar>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-48">
+            <DropdownMenuContent align="end" className="w-48 bg-white">
               <DropdownMenuLabel>My Account</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={handleProfile}>
@@ -128,11 +151,31 @@ export const Navbar = () => {
           </DropdownMenu>
         </div>
       ) : (
-        <div className="hidden lg:flex ">
+        <div className="hidden lg:flex h-full gap-2 items-center">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="icon">
+                <Sun className="h-[1.2rem] w-[1.2rem] scale-100 rotate-0 transition-all dark:scale-0 dark:-rotate-90" />
+                <Moon className="absolute h-[1.2rem] w-[1.2rem] scale-0 rotate-90 transition-all dark:scale-100 dark:rotate-0" />
+                <span className="sr-only">Toggle theme</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => setTheme("light")}>
+                Light
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setTheme("dark")}>
+                Dark
+              </DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setTheme("system")}>
+                System
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
           <Button
             asChild
             variant={"secondary"}
-            className="border-l border-t-0 border-b-0 border-r-0 px-10 xl:px-12 h-full rounded-none bg-white hover:bg-pink-400 transition-colors text-lg"
+            className=" px-10 xl:px-12 transition-colors text-lg bg-primary max-w-32"
           >
             <Link prefetch href={"/sign-in"}>
               Log in
@@ -141,7 +184,7 @@ export const Navbar = () => {
           <Button
             asChild
             variant={"secondary"}
-            className="border-l border-t-0 border-b-0 border-r-0 px-10 xl:px-12 h-full rounded-none bg-black text-white hover:bg-pink-400 hover:text-black transition-colors text-lg"
+            className=" px-10 xl:px-12 transition-colors text-lg bg-primary  max-w-32"
           >
             <Link prefetch href={"/sign-up"}>
               Start Selling
@@ -150,7 +193,7 @@ export const Navbar = () => {
         </div>
       )}
 
-      <div className="flex lg:hidden items-center justify-center mr-6">
+      <div className="flex lg:hidden items-center justify-center">
         <Button
           variant={"ghost"}
           className="size-12 border-transparent bg-white"

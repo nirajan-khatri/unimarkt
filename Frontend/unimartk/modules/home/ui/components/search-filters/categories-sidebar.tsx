@@ -53,7 +53,6 @@ export const CategoriesSidebar = ({ onOpenChange, open }: Props) => {
   };
 
   const handleCategoryClick = (category: Category) => {
-    console.log(category);
     if (category.subcategories && category.subcategories.length > 0) {
       setParentCategories(category.subcategories as Category[]);
       setSelectedCategory(category);
