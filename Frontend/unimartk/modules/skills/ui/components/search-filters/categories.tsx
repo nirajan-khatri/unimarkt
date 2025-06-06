@@ -9,6 +9,7 @@ import { cn } from "@/lib/utils";
 
 import { CategoriesSidebar } from "./categories-sidebar";
 import { CategoryDropdown } from "./category-dropdown";
+import { Category } from "@/modules/home/types";
 
 interface Props {
   data: Category[];
@@ -66,8 +67,6 @@ export const Categories = ({ data }: Props) => {
 
     return () => resizeObserver.disconnect();
   }, [data.length]);
-
-  console.log(activeCategory);
 
   return (
     <div className="relative w-full">

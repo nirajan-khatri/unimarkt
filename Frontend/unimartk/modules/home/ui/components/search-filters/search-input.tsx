@@ -9,13 +9,24 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
 import { CategoriesSidebar } from "./categories-sidebar";
+import { parseAsString, useQueryState } from "nuqs";
 
 interface Props {
   disabled?: boolean;
 }
 
+export const searchParamsParsers = {
+  search: parseAsString.withDefault("").withOptions({
+    clearOnDefault: true,
+  }),
+};
+
 export const SearchInput = ({ disabled }: Props) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [search, setSearch] = useQueryState(
+    "search",
+    searchParamsParsers.search
+  );
 
   return (
     <div className="flex items-center gap-2 w-full">
@@ -26,6 +37,8 @@ export const SearchInput = ({ disabled }: Props) => {
           className="pl-8"
           placeholder="Search products"
           disabled={disabled}
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
         />
       </div>
       <Button

@@ -69,7 +69,7 @@ const CreateProductForm = () => {
       category_id: "",
       sub_category_id: "",
       description: "",
-      location: "",
+      pickup_location: "",
       price: "",
       // status: "pending",
       images: [],
@@ -325,7 +325,7 @@ const CreateProductForm = () => {
 
           <FormField
             control={form.control}
-            name="location"
+            name="pickup_location"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Location (City)</FormLabel>

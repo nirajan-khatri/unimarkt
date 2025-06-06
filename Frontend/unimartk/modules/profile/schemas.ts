@@ -26,7 +26,7 @@ export const productSchema = z.object({
     .refine((val) => parseFloat(val) > 0, "Price must be greater than 0"),
   category_id: z.string().min(1, "Please select a category"),
   sub_category_id: z.string().min(1, "Please select a sub category"),
-  location: z.string().min(1, "Location is required"),
+  pickup_location: z.string().min(1, "Location is required"),
   images: z
     .array(z.string())
     .refine((files) => files.length > 0, {

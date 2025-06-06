@@ -1,10 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
 import { fetchFilteredProducts } from "@/services/products";
 
-interface PriceFilters {
+export interface PriceFilters {
   minPrice: string;
   maxPrice: string;
   selectedCities: string[];
+  pickupLocation: string;
 }
 
 export function useProducts(
@@ -15,13 +16,21 @@ export function useProducts(
   priceFilters?: PriceFilters
 ) {
   return useQuery({
-    queryKey: ["products", page, searchTerm, category, subcategory, priceFilters],
-    queryFn: () => fetchFilteredProducts(
-      page, 
-      searchTerm, 
-      category || undefined, 
-      subcategory || undefined,
-      priceFilters
-    ),
+    queryKey: [
+      "products",
+      page,
+      searchTerm,
+      category,
+      subcategory,
+      priceFilters,
+    ],
+    queryFn: () =>
+      fetchFilteredProducts(
+        page,
+        searchTerm,
+        category || undefined,
+        subcategory || undefined,
+        priceFilters
+      ),
   });
 }

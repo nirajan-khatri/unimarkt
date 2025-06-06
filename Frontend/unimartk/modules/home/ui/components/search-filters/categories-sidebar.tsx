@@ -1,7 +1,7 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
@@ -10,7 +10,8 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
-import { categories } from "@/constants/product-categories";
+import { fetchCategories } from "@/modules/home/api";
+import { Category } from "@/modules/home/types";
 
 interface Props {
   open: boolean;
@@ -20,6 +21,20 @@ interface Props {
 
 export const CategoriesSidebar = ({ onOpenChange, open }: Props) => {
   const router = useRouter();
+
+  const [categories, setCategories] = useState<Category[]>([]);
+
+  const { data, isLoading, error } = useSuspenseQuery({
+    queryKey: ["categories"],
+    queryFn: fetchCategories,
+  });
+
+  useEffect(() => {
+    if (data) {
+      // Optionally normalize data here if needed
+      setCategories(data);
+    }
+  }, [data]);
 
   const [parentCategories, setParentCategories] = useState<Category[] | null>(
     null
@@ -93,7 +108,7 @@ export const CategoriesSidebar = ({ onOpenChange, open }: Props) => {
           {currentCategories.map((category) => (
             <button
               key={category.slug}
-              onClick={() => handleCategoryClick(category)}
+              onClick={() => handleCategoryClick(category as Category)}
               className="w-full text-left p-4 hover:bg-black hover:text-white flex items-center justify-between text-base font-medium cursor-pointer"
             >
               {category.name}

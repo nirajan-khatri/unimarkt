@@ -1,16 +1,16 @@
-'use client';
+"use client";
 
-import * as React from 'react';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Button } from '@/components/ui/button';
-
-interface PriceFilters {
-  minPrice: string;
-  maxPrice: string;
-  pickupLocation: string;
-}
+import * as React from "react";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { PriceFilters } from "@/hooks/useProducts";
 
 interface FiltersProps {
   filters: PriceFilters;
@@ -28,7 +28,7 @@ export function Filters({ filters, onFiltersChange }: FiltersProps) {
   React.useEffect(() => {
     const handler = setTimeout(() => {
       if (
-        localFilters.minPrice !== filters.minPrice || 
+        localFilters.minPrice !== filters.minPrice ||
         localFilters.maxPrice !== filters.maxPrice ||
         localFilters.pickupLocation !== filters.pickupLocation
       ) {
@@ -37,39 +37,52 @@ export function Filters({ filters, onFiltersChange }: FiltersProps) {
     }, 500); // 500ms delay
 
     return () => clearTimeout(handler);
-  }, [localFilters.minPrice, localFilters.maxPrice, localFilters.pickupLocation, filters.minPrice, filters.maxPrice, filters.pickupLocation, localFilters, onFiltersChange]);
+  }, [
+    localFilters.minPrice,
+    localFilters.maxPrice,
+    localFilters.pickupLocation,
+    filters.minPrice,
+    filters.maxPrice,
+    filters.pickupLocation,
+    localFilters,
+    onFiltersChange,
+  ]);
 
   const handleInputChange = (field: keyof PriceFilters, value: string) => {
     const updatedFilters = {
       ...localFilters,
-      [field]: value
+      [field]: value,
     };
-    
+
     setLocalFilters(updatedFilters);
-    
+
     // All fields now use debouncing - no immediate updates
   };
 
   const clearAllFilters = () => {
     const clearedFilters = {
-      minPrice: '',
-      maxPrice: '',
-      pickupLocation: ''
+      minPrice: "",
+      maxPrice: "",
+      pickupLocation: "",
+      selectedCities: [],
     };
     setLocalFilters(clearedFilters);
     onFiltersChange(clearedFilters);
   };
 
-  const hasActiveFilters = localFilters.minPrice || localFilters.maxPrice || localFilters.pickupLocation;
+  const hasActiveFilters =
+    localFilters.minPrice ||
+    localFilters.maxPrice ||
+    localFilters.pickupLocation;
 
   return (
     <div className="lg:col-span-2 rounded-lg border bg-card text-card-foreground shadow-sm h-fit">
       <div className="flex items-center justify-between p-4 border-b">
         <h3 className="font-semibold text-lg">Filters</h3>
         {hasActiveFilters && (
-          <Button 
-            variant="ghost" 
-            size="sm" 
+          <Button
+            variant="ghost"
+            size="sm"
             onClick={clearAllFilters}
             className="text-muted-foreground hover:text-foreground"
           >
@@ -78,7 +91,11 @@ export function Filters({ filters, onFiltersChange }: FiltersProps) {
         )}
       </div>
 
-      <Accordion type="multiple" defaultValue={['price', 'location']} className="w-full">
+      <Accordion
+        type="multiple"
+        defaultValue={["price", "location"]}
+        className="w-full"
+      >
         <AccordionItem value="price">
           <AccordionTrigger className="p-4">Price</AccordionTrigger>
           <AccordionContent className="p-4 pt-0">
@@ -92,10 +109,14 @@ export function Filters({ filters, onFiltersChange }: FiltersProps) {
                   placeholder="0"
                   className="pl-8"
                   value={localFilters.minPrice}
-                  onChange={(e) => handleInputChange('minPrice', e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("minPrice", e.target.value)
+                  }
                 />
               </div>
-              <Label htmlFor="max-price" className="mt-2">Max Price</Label>
+              <Label htmlFor="max-price" className="mt-2">
+                Max Price
+              </Label>
               <div className="relative flex items-center">
                 <span className="absolute left-3 text-muted-foreground">€</span>
                 <Input
@@ -104,7 +125,9 @@ export function Filters({ filters, onFiltersChange }: FiltersProps) {
                   placeholder="1000"
                   className="pl-8"
                   value={localFilters.maxPrice}
-                  onChange={(e) => handleInputChange('maxPrice', e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("maxPrice", e.target.value)
+                  }
                 />
               </div>
             </div>
@@ -120,7 +143,9 @@ export function Filters({ filters, onFiltersChange }: FiltersProps) {
                   id="pickup-location"
                   placeholder="Enter pickup location"
                   value={localFilters.pickupLocation}
-                  onChange={(e) => handleInputChange('pickupLocation', e.target.value)}
+                  onChange={(e) =>
+                    handleInputChange("pickupLocation", e.target.value)
+                  }
                 />
               </div>
             </div>

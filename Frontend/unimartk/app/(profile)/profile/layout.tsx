@@ -1,5 +1,5 @@
-import { Footer } from "@/components/Footer";
-import { Navbar } from "@/modules/profile/ui/components/navbar";
+import { Footer } from "@/components/footer";
+import { Navbar } from "@/components/navbar";
 
 import React from "react";
 

@@ -1,4 +1,4 @@
-export const skillCategories: Category[] = [
+export const skillCategories = [
   {
     name: "All",
     slug: "all",

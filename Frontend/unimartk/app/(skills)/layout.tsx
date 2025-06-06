@@ -1,5 +1,5 @@
-import { Footer } from "@/components/Footer";
-import { Navbar } from "@/modules/skills/ui/components/navbar";
+import { Footer } from "@/components/footer";
+import { Navbar } from "@/components/navbar";
 
 import { SearchFilters } from "@/modules/skills/ui/components/search-filters";
 
@@ -12,7 +12,7 @@ interface Props {
 const Layout = async ({ children }: Props) => {
   return (
     <div className="flex flex-col min-h-screen">
-        <div className="flex-1 bg-[#f4f4f0]">{children}</div>
+      <div className="flex-1 bg-[#f4f4f0]">{children}</div>
       <Footer />
     </div>
   );

@@ -1,12 +1,11 @@
-export interface Category {
-  id: number;
+export type Category = {
+  id: string;
   name: string;
-}
-
-export interface Subcategory {
-  id: number;
-  name: string;
-}
+  slug: string;
+  color?: string;
+  category_id: string | null;
+  subcategories: Category[];
+};
 
 export interface MenuItem {
   id: string;
