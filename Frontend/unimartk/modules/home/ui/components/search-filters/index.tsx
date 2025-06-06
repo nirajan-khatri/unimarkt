@@ -10,25 +10,28 @@ import { Categories } from "./categories";
 import { SearchInput } from "./search-input";
 import { fetchCategories } from "@/modules/home/api";
 import { useEffect, useState } from "react";
-import { normalizeCategories } from "@/lib/utils";
+import { Category } from "@/modules/home/types";
 
 export const SearchFilters = () => {
   const params = useParams();
   const categoryParam = params.category as string | undefined;
   const activeCategorySlug = categoryParam || "all";
-  const [categories, setCategories] = useState<OldCategory[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
 
   const { data, isLoading, error } = useSuspenseQuery({
     queryKey: ["categories"],
     queryFn: fetchCategories,
   });
 
+  console.log("data", data);
+
   useEffect(() => {
     if (data) {
-      // Optionally normalize data here if needed
-      setCategories(normalizeCategories(data));
+      setCategories(data);
     }
   }, [data]);
+
+  console.log(categories);
 
   if (isLoading) return <div>Loading filters...</div>;
   if (error) return <div>Error loading filters</div>;

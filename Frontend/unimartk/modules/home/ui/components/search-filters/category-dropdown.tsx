@@ -7,9 +7,10 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 import SubcategoryMenu from "./subcategory-menu";
+import { Category } from "@/modules/home/types";
 
 interface Props {
-  category: OldCategory;
+  category: Category;
   isActive?: boolean;
   isNavigationHovered?: boolean;
 }

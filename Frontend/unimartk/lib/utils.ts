@@ -33,28 +33,28 @@ function getRandomPastelColor(): string {
 //   }));
 // }
 
-export function normalizeCategories(categories: Category[]): OldCategory[] {
-  const normalized = categories.map((cat) => ({
-    category_id: cat.category_id,
-    name: cat.name,
-    slug: generateSlug(cat.name),
-    color: getRandomPastelColor(),
-    subcategories: cat.subcategories.map((sub) => ({
-      category_id: sub.sub_category_id,
-      name: sub.name,
-      slug: generateSlug(sub.name),
-      color: null,
-      subcategories: [],
-    })),
-  }));
+// export function normalizeCategories(categories: Category[]): OldCategory[] {
+//   const normalized = categories.map((cat) => ({
+//     category_id: cat.category_id,
+//     name: cat.name,
+//     slug: generateSlug(cat.name),
+//     color: getRandomPastelColor(),
+//     subcategories: cat.subcategories.map((sub) => ({
+//       category_id: sub.sub_category_id,
+//       name: sub.name,
+//       slug: generateSlug(sub.name),
+//       color: null,
+//       subcategories: [],
+//     })),
+//   }));
 
-  const allCategory: OldCategory = {
-    category_id: "0",
-    name: "All",
-    slug: "all",
-    color: null,
-    subcategories: [],
-  };
+//   const allCategory: OldCategory = {
+//     category_id: "0",
+//     name: "All",
+//     slug: "all",
+//     color: null,
+//     subcategories: [],
+//   };
 
-  return [allCategory, ...normalized];
-}
+//   return [allCategory, ...normalized];
+// }

@@ -11,7 +11,7 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet";
 import { fetchCategories } from "@/modules/home/api";
-import { normalizeCategories } from "@/lib/utils";
+import { Category } from "@/modules/home/types";
 
 interface Props {
   open: boolean;
@@ -22,7 +22,7 @@ interface Props {
 export const CategoriesSidebar = ({ onOpenChange, open }: Props) => {
   const router = useRouter();
 
-  const [categories, setCategories] = useState<OldCategory[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
 
   const { data, isLoading, error } = useSuspenseQuery({
     queryKey: ["categories"],
@@ -32,14 +32,14 @@ export const CategoriesSidebar = ({ onOpenChange, open }: Props) => {
   useEffect(() => {
     if (data) {
       // Optionally normalize data here if needed
-      setCategories(normalizeCategories(data));
+      setCategories(data);
     }
   }, [data]);
 
-  const [parentCategories, setParentCategories] = useState<
-    OldCategory[] | null
-  >(null);
-  const [selectedCategory, setSelectedCategory] = useState<OldCategory | null>(
+  const [parentCategories, setParentCategories] = useState<Category[] | null>(
+    null
+  );
+  const [selectedCategory, setSelectedCategory] = useState<Category | null>(
     null
   );
 
@@ -52,10 +52,10 @@ export const CategoriesSidebar = ({ onOpenChange, open }: Props) => {
     onOpenChange(open);
   };
 
-  const handleCategoryClick = (category: OldCategory) => {
+  const handleCategoryClick = (category: Category) => {
     console.log(category);
     if (category.subcategories && category.subcategories.length > 0) {
-      setParentCategories(category.subcategories as OldCategory[]);
+      setParentCategories(category.subcategories as Category[]);
       setSelectedCategory(category);
     } else {
       // leaf category (no subcategories)
@@ -108,7 +108,7 @@ export const CategoriesSidebar = ({ onOpenChange, open }: Props) => {
           {currentCategories.map((category) => (
             <button
               key={category.slug}
-              onClick={() => handleCategoryClick(category as OldCategory)}
+              onClick={() => handleCategoryClick(category as Category)}
               className="w-full text-left p-4 hover:bg-black hover:text-white flex items-center justify-between text-base font-medium cursor-pointer"
             >
               {category.name}

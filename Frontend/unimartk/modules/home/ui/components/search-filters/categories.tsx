@@ -9,9 +9,10 @@ import { cn } from "@/lib/utils";
 
 import { CategoriesSidebar } from "./categories-sidebar";
 import { CategoryDropdown } from "./category-dropdown";
+import { Category } from "@/modules/home/types";
 
 interface Props {
-  data: OldCategory[];
+  data: Category[];
 }
 
 export const Categories = ({ data }: Props) => {
@@ -69,10 +70,7 @@ export const Categories = ({ data }: Props) => {
 
   return (
     <div className="relative w-full">
-      {/* Categories Sidebar */}
       <CategoriesSidebar open={isSidebarOpen} onOpenChange={setIsSidebarOpen} />
-
-      {/* hidden div to measure all items */}
       <div
         ref={measureRef}
         className="absolute opacity-0 pointer-events-none flex"
@@ -84,7 +82,7 @@ export const Categories = ({ data }: Props) => {
       >
         {data.map((category) => {
           return (
-            <div className="" key={category.category_id}>
+            <div className="" key={category.id}>
               <CategoryDropdown
                 category={category}
                 isActive={activeCategory === category.slug}
@@ -104,7 +102,7 @@ export const Categories = ({ data }: Props) => {
       >
         {data.slice(0, visibleCount).map((category) => {
           return (
-            <div className="" key={category.category_id}>
+            <div className="" key={category.id}>
               <CategoryDropdown
                 category={category}
                 isActive={activeCategory === category.slug}

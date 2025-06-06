@@ -1,4 +1,4 @@
-export const categories: OldCategory[] = [
+export const categories = [
   {
     name: "All",
     slug: "all",
