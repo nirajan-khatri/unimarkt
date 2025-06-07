@@ -55,8 +55,6 @@ export function Filters({ filters, onFiltersChange }: FiltersProps) {
     };
 
     setLocalFilters(updatedFilters);
-
-    // All fields now use debouncing - no immediate updates
   };
 
   const clearAllFilters = () => {
@@ -64,7 +62,6 @@ export function Filters({ filters, onFiltersChange }: FiltersProps) {
       minPrice: "",
       maxPrice: "",
       pickupLocation: "",
-      selectedCities: [],
     };
     setLocalFilters(clearedFilters);
     onFiltersChange(clearedFilters);

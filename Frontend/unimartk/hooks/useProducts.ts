@@ -4,7 +4,6 @@ import { fetchFilteredProducts } from "@/services/products";
 export interface PriceFilters {
   minPrice: string;
   maxPrice: string;
-  selectedCities: string[];
   pickupLocation: string;
 }
 

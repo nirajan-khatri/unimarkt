@@ -7,16 +7,43 @@ import { SearchBar } from "@/modules/home/ui/components/SearchBar";
 import { ActiveFilters } from "@/modules/home/ui/components/ActiveFilters";
 import { ProductGrid } from "@/modules/home/ui/components/ProductGrid";
 import { Filters } from "@/modules/home/ui/components/Filters";
-import { useQueryState } from "nuqs";
 import { searchParamsParsers } from "@/modules/home/ui/components/search-filters/search-input";
+import { useQueryState, parseAsString } from "nuqs";
+
+// Add filter parsers
+export const filterParamsParsers = {
+  minPrice: parseAsString.withDefault("").withOptions({
+    clearOnDefault: true,
+  }),
+  maxPrice: parseAsString.withDefault("").withOptions({
+    clearOnDefault: true,
+  }),
+  pickupLocation: parseAsString.withDefault("").withOptions({
+    clearOnDefault: true,
+  }),
+};
 
 export default function Home() {
   const [currentPage, setCurrentPage] = React.useState(1);
-  // const [searchTerm, setSearchTerm] = React.useState("");
   const [search, setSearch] = useQueryState(
     "search",
     searchParamsParsers.search
   );
+  
+  // URL state for filters
+  const [minPrice, setMinPrice] = useQueryState(
+    "minPrice",
+    filterParamsParsers.minPrice
+  );
+  const [maxPrice, setMaxPrice] = useQueryState(
+    "maxPrice",
+    filterParamsParsers.maxPrice
+  );
+  const [pickupLocation, setPickupLocation] = useQueryState(
+    "pickupLocation",
+    filterParamsParsers.pickupLocation
+  );
+
   const [debouncedSearchTerm, setDebouncedSearchTerm] = React.useState("");
   const [selectedCategory, setSelectedCategory] = React.useState<string | null>(
     null
@@ -26,13 +53,12 @@ export default function Home() {
   >(null);
   const [isSidebarOpen, setIsSidebarOpen] = React.useState(false);
 
-  // Add price filter state
-  const [priceFilters, setPriceFilters] = React.useState<PriceFilters>({
-    minPrice: "",
-    maxPrice: "",
-    pickupLocation: "",
-    selectedCities: [],
-  });
+  // Create price filters object from URL state
+  const priceFilters: PriceFilters = React.useMemo(() => ({
+    minPrice,
+    maxPrice,
+    pickupLocation,
+  }), [minPrice, maxPrice, pickupLocation]);
 
   // Debounce search term
   React.useEffect(() => {
@@ -63,12 +89,9 @@ export default function Home() {
     setSearch("");
     setSelectedCategory(null);
     setSelectedSubcategory(null);
-    setPriceFilters({
-      minPrice: "",
-      maxPrice: "",
-      pickupLocation: "",
-      selectedCities: [],
-    });
+    setMinPrice("");
+    setMaxPrice("");
+    setPickupLocation("");
   };
 
   const handleCategorySelect = (category: string) => {
@@ -84,7 +107,9 @@ export default function Home() {
   };
 
   const handleFiltersChange = (filters: PriceFilters) => {
-    setPriceFilters(filters);
+    setMinPrice(filters.minPrice);
+    setMaxPrice(filters.maxPrice);
+    setPickupLocation(filters.pickupLocation);
   };
 
   // Clear individual filter handlers
@@ -99,51 +124,23 @@ export default function Home() {
   };
 
   const handleClearPickupLocation = () => {
-    setPriceFilters((prev) => ({
-      ...prev,
-      pickupLocation: "",
-    }));
+    setPickupLocation("");
   };
 
   // Clear price filters handler
   const handleClearPriceFilters = () => {
-    setPriceFilters((prev) => ({
-      ...prev,
-      minPrice: "",
-      maxPrice: "",
-    }));
+    setMinPrice("");
+    setMaxPrice("");
   };
 
   return (
     <div className="font-[family-name:var(--font-geist-sans)]">
-      {/* <Header
-        isSidebarOpen={isSidebarOpen}
-        setIsSidebarOpen={setIsSidebarOpen}
-      /> */}
       <Sidebar
         isSidebarOpen={isSidebarOpen}
         onCategorySelect={handleCategorySelect}
         onSubcategorySelect={handleSubcategorySelect}
       />
       <main className="p-6">
-        {/* <div className="flex flex-row justify-between gap-4 mb-6">
-          <SearchBar
-            value={se}
-            onChange={setSearchTerm}
-            onClear={handleClearSearch}
-            hasFilters={
-              !!(
-                search ||
-                selectedCategory ||
-                selectedSubcategory ||
-                priceFilters.minPrice ||
-                priceFilters.maxPrice ||
-                priceFilters.pickupLocation
-              )
-            }
-          />
-        </div> */}
-
         <ActiveFilters
           category={selectedCategory}
           subcategory={selectedSubcategory}
@@ -153,7 +150,6 @@ export default function Home() {
           onClearSubcategory={handleClearSubcategory}
           onClearPickupLocation={handleClearPickupLocation}
         />
-
         <div className="grid grid-cols-1 lg:grid-cols-6 xl:grid-cols-8 gap-y-6 gap-x-12">
           <Filters
             filters={priceFilters}
