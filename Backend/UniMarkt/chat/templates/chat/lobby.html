@@ -1,0 +1,31 @@
+<h2>Chat between user {{ sender_id }} and user {{ receiver_id }}</h2>
+<textarea id="chat-log" cols="100" rows="20" readonly></textarea><br>
+<input id="chat-message-input" type="text" size="100"><br>
+<button id="chat-message-submit">Send</button>
+
+<script>
+const senderId = "{{ sender_id }}";
+const receiverId = "{{ receiver_id }}";
+
+const chatSocket = new WebSocket(
+    `ws://${window.location.host}/ws/chat/${senderId}/${receiverId}/`
+);
+
+chatSocket.onmessage = function(e) {
+    const data = JSON.parse(e.data);
+    document.querySelector('#chat-log').value += 'User ' + data.sender_id + ': ' + data.message + '\n';
+};
+
+chatSocket.onclose = function(e) {
+    console.error('Chat socket closed unexpectedly');
+};
+
+document.querySelector('#chat-message-submit').onclick = function(e) {
+    const messageInputDom = document.querySelector('#chat-message-input');
+    const message = messageInputDom.value;
+    chatSocket.send(JSON.stringify({
+        'message': message
+    }));
+    messageInputDom.value = '';
+};
+</script>

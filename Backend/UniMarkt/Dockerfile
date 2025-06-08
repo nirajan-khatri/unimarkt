@@ -20,6 +20,12 @@ COPY requirements.txt /app/
 RUN pip install --upgrade pip
 RUN pip install -r requirements.txt
 
+RUN pip install "uvicorn[standard]"
+RUN pip install channels_redis
+RUN pip install whitenoise
+
+
+
 # Copy all project files
 COPY . /app/
 

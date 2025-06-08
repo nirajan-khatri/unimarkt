@@ -34,6 +34,8 @@ urlpatterns = [
     path('api/', include('product.urls')),
     path('api/', include('skill.urls')),
     path('api/', include('job_posting.urls')),  # Add this line
-    path('admin_dashboard/', include('admin_dashboard.urls')),
+    path('api/admin_dashboard/', include('admin_dashboard.urls')),
+    path('chat/', include('chat.urls')),
+
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
 ]
