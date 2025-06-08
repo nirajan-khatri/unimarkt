@@ -1,6 +1,6 @@
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 import React, { useEffect, useState } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
@@ -11,6 +11,7 @@ import {
 } from "@/components/ui/sheet";
 import { fetchCategories } from "@/modules/home/api";
 import { Category } from "@/modules/home/types";
+import { useProducts } from "@/hooks/useProducts";
 
 interface Props {
   open: boolean;
@@ -19,9 +20,22 @@ interface Props {
 
 export const CategoriesSidebar = ({ onOpenChange, open }: Props) => {
   const router = useRouter();
+  const params = useParams();
   const [categories, setCategories] = useState<Category[]>([]);
   const [parentCategories, setParentCategories] = useState<Category[] | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
+
+  // Get current category and subcategory from URL path params
+  const currentCategory = params.category as string | undefined;
+  const currentSubcategory = params.subcategory as string | undefined;
+
+  // Fetch products when category/subcategory changes
+  const { data: productsData } = useProducts(
+    1, // Start with first page
+    "", // No search term
+    currentCategory,
+    currentSubcategory
+  );
 
   const { data } = useSuspenseQuery({
     queryKey: ["categories"],
@@ -34,6 +48,19 @@ export const CategoriesSidebar = ({ onOpenChange, open }: Props) => {
     }
   }, [data]);
 
+  // Initialize selected category from URL params
+  useEffect(() => {
+    if (currentCategory && data) {
+      const category = data.find((cat: Category) => cat.slug === currentCategory);
+      if (category) {
+        setSelectedCategory(category);
+        if (category.subcategories && category.subcategories.length > 0) {
+          setParentCategories(category.subcategories as Category[]);
+        }
+      }
+    }
+  }, [currentCategory, data]);
+
   // if we have parent categories, show those, otherwise show root categories
   const currentCategories = parentCategories ?? categories ?? [];
 
@@ -43,25 +70,31 @@ export const CategoriesSidebar = ({ onOpenChange, open }: Props) => {
     onOpenChange(open);
   };
 
+  const createUrlPath = (category: string, subcategory?: string) => {
+    if (subcategory) {
+      return `/${category}/${subcategory}`;
+    }
+    return `/${category}`;
+  };
+
   const handleCategoryClick = (category: Category) => {
     if (category.subcategories && category.subcategories.length > 0) {
       setParentCategories(category.subcategories as Category[]);
       setSelectedCategory(category);
+      router.push(createUrlPath(category.slug));
     } else {
       // leaf category (no subcategories)
       if (parentCategories && selectedCategory) {
-        //  This is a subcategory - navigate to /category/subcategory
-        router.push(`/${selectedCategory.slug}/${category.slug}`);
+        //  This is a subcategory
+        router.push(createUrlPath(selectedCategory.slug, category.slug));
       } else {
-        // This is a root category - navigate to /category
+        // This is a root category
         if (category.slug === "all") {
-          // If the category is "all", navigate to the home page
           router.push("/");
         } else {
-          router.push(`/${category.slug}`);
+          router.push(createUrlPath(category.slug));
         }
       }
-
       handleOpenChange(false);
     }
   };
@@ -70,17 +103,15 @@ export const CategoriesSidebar = ({ onOpenChange, open }: Props) => {
     if (parentCategories) {
       setParentCategories(null);
       setSelectedCategory(null);
+      router.push("/");
     }
   };
-
-  const backgroundColor = selectedCategory?.color || "white";
 
   return (
     <Sheet open={open} onOpenChange={handleOpenChange}>
       <SheetContent
         side="left"
-        className="p-0 transition-none"
-        style={{ backgroundColor }}
+        className="p-0 transition-none bg-white"
       >
         <SheetHeader className="p-4 border-b">
           <SheetTitle>Categories</SheetTitle>

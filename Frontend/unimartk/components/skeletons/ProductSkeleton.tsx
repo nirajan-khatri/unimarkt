@@ -2,7 +2,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 
 export function ProductSkeleton() {
   return (
-    <div className="border rounded-lg">
+    <div className="rounded-lg">
       {/* Image container with exact height */}
       <div className="relative h-48 mb-4">
         <Skeleton className="absolute inset-0 rounded-t-lg" />
