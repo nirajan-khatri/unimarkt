@@ -5,21 +5,7 @@ import { ActiveFilters } from "@/modules/home/ui/components/ActiveFilters";
 import { ProductGrid } from "@/modules/home/ui/components/ProductGrid";
 import { Filters } from "@/modules/home/ui/components/Filters";
 import { useProductFilters } from "@/hooks/useProductFilters";
-
-// Skeleton component for loading state
-const ProductGridSkeleton = ({ narrowView }: { narrowView?: boolean }) => (
-  <div className="lg:col-span-4 xl:col-span-6">
-    <div className={`grid gap-4 ${
-      narrowView 
-        ? 'grid-cols-1 md:grid-cols-2' 
-        : 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3'
-    }`}>
-      {Array.from({ length: 6 }).map((_, i) => (
-        <div key={i} className="h-64 bg-gray-200 animate-pulse rounded-lg" />
-      ))}
-    </div>
-  </div>
-);
+import { ProductGridSkeleton } from "@/components/skeletons/ProductSkeleton";
 
 interface ProductListViewProps {
   category?: string;
@@ -104,7 +90,7 @@ export const ProductListView = ({
 
         {/* Products Grid */}
         <div className="lg:col-span-4 xl:col-span-6">
-          <Suspense fallback={<ProductGridSkeleton narrowView={narrowView} />}>
+          <Suspense fallback={<ProductGridSkeleton />}>
             <ProductGrid
               products={products}
               isLoading={isLoading}

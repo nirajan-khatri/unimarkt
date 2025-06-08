@@ -1,5 +1,5 @@
 import { ProductCard } from "@/modules/home/ui/components/ProductCard";
-import { Loader2 } from "lucide-react";
+import { ProductGridSkeleton } from "@/components/skeletons/ProductSkeleton";
 
 interface ProductGridProps {
   products: any[];
@@ -9,11 +9,7 @@ interface ProductGridProps {
 
 export function ProductGrid({ products, isLoading, error }: ProductGridProps) {
   if (isLoading) {
-    return (
-      <div className="fixed inset-0 bg-white/50 flex items-center justify-center z-50">
-        <Loader2 className="h-12 w-12 text-blue-500 animate-spin" />
-      </div>
-    );
+    return <ProductGridSkeleton />;
   }
 
   if (error) {
