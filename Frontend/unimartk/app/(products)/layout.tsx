@@ -1,13 +1,30 @@
 import { Footer } from "@/components/footer";
 import { Navbar } from "@/components/navbar";
+import { fetchCategories } from "@/modules/home/api";
 
-import React from "react";
+import {
+  SearchFilters,
+  SearchFilterSkeleton,
+} from "@/modules/home/ui/components/search-filters";
+import {
+  HydrationBoundary,
+  QueryClient,
+  dehydrate,
+} from "@tanstack/react-query";
+import React, { Suspense } from "react";
 
 interface Props {
   children: React.ReactNode;
 }
 
 const Layout = async ({ children }: Props) => {
+  const queryClient = new QueryClient();
+
+  await queryClient.prefetchQuery({
+    queryKey: ["categories"],
+    queryFn: fetchCategories,
+  });
+
   return (
     <div className="flex flex-col min-h-screen">
       <Navbar />
