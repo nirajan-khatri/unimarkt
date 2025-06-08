@@ -27,6 +27,7 @@ import {
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
@@ -41,8 +42,10 @@ import {
 } from "@/components/ui/table";
 
 import { useRouter } from "next/navigation";
+import { products } from "@/constants/products";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { Category } from "@/modules/home/types";
 import { useQuery } from "@tanstack/react-query";
 import { fetchAdminProducts } from "../../api";
 import { Product } from "@/modules/products/types";
@@ -161,25 +164,13 @@ export const columns: ColumnDef<Product>[] = [
   },
 ];
 
-const ApproveProductTable = () => {
+const ProductTable = () => {
   const router = useRouter();
-  const [unapprovedProducts, setUnapprovedProducts] = React.useState<Product[]>(
-    []
-  );
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["adminProducts"],
     queryFn: fetchAdminProducts,
   });
-
-  React.useEffect(() => {
-    if (data) {
-      const unapproved = data.filter(
-        (product: Product) => product.status !== "approved"
-      );
-      setUnapprovedProducts(unapproved);
-    }
-  }, [data]);
 
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -190,7 +181,7 @@ const ApproveProductTable = () => {
   const [rowSelection, setRowSelection] = React.useState({});
 
   const table = useReactTable({
-    data: unapprovedProducts,
+    data,
     columns,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
@@ -385,4 +376,4 @@ const ApproveProductTable = () => {
   );
 };
 
-export default ApproveProductTable;
+export default ProductTable;

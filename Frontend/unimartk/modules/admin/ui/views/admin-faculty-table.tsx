@@ -40,21 +40,16 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { users as allUsers } from "@/constants/users";
 import { useRouter } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { fetchAdminUsers } from "../../api";
+import { useQuery } from "@tanstack/react-query";
+import { User } from "../../types";
+import LoadingPage from "@/app/(admin)/admin/loader";
+import ErrorPage from "@/app/(admin)/admin/error";
 
-export type UserApproval = {
-  id: string;
-  name: string;
-  email: string;
-  requestedRoles: ("admin" | "faculty")[];
-  approvedRoles: ("admin" | "faculty")[];
-  status: "pending" | "approved" | "rejected";
-};
-
-export const columns: ColumnDef<UserApproval>[] = [
+export const columns: ColumnDef<User>[] = [
   {
     id: "select",
     header: ({ table }) => (
@@ -90,23 +85,29 @@ export const columns: ColumnDef<UserApproval>[] = [
   },
   {
     accessorKey: "email",
-    header: "Email",
+    header: ({ column }) => (
+      <Button
+        variant="ghost"
+        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+      >
+        Email <ArrowUpDown className="ml-2 h-4 w-4" />
+      </Button>
+    ),
     cell: ({ row }) => <div className="lowercase">{row.getValue("email")}</div>,
   },
   {
-    accessorKey: "status",
-    header: "Status",
+    accessorKey: "is_active",
+    header: "Active",
     cell: ({ row }) => (
       <Badge
         className={cn(
           "px-2 uppercase",
-          row.getValue("status") === "approved" &&
-            "bg-emerald-200 border-emerald-500 text-emerald-600",
-          row.getValue("status") === "pending" &&
-            "bg-orange-200 border-orange-500 text-orange-600"
+          row.getValue("is_active") === true
+            ? "bg-emerald-200 border-emerald-500 text-emerald-600"
+            : "bg-orange-200 border-orange-500 text-orange-600"
         )}
       >
-        {row.getValue("status")}
+        {row.getValue("is_active") ? "Active" : "Inactive"}
       </Badge>
     ),
   },
@@ -116,7 +117,7 @@ export const columns: ColumnDef<UserApproval>[] = [
     cell: ({ row }) => {
       const user = row.original;
 
-      const isFaculty = user.approvedRoles.includes("faculty");
+      const isFaculty = true;
 
       return (
         <DropdownMenu>
@@ -164,6 +165,20 @@ export const columns: ColumnDef<UserApproval>[] = [
 const FacultyApprovalTable = () => {
   const router = useRouter();
 
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["adminUsers"],
+    queryFn: fetchAdminUsers,
+  });
+
+  // React.useEffect(() => {
+  //   if (data) {
+  //     const unapproved = data.filter(
+  //       (user: User) =>
+  //     );
+  //     setUnapprovedProducts(unapproved);
+  //   }
+  // }, [data]);
+
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
@@ -172,13 +187,13 @@ const FacultyApprovalTable = () => {
     React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
 
-  const data = React.useMemo(() => {
-    return allUsers.filter(
-      (user) =>
-        user.requestedRoles.includes("faculty") ||
-        user.approvedRoles.includes("faculty")
-    );
-  }, []);
+  // const data = React.useMemo(() => {
+  //   return allUsers.filter(
+  //     (user) =>
+  //       user.requestedRoles.includes("faculty") ||
+  //       user.approvedRoles.includes("faculty")
+  //   );
+  // }, []);
 
   const table = useReactTable({
     data,
@@ -199,8 +214,16 @@ const FacultyApprovalTable = () => {
     },
   });
 
+  if (isLoading) {
+    return <LoadingPage />;
+  }
+
+  if (error) {
+    return <ErrorPage />;
+  }
+
   return (
-    <div className="w-full">
+    <div className="w-full px-4 lg:px-12 py-8 flex flex-col gap-4">
       <div className="flex flex-row gap-4 items-center">
         <div
           className="p-3 hover:bg-gray-200 rounded-full"
@@ -292,7 +315,7 @@ const FacultyApprovalTable = () => {
           </DropdownMenu>
         </div>
       </div>
-      <div className="rounded-md border bg-white">
+      <div className="rounded-md border">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (

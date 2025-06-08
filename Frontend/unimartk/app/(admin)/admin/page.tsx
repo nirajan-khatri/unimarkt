@@ -3,7 +3,7 @@ import React from "react";
 
 const Page = async () => {
   return (
-    <div className="max-w-7xl mx-auto mt-10">
+    <div className="max-w-7xl mx-auto">
       <AdminDashboardView />
     </div>
   );

@@ -1,25 +1,16 @@
-type Role = {
-  id: number;
-  name: string;
-};
+import { User } from "../admin/types";
+import { Category } from "../home/types";
 
-type User = {
-  id: string;
-  name: string;
-  email: string;
-  contact_number?: string;
-  role: Role;
-};
-
-type Product = {
-  id: string;
+export type Product = {
+  product_id: string;
   name: string;
   category: Category;
-  subCategory: SubCategory;
+  sub_category: Category;
   description: string;
   price: string;
   images?: string[];
   user?: User;
   status: "pending" | "approved" | "rejected";
   created_at: string;
+  pickup_location: string;
 };
