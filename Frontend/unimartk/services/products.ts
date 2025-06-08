@@ -51,3 +51,14 @@ export async function fetchFilteredProducts(
 
   return response.json();
 }
+
+export async function fetchProductById(productId: string) {
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
+  const response = await fetch(`${baseUrl}/products/${productId}/`);
+  
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+
+  return response.json();
+}
