@@ -1,10 +1,7 @@
 "use client";
 
-import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { useParams } from "next/navigation";
-
-import { DEFAULT_BG_COLOR } from "@/modules/home/constants";
-
 import { BreadcrumbNavigation } from "./breadcrumb-navigation";
 import { Categories } from "./categories";
 import { SearchInput } from "./search-input";
@@ -18,7 +15,7 @@ export const SearchFilters = () => {
   const activeCategorySlug = categoryParam || "all";
   const [categories, setCategories] = useState<Category[]>([]);
 
-  const { data, isLoading, error } = useSuspenseQuery({
+  const { data } = useSuspenseQuery({
     queryKey: ["categories"],
     queryFn: fetchCategories,
   });
@@ -29,17 +26,12 @@ export const SearchFilters = () => {
     }
   }, [data]);
 
-  if (isLoading) return <div>Loading filters...</div>;
-  if (error) return <div>Error loading filters</div>;
-
   const activeCategoryData = categories.find(
     (category) => category.slug === activeCategorySlug
   );
-  const activeCategoryColor = activeCategoryData?.color || DEFAULT_BG_COLOR;
   const activeCategoryName = activeCategoryData?.name || "All";
 
   const activeSubcategory = params.subcategory as string | undefined;
-
   const activeSubcategoryName =
     activeCategoryData?.subcategories?.find(
       (subcategory) => subcategory.slug === activeSubcategory

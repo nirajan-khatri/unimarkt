@@ -69,28 +69,12 @@ export const ProductListView = ({
     initialSubcategory: subcategory 
   });
 
-  // Generate dynamic title if not provided
-  const pageTitle = title || (() => {
-    if (subcategory) {
-      return `${subcategory.charAt(0).toUpperCase() + subcategory.slice(1)} Products`;
-    }
-    if (category) {
-      return `${category.charAt(0).toUpperCase() + category.slice(1)} Products`;
-    }
-    return 'Curated for you';
-  })();
-
   return (
     <div className="px-4 lg:px-12 py-8 flex flex-col gap-4">
       {/* Header Section */}
-      <div className="flex flex-col lg:flex-row lg:items-center gap-y-2 lg:gap-y-0 justify-between">
-        <p className="text-2xl font-medium">
-          {pageTitle}
-        </p>
+      <div className="flex flex-row lg:flex-row-reverse lg:items-center gap-y-2 lg:gap-y-0 justify-between">
         {showSort && (
           <div className="flex items-center gap-2">
-            {/* Add your ProductSort component here if you have one */}
-            {/* <ProductSort /> */}
             <div className="text-sm text-gray-500">
               Sort functionality can be added here
             </div>

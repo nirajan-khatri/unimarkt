@@ -5,12 +5,8 @@ interface PriceFilters {
 }
 
 interface ActiveFiltersProps {
-  category?: string | null;
-  subcategory?: string | null;
   priceFilters?: PriceFilters;
   onClearPriceFilters?: () => void;
-  onClearCategory?: () => void;
-  onClearSubcategory?: () => void;
   onClearPickupLocation?: () => void;
   onClearAll?: () => void;
 }

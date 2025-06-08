@@ -1,8 +1,7 @@
-import { useQuery, useSuspenseQuery } from "@tanstack/react-query";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { ChevronLeftIcon, ChevronRightIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
-
 import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Sheet,
@@ -15,35 +14,27 @@ import { Category } from "@/modules/home/types";
 
 interface Props {
   open: boolean;
-  // eslint-disable-next-line no-unused-vars
   onOpenChange: (open: boolean) => void;
 }
 
 export const CategoriesSidebar = ({ onOpenChange, open }: Props) => {
   const router = useRouter();
-
   const [categories, setCategories] = useState<Category[]>([]);
+  const [parentCategories, setParentCategories] = useState<Category[] | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
 
-  const { data, isLoading, error } = useSuspenseQuery({
+  const { data } = useSuspenseQuery({
     queryKey: ["categories"],
     queryFn: fetchCategories,
   });
 
   useEffect(() => {
     if (data) {
-      // Optionally normalize data here if needed
       setCategories(data);
     }
   }, [data]);
 
-  const [parentCategories, setParentCategories] = useState<Category[] | null>(
-    null
-  );
-  const [selectedCategory, setSelectedCategory] = useState<Category | null>(
-    null
-  );
-
-  // if we have parent categories, show those, otherwisenshow root categories
+  // if we have parent categories, show those, otherwise show root categories
   const currentCategories = parentCategories ?? categories ?? [];
 
   const handleOpenChange = (open: boolean) => {
@@ -59,7 +50,7 @@ export const CategoriesSidebar = ({ onOpenChange, open }: Props) => {
     } else {
       // leaf category (no subcategories)
       if (parentCategories && selectedCategory) {
-        //  This is a subcategory - naigate to /category/subcategory
+        //  This is a subcategory - navigate to /category/subcategory
         router.push(`/${selectedCategory.slug}/${category.slug}`);
       } else {
         // This is a root category - navigate to /category
