@@ -7,12 +7,23 @@ export function useCategoryState() {
 
   const handleCategorySelect = useCallback((category: string) => {
     setSelectedCategory(category);
-    setSelectedSubcategory(null);
+    setSelectedSubcategory(null); // Clear subcategory when selecting category
   }, []);
 
-  const handleSubcategorySelect = useCallback((subcategory: string) => {
+  // Fixed: Don't clear category when selecting subcategory
+  const handleSubcategorySelect = useCallback((subcategory: string, category?: string) => {
     setSelectedSubcategory(subcategory);
-    setSelectedCategory(null);
+    // Keep the category if provided, or keep existing category
+    if (category) {
+      setSelectedCategory(category);
+    }
+    // Don't clear category - we need both for subcategory pages
+  }, []);
+
+  // Set both category and subcategory (for URL-based navigation)
+  const setBothCategoryAndSubcategory = useCallback((category: string, subcategory: string) => {
+    setSelectedCategory(category);
+    setSelectedSubcategory(subcategory);
   }, []);
 
   const clearCategory = useCallback(() => {
@@ -36,6 +47,7 @@ export function useCategoryState() {
     // Actions
     handleCategorySelect,
     handleSubcategorySelect,
+    setBothCategoryAndSubcategory,
     clearCategory,
     clearSubcategory,
     clearAllCategories,

@@ -4,8 +4,16 @@ import { useUrlFilters } from "./useUrlFilters";
 import { useCategoryState } from "./useCategoryState";
 import { useSearchState } from "./useSearchState";
 import { usePagination } from "./usePagination";
+import { useEffect } from "react";
 
-export function useProductFilters() {
+interface UseProductFiltersProps {
+  initialCategory?: string;
+  initialSubcategory?: string;
+}
+
+export function useProductFilters(props?: UseProductFiltersProps) {
+  const { initialCategory, initialSubcategory } = props || {};
+  
   // URL-based filters
   const urlFilters = useUrlFilters();
   
@@ -15,20 +23,43 @@ export function useProductFilters() {
   // Search state with debouncing
   const { debouncedSearchTerm, isSearching } = useSearchState(urlFilters.search);
   
+  // Set initial values when component mounts or props change
+  useEffect(() => {
+    if (initialCategory && initialSubcategory) {
+      // Both category and subcategory from URL
+      categoryState.setBothCategoryAndSubcategory(initialCategory, initialSubcategory);
+    } else if (initialCategory && !initialSubcategory) {
+      // Only category from URL
+      categoryState.handleCategorySelect(initialCategory);
+    } else if (!initialCategory && !initialSubcategory) {
+      // No URL categories, clear all
+      categoryState.clearAllCategories();
+    }
+  }, [initialCategory, initialSubcategory]);
+
+  // Determine the active category and subcategory
+  // For API calls, use URL params if available, otherwise use local state
+  const activeCategory = initialCategory || categoryState.selectedCategory;
+  const activeSubcategory = initialSubcategory || categoryState.selectedSubcategory;
+  
+  // For display purposes, show what's actually selected
+  const displayCategory = categoryState.selectedCategory || initialCategory;
+  const displaySubcategory = categoryState.selectedSubcategory || initialSubcategory;
+  
   // Pagination that resets when filters change
   const pagination = usePagination([
     debouncedSearchTerm,
     urlFilters.filters,
-    categoryState.selectedCategory,
-    categoryState.selectedSubcategory,
+    activeCategory,
+    activeSubcategory,
   ]);
 
-  // Products query
+  // Products query with the correct category values
   const productsQuery = useProducts(
     pagination.currentPage,
     debouncedSearchTerm,
-    categoryState.selectedCategory,
-    categoryState.selectedSubcategory,
+    activeCategory,
+    activeSubcategory,
     urlFilters.filters
   );
 
@@ -46,16 +77,17 @@ export function useProductFilters() {
   };
 
   const handleSubcategorySelect = (subcategory: string) => {
-    categoryState.handleSubcategorySelect(subcategory);
+    // Keep the current category when selecting subcategory
+    categoryState.handleSubcategorySelect(subcategory, activeCategory || undefined);
     pagination.resetPage();
   };
 
   return {
-    // State
+    // State - use display values for UI, active values for API
     filters: urlFilters.filters,
     search: urlFilters.search,
-    selectedCategory: categoryState.selectedCategory,
-    selectedSubcategory: categoryState.selectedSubcategory,
+    selectedCategory: displayCategory,
+    selectedSubcategory: displaySubcategory,
     currentPage: pagination.currentPage,
     
     // Products data
@@ -80,7 +112,17 @@ export function useProductFilters() {
     clearSearch: urlFilters.clearSearch,
     
     // Computed properties
-    hasAnyFilters: urlFilters.hasFilters || categoryState.hasAnyCategory || urlFilters.hasSearch,
+    hasAnyFilters: urlFilters.hasFilters || urlFilters.hasSearch,
     isSearching,
+    
+    // Debug info
+    debug: {
+      initialCategory,
+      initialSubcategory,
+      activeCategory,
+      activeSubcategory,
+      displayCategory,
+      displaySubcategory,
+    }
   };
 }
