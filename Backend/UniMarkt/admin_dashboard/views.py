@@ -8,7 +8,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 
 from product.models import Product
 from skill.models import Skill
-from uniMarktAuth.models import User
+from uniMarktAuth.models import User,Role
 
 from .serializers import (
     ProductSerializer,
@@ -107,6 +107,12 @@ class UserViewSet(viewsets.ModelViewSet):
             openapi.Parameter("is_superuser", openapi.IN_QUERY, type=openapi.TYPE_BOOLEAN, description="Is the user a super user?"),
             openapi.Parameter("is_active", openapi.IN_QUERY, type=openapi.TYPE_BOOLEAN, description="Is the user active?"),
             openapi.Parameter("is_staff", openapi.IN_QUERY, type=openapi.TYPE_BOOLEAN, description="Is the user a staff member?"),
+ openapi.Parameter(
+            "role_name", openapi.IN_QUERY,
+            type=openapi.TYPE_STRING,
+            enum=[role.name for role in Role.objects.all()],
+            description="Filter users by role name (dropdown)"
+        ),
         ],
     )
     def list(self, request, *args, **kwargs):
