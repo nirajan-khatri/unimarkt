@@ -17,8 +17,10 @@ export async function fetchFilteredServices(
   // Add pagination
   url.searchParams.append("page", page.toString());
 
-  // Add search term
+  // Add search term - search in description
   if (searchTerm) {
+    url.searchParams.append("description", searchTerm);
+    // Also search in module name
     url.searchParams.append("module", searchTerm);
   }
 
@@ -37,16 +39,22 @@ export async function fetchFilteredServices(
     url.searchParams.append("price_max", serviceFilters.maxPrice);
   }
 
-  // Add module filter
+  // Add module filter from service filters (this is different from search)
   if (serviceFilters?.module) {
     url.searchParams.append("module", serviceFilters.module);
   }
 
-  const response = await fetch(url.toString());
-  
-  if (!response.ok) {
-    throw new Error(`HTTP error! status: ${response.status}`);
-  }
+  try {
+    const response = await fetch(url.toString());
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
 
-  return response.json();
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('Error fetching services:', error);
+    throw error;
+  }
 }
