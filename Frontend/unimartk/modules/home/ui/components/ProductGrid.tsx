@@ -4,29 +4,35 @@ import { ProductGridSkeleton } from "@/components/skeletons/ProductSkeleton";
 interface ProductGridProps {
   products: any[];
   isLoading: boolean;
-  error: Error | null;
+  error: unknown | null;
 }
 
 export function ProductGrid({ products, isLoading, error }: ProductGridProps) {
+  if (error) {
+    return (
+      <div className="text-center py-8">
+        <p className="text-red-500">Error loading products: {String(error)}</p>
+      </div>
+    );
+  }
+
   if (isLoading) {
     return <ProductGridSkeleton />;
   }
 
-  if (error) {
-    return <div className="text-center text-red-500">Error: {error.message}</div>;
-  }
-
-  if (!products.length) {
-    return <div className="text-center py-12 text-gray-500">No results found</div>;
+  if (products.length === 0) {
+    return (
+      <div className="text-center py-8">
+        <p className="text-gray-500">No products found</p>
+      </div>
+    );
   }
 
   return (
-    <div className="lg:col-span-4 xl:col-span-6">
-      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
-        {products.map((product) => (
-          <ProductCard key={product.product_id} product={product} />
-        ))}
-      </div>
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {products.map((product) => (
+        <ProductCard key={product.product_id} product={product} />
+      ))}
     </div>
   );
 }

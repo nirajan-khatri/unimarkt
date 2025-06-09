@@ -4,7 +4,7 @@ import { Suspense } from 'react';
 import { ActiveFilters } from "@/modules/home/ui/components/ActiveFilters";
 import { ProductGrid } from "@/modules/home/ui/components/ProductGrid";
 import { Filters } from "@/modules/home/ui/components/Filters";
-import { useProductFilters } from "@/hooks/useProductFilters";
+import { useFilters } from "@/hooks";
 import { ProductGridSkeleton } from "@/components/skeletons/ProductSkeleton";
 
 interface ProductListViewProps {
@@ -24,22 +24,23 @@ export const ProductListView = ({
   title,
   showSort = false,
 }: ProductListViewProps) => {
-  // Use the hook with initial values
   const {
     // State
     filters,
     search,
-    selectedCategory,
-    selectedSubcategory,
+    category: selectedCategory,
+    subcategory: selectedSubcategory,
     products,
     isLoading,
     isError,
     error,
+    currentPage,
     
     // Actions
     setFilters,
-    handleCategorySelect,
-    handleSubcategorySelect,
+    setCategory: handleCategorySelect,
+    setSubcategory: handleSubcategorySelect,
+    setCurrentPage,
     
     // Clear actions
     clearPriceFilters,
@@ -50,7 +51,7 @@ export const ProductListView = ({
     
     // Computed
     hasAnyFilters,
-  } = useProductFilters({ 
+  } = useFilters({ 
     initialCategory: category,
     initialSubcategory: subcategory 
   });

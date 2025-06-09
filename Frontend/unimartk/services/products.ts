@@ -1,8 +1,4 @@
-interface PriceFilters {
-  minPrice: string;
-  maxPrice: string;
-  pickupLocation: string;
-}
+import { PriceFilters } from "@/types/filters";
 
 export async function fetchFilteredProducts(
   page: number,

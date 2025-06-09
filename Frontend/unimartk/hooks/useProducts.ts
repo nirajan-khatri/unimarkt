@@ -1,11 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { fetchFilteredProducts } from "@/services/products";
-
-export interface PriceFilters {
-  minPrice: string;
-  maxPrice: string;
-  pickupLocation: string;
-}
+import { PriceFilters } from "@/types/filters";
 
 export function useProducts(
   page: number,

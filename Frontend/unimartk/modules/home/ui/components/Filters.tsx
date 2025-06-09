@@ -10,7 +10,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import { PriceFilters } from "@/hooks/useProducts";
+import { PriceFilters } from "@/types/filters";
 
 interface FiltersProps {
   filters: PriceFilters;

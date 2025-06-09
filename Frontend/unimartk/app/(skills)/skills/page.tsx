@@ -111,32 +111,7 @@ export default function Services() {
 
   return (
     <div className="font-[family-name:var(--font-geist-sans)]">
-      <Header
-        isSidebarOpen={isSidebarOpen}
-        setIsSidebarOpen={setIsSidebarOpen}
-      />
-      <Sidebar
-        isSidebarOpen={isSidebarOpen}
-        onCategorySelect={handleCategorySelect}
-        onSubcategorySelect={handleSubcategorySelect}
-      />
       <main className="p-6">
-        <div className="flex flex-row justify-between gap-4 mb-6">
-          <SearchBar
-            value={searchTerm}
-            onChange={setSearchTerm}
-            onClear={handleClearSearch}
-            hasFilters={!!(
-              searchTerm || 
-              selectedCategory || 
-              selectedSubcategory ||
-              serviceFilters.minPrice ||
-              serviceFilters.maxPrice ||
-              serviceFilters.module
-            )}
-          />
-        </div>
-
         <ActiveFilters
           category={selectedCategory}
           subcategory={selectedSubcategory}
