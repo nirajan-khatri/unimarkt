@@ -9,6 +9,10 @@ import {
   XIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
+  MessageCircle,
+  Phone,
+  Mail,
+  User,
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -19,6 +23,7 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { formatCurrency } from "@/lib/utils";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import ProductMessageWindow from "../components/messageing-window";
 
 const data = {
   product_id: 12,
@@ -189,13 +194,64 @@ const ImageModal = ({
 export const ProductView = ({ productId }: Props) => {
   const [selectedImage, setSelectedImage] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [message, setMessage] = useState(
+    "Hi, I'm interested in the item you posted. Is it still available? Could you please let me know its condition and if the price is negotiable?"
+  );
+
+  // Simulate authentication state - you can replace this with your actual auth logic
+  const [isAuthenticated, setIsAuthenticated] = useState(true);
+  const [user, setUser] = useState<{
+    id: number;
+    name: string;
+    email: string;
+  } | null>({ id: 2, name: "John Doe", email: "john@example.com" });
+
+  // Simulate login function
+  const handleLogin = () => {
+    setIsAuthenticated(true);
+    setUser({ id: 2, name: "John Doe", email: "john@example.com" });
+  };
+
+  // Simulate logout function
+  const handleLogout = () => {
+    setIsAuthenticated(false);
+    setUser(null);
+  };
 
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
 
+  const handleSendMessage = () => {
+    console.log("Sending message:", message);
+    // Here you would typically send the message to your backend
+    alert("Message sent successfully!");
+    setMessage("");
+  };
   return (
     <>
       <div className="px-4 lg:px-12 py-10">
+        <div className="mb-4 p-4 bg-gray-100 rounded-lg ">
+          <h3 className="font-semibold mb-2">Demo Authentication Controls:</h3>
+          <div className="flex gap-2 items-center">
+            <button
+              onClick={handleLogin}
+              className="px-3 py-1 bg-green-500 text-white rounded text-sm hover:bg-green-600"
+            >
+              Simulate Login
+            </button>
+            <button
+              onClick={handleLogout}
+              className="px-3 py-1 bg-red-500 text-white rounded text-sm hover:bg-red-600"
+            >
+              Simulate Logout
+            </button>
+            <span className="text-sm">
+              Status:{" "}
+              {isAuthenticated ? `Logged in as ${user?.name}` : "Not logged in"}
+            </span>
+          </div>
+        </div>
+
         <div className="bg-white rounded-lg overflow-hidden shadow-sm">
           <div className="">
             {/* Image Gallery */}
@@ -274,19 +330,71 @@ export const ProductView = ({ productId }: Props) => {
               </div>
             </div>
             {/* Right Sidebar */}
-            <div className="lg:w-80 flex justify-center items-center bg-gray-50 p-4 sm:p-6 border-t lg:border-l">
-              <Button
-                className="w-full bg-blue-500 hover:bg-blue-600 text-white mb-6 py-3"
-                onClick={() => {
-                  const currentUrl = encodeURIComponent(
-                    window.location.pathname + window.location.search
-                  );
-                  window.location.href = `/sign-in?redirect=${currentUrl}`;
-                }}
-              >
-                Log in to contact Seller
-              </Button>
-              {/* Additional content can go here */}
+            <div className="flex w-80 justify-center items-center bg-gray-50 p-2 sm:p-4 border-t lg:border-l">
+              {isAuthenticated && user ? (
+                // Authenticated User View
+
+                // <div className="bg-gray-100 rounded-lg w-full shadow-xl border-2 border-gray-300 overflow-hidden">
+                //   {/* Header */}
+                //   <div className="bg-white px-2 py-1 rounded-t-lg border-b-2 border-gray-300">
+                //     <div className="flex items-center justify-between w-full">
+                //       <h3 className="text-xl font-medium text-center  w-full text-gray-600">
+                //         {data.user.name}
+                //       </h3>
+                //     </div>
+                //   </div>
+
+                //   {/* Message Input */}
+                //   <div className="p-2 h-[300px] bg-gray-100 flex flex-col">
+                //     <div className="flex-1"></div>
+                //     <div className="mb-2">
+                //       <textarea
+                //         value={message}
+                //         onChange={(e) => setMessage(e.target.value)}
+                //         placeholder="Type your message..."
+                //         className="w-full h-fit max-h-32 p-1 border-2 border-blue-500 rounded-lg resize-none focus:outline-none focus:ring-0 focus:border-blue-500 bg-white text-gray-800 text-sm"
+                //       />
+                //     </div>
+
+                //     {/* Send Button */}
+                //     <button
+                //       onClick={handleSendMessage}
+                //       disabled={!message.trim()}
+                //       className="w-full bg-blue-500 hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed text-white py-2 px-6 rounded-lg font-semibold text-base transition-colors shadow-md"
+                //     >
+                //       Send
+                //     </button>
+                //   </div>
+                // </div>
+                <ProductMessageWindow
+                  senderId={user.id.toString()}
+                  receiverId={data.user.id.toString()}
+                  productName={data.name}
+                  sellerName={data.user.name}
+                />
+              ) : (
+                // Non-authenticated User View
+                <div className="text-center">
+                  <div className="mb-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                    <MessageCircle className="w-8 h-8 text-blue-500 mx-auto mb-2" />
+                    <h3 className="font-semibold text-gray-900 mb-1">
+                      Contact the Seller
+                    </h3>
+                    <p className="text-sm text-gray-600">
+                      Sign in to send messages and get contact details
+                    </p>
+                  </div>
+
+                  <button className="w-full bg-blue-500 hover:bg-blue-600 text-white py-3 px-4 rounded-lg font-medium transition-colors mb-4">
+                    Log in to Contact Seller
+                  </button>
+
+                  <p className="text-xs text-gray-500">
+                    By signing in, you can message sellers directly and access
+                    their contact information
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         </div>
