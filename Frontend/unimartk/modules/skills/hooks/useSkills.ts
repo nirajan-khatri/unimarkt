@@ -1,8 +1,8 @@
 import { useQuery } from "@tanstack/react-query";
-import { fetchFilteredProducts } from "@/services/products";
+import { fetchFilteredSkills } from "@/services/skills";
 import { PriceFilters } from "@/types/filters";
 
-export function useProducts(
+export function useSkills(
   page: number,
   searchTerm: string,
   category?: string | null,
@@ -11,7 +11,7 @@ export function useProducts(
 ) {
   return useQuery({
     queryKey: [
-      "products",
+      "skills",
       page,
       searchTerm,
       category,
@@ -19,12 +19,13 @@ export function useProducts(
       priceFilters,
     ],
     queryFn: () =>
-      fetchFilteredProducts(
+      fetchFilteredSkills(
         page,
         searchTerm,
         category || undefined,
         subcategory || undefined,
-        priceFilters
+        priceFilters,
+        module,
       ),
   });
 }

@@ -25,11 +25,6 @@ export const params = {
       clearOnDefault: true,
     })
     .withDefault(""),
-  cities: parseAsArrayOf(parseAsString)
-    .withOptions({
-      clearOnDefault: true,
-    })
-    .withDefault([]),
 };
 
 export const loadProductFilters = createLoader(params);

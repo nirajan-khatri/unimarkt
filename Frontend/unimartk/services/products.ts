@@ -1,8 +1,4 @@
-interface PriceFilters {
-  minPrice: string;
-  maxPrice: string;
-  pickupLocation: string;
-}
+import { PriceFilters } from "@/types/filters";
 
 export async function fetchFilteredProducts(
   page: number,
@@ -22,10 +18,11 @@ export async function fetchFilteredProducts(
     url.searchParams.append("name", searchTerm);
   }
 
-  // Add category filters
+  // Add category and subcategory filters independently
   if (category) {
     url.searchParams.append("category__name", category);
-  } else if (subcategory) {
+  }
+  if (subcategory) {
     url.searchParams.append("sub_category__name", subcategory);
   }
 
@@ -43,6 +40,17 @@ export async function fetchFilteredProducts(
   }
 
   const response = await fetch(url.toString());
+  
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+
+  return response.json();
+}
+
+export async function fetchProductById(productId: string) {
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
+  const response = await fetch(`${baseUrl}/products/${productId}/`);
   
   if (!response.ok) {
     throw new Error(`HTTP error! status: ${response.status}`);
