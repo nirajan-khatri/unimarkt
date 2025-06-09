@@ -91,6 +91,9 @@ class SkillViewSet(viewsets.ModelViewSet):
     def partial_update(self, request, *args, **kwargs):
         return Response({'detail': 'PATCH method not allowed.'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
 
+def get_role_names():
+    return [role.name for role in Role.objects.all()]
+
 class UserViewSet(viewsets.ModelViewSet):
     http_method_names = ['get', 'put', 'delete']
     queryset = User.objects.all()
@@ -107,12 +110,6 @@ class UserViewSet(viewsets.ModelViewSet):
             openapi.Parameter("is_superuser", openapi.IN_QUERY, type=openapi.TYPE_BOOLEAN, description="Is the user a super user?"),
             openapi.Parameter("is_active", openapi.IN_QUERY, type=openapi.TYPE_BOOLEAN, description="Is the user active?"),
             openapi.Parameter("is_staff", openapi.IN_QUERY, type=openapi.TYPE_BOOLEAN, description="Is the user a staff member?"),
- openapi.Parameter(
-            "role_name", openapi.IN_QUERY,
-            type=openapi.TYPE_STRING,
-            enum=[role.name for role in Role.objects.all()],
-            description="Filter users by role name (dropdown)"
-        ),
         ],
     )
     def list(self, request, *args, **kwargs):
