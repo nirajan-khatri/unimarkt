@@ -67,3 +67,18 @@ export const skillSchema = z.object({
     )
     .min(1, "At least one availability slot is required"),
 });
+
+export const profileSchema = z.object({
+  name: z.string().min(1, "Name is required"),
+  email: z
+    .string()
+    .email("Invalid email address")
+    .refine((email) => email.endsWith("hs-fulda.de"), {
+      message:
+        "Only Hochschule Fulda emails (ending with hs-fulda.de) are allowed",
+    }),
+  contact_number: z
+    .string()
+    .regex(/^\d{10}$/, "Invalid contact number")
+    .optional(),
+});

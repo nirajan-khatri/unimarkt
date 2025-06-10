@@ -1,3 +1,4 @@
+import { Product } from "@/modules/products/types";
 import { PriceFilters } from "@/types/filters";
 
 export async function fetchFilteredProducts(
@@ -7,7 +8,8 @@ export async function fetchFilteredProducts(
   subcategory?: string,
   priceFilters?: PriceFilters
 ) {
-  const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
+  const baseUrl =
+    process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
   const url = new URL(`${baseUrl}/products/`);
 
   // Add pagination
@@ -40,7 +42,7 @@ export async function fetchFilteredProducts(
   }
 
   const response = await fetch(url.toString());
-  
+
   if (!response.ok) {
     throw new Error(`HTTP error! status: ${response.status}`);
   }
@@ -48,10 +50,11 @@ export async function fetchFilteredProducts(
   return response.json();
 }
 
-export async function fetchProductById(productId: string) {
-  const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
+export async function fetchProductById(productId: string): Promise<Product> {
+  const baseUrl =
+    process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
   const response = await fetch(`${baseUrl}/products/${productId}/`);
-  
+
   if (!response.ok) {
     throw new Error(`HTTP error! status: ${response.status}`);
   }

@@ -1,25 +1,16 @@
-type Role = {
-  id: number;
-  name: string;
-};
+import { Category } from "../home/types";
+import { User } from "../profile/types";
 
-type User = {
-  id: string;
-  name: string;
-  email: string;
-  contact_number?: string;
-  role: Role;
-};
-
-type Product = {
-  id: string;
+export interface Product {
+  product_id: number;
   name: string;
   category: Category;
-  subCategory: SubCategory;
+  sub_category: Category;
   description: string;
   price: string;
-  images?: string[];
-  user?: User;
-  status: "pending" | "approved" | "rejected";
+  images?: string[] | null;
+  user: User;
+  status: string;
   created_at: string;
-};
+  pickup_location: string;
+}

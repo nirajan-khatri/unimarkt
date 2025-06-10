@@ -27,9 +27,33 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import dynamic from "next/dynamic";
+import { useEffect, useState } from "react";
+
+const SignInLink = dynamic(
+  () =>
+    Promise.resolve(({ children }: { children: React.ReactNode }) => {
+      const getSignUpUrl = () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const redirect = urlParams.get("redirect");
+        return redirect ? `/sign-in?redirect=${redirect}` : "/sign-in";
+      };
+
+      return <Link href={getSignUpUrl()}>{children}</Link>;
+    }),
+  { ssr: false }
+);
 
 export const SignUpView = () => {
-  const router = useRouter();
+  const [redirectUrl, setRedirectUrl] = useState<string>("/");
+
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const redirect = urlParams.get("redirect");
+    if (redirect) {
+      setRedirectUrl(decodeURIComponent(redirect));
+    }
+  }, []);
 
   const form = useForm<z.infer<typeof registerSchema>>({
     resolver: zodResolver(registerSchema),
@@ -48,6 +72,7 @@ export const SignUpView = () => {
 
   const onSubmit = (values: z.infer<typeof registerSchema>) => {
     console.log(values);
+    window.location.href = redirectUrl ? redirectUrl : "/";
   };
 
   return (
@@ -62,15 +87,14 @@ export const SignUpView = () => {
               <Link href={"/"}>
                 <span className={"text-2xl font-black"}>UniMarkt</span>
               </Link>
-              <Button
-                asChild
-                className="text-base border-none underline"
-                variant={"ghost"}
-              >
-                <Link prefetch href={"/sign-in"}>
-                  Sign in
-                </Link>
-              </Button>
+              <SignInLink>
+                <Button
+                  className="text-base border-none underline"
+                  variant={"ghost"}
+                >
+                  Sign In
+                </Button>
+              </SignInLink>
             </div>
             <h1 className="text-4xl font-medium">Join the Community.</h1>
             <FormField
