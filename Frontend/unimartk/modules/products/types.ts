@@ -1,18 +1,19 @@
 import { Category } from "../home/types";
 import { User } from "../profile/types";
 
-type Product = {
-  id: string;
+export interface Product {
+  product_id: number;
   name: string;
   category: Category;
-  subCategory: Category;
+  sub_category: Category;
   description: string;
   price: string;
-  images?: string[];
-  user?: User;
-  status: "pending" | "approved" | "rejected";
+  images?: string[] | null;
+  user: User;
+  status: string;
   created_at: string;
-};
+  pickup_location: string;
+}
 
 export interface Message {
   id: string | number;

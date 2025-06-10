@@ -33,7 +33,6 @@ const Layout = async ({ children }: Props) => {
           <SearchFilters />
         </Suspense>
       </HydrationBoundary>
-      {/* <SearchFilters /> */}
       <div className="flex-1">{children}</div>
       <Footer />
     </div>

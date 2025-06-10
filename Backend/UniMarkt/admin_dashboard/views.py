@@ -1,14 +1,14 @@
 from .filters import ProductFilter,SkillFilter,UserFilter
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
-from rest_framework import viewsets, mixins, status, filters
+from rest_framework import viewsets,  status
 from rest_framework.response import Response
 from rest_framework.parsers import JSONParser
 from django_filters.rest_framework import DjangoFilterBackend
 
 from product.models import Product
 from skill.models import Skill
-from uniMarktAuth.models import User
+from uniMarktAuth.models import User,Role
 
 from .serializers import (
     ProductSerializer,
@@ -90,6 +90,9 @@ class SkillViewSet(viewsets.ModelViewSet):
     @swagger_auto_schema(tags=["admin_dashboard"])
     def partial_update(self, request, *args, **kwargs):
         return Response({'detail': 'PATCH method not allowed.'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
+
+def get_role_names():
+    return [role.name for role in Role.objects.all()]
 
 class UserViewSet(viewsets.ModelViewSet):
     http_method_names = ['get', 'put', 'delete']

@@ -9,6 +9,7 @@ import {
   ProductView,
   ProductViewSkeleton,
 } from "@/modules/products/ui/views/product-view";
+import { fetchProductById } from "@/services/products";
 
 interface Props {
   params: Promise<{ productId: string; slug: string }>;
@@ -17,9 +18,14 @@ interface Props {
 export const dynamic = "force-dynamic";
 
 const Page = async ({ params }: Props) => {
-  const { productId, slug } = await params;
+  const { productId } = await params;
 
   const queryClient = new QueryClient();
+
+  await queryClient.prefetchQuery({
+    queryKey: ["product", productId],
+    queryFn: () => fetchProductById(productId),
+  });
 
   // await queryClient.prefetchQuery({
   //   queryKey: ["categories"],
