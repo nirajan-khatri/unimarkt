@@ -148,6 +148,7 @@ const ProductMessageWindow: React.FC<ProductMessageWindowProps> = ({
     if (connectionAttempts < 3) {
       setConnectionAttempts((prev) => prev + 1);
       setConnectionError("");
+      setMessages([]);
       // console.log("Retrying connection, attempt:", connectionAttempts + 1);
     } else {
       setConnectionError("Max retry attempts reached");
@@ -180,7 +181,9 @@ const ProductMessageWindow: React.FC<ProductMessageWindowProps> = ({
     }
   };
 
-  const handleKeyPress = (e: React.KeyboardEvent<HTMLInputElement>): void => {
+  const handleKeyPress = (
+    e: React.KeyboardEvent<HTMLTextAreaElement>
+  ): void => {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       sendMessage();
@@ -191,10 +194,18 @@ const ProductMessageWindow: React.FC<ProductMessageWindowProps> = ({
     window.open(`/messages/${senderId}/${receiverId}`, "_blank");
   };
 
-  console.log(messages);
+  useEffect(() => {
+    if (messages.length === 0) {
+      setNewMessage(
+        "Hi, I'm interested in the item you posted. Is it still available? Could you please let me know its condition and if the price is negotiable?"
+      );
+    } else {
+      setNewMessage("");
+    }
+  }, [messages]);
 
   return (
-    <div className="bg-white border overflow-hidden rounded-lg shadow-xl w-80 h-96 flex flex-col z-50">
+    <div className="bg-white border overflow-hidden rounded-lg shadow-xl w-full h-96 flex flex-col z-50">
       {/* Header */}
       <div className="flex justify-between items-center p-3 border-b bg-gray-50 rounded-t-lg">
         <div>
@@ -246,7 +257,7 @@ const ProductMessageWindow: React.FC<ProductMessageWindowProps> = ({
               className={`flex ${msg.sender_id.toString() === senderId ? "justify-end" : "justify-start"}`}
             >
               <div
-                className={`max-w-xs px-3 py-2 rounded-lg text-sm ${
+                className={`max-w-3/4 px-3 py-2 rounded-lg text-xs ${
                   msg.sender_id.toString() === senderId
                     ? "bg-blue-500 text-white"
                     : "bg-gray-100 text-gray-800"
@@ -274,22 +285,22 @@ const ProductMessageWindow: React.FC<ProductMessageWindowProps> = ({
 
       {/* Input */}
       <div className="p-3 border-t">
-        <div className="flex space-x-2">
-          <input
-            type="text"
+        <div className="flex space-x-2 items-end">
+          <textarea
             value={newMessage}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+            onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
               setNewMessage(e.target.value)
             }
             onKeyDown={handleKeyPress}
             placeholder="Type a message..."
-            className="flex-1 px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+            style={{ scrollbarWidth: "none" }}
+            className="flex-1 px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs"
             disabled={!isConnected}
           />
           <button
             onClick={sendMessage}
             disabled={!newMessage.trim() || !isConnected}
-            className="bg-blue-500 hover:bg-blue-600 disabled:bg-gray-300 text-white p-2 rounded-lg transition-colors"
+            className="bg-blue-500 hover:bg-blue-600 disabled:bg-gray-300 text-white p-2 rounded-lg transition-colors h-10 w-10 flex items-center justify-center"
             aria-label="Send message"
           >
             <Send size={16} />
