@@ -1,9 +1,7 @@
-import { Footer } from "@/components/Footer";
+import { Footer } from "@/components/footer";
 import { Navbar } from "@/components/navbar";
 import { SearchFilters } from "@/modules/skills/ui/components/search-filters";
-import {
-  SearchFilterSkeleton
-} from "@/modules/home/ui/components/search-filters";
+import { SearchFilterSkeleton } from "@/modules/home/ui/components/search-filters";
 import {
   HydrationBoundary,
   QueryClient,

@@ -2,69 +2,25 @@
 
 import { useSuspenseQuery } from "@tanstack/react-query";
 import {
-  CheckIcon,
-  LinkIcon,
-  StarIcon,
   MapPinIcon,
   XIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
 } from "lucide-react";
 import Image from "next/image";
-import Link from "next/link";
-import React, { Fragment, useState } from "react";
-import { toast } from "sonner";
+import React, { useState } from "react";
 
 import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
-import { formatCurrency } from "@/lib/utils";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { fetchProductById } from "@/services/products";
 
-const data = {
-  product_id: 12,
-  name: "Macbook M3 Pro",
-  category: {
-    id: 1,
-    name: "All",
-    color: "#CCCCCC",
-    slug: "all",
-    category_id: null,
-    subcategories: [],
-  },
-  sub_category: {
-    id: 1,
-    name: "Mobile Phones",
-    color: null,
-    slug: "mobile-phones",
-    category_id: 2,
-    subcategories: [],
-  },
-  description:
-    "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec condimentum molestie posuere. Donec non odio id dui blandit tempor. Maecenas quam nibh, tempor quis sodales quis, maximus vitae est. Praesent dapibus vulputate tellus sit amet vehicula. Nunc posuere finibus turpis, sed congue erat dignissim a. Nulla suscipit, nibh ullamcorper hendrerit pellentesque, quam ipsum dictum ipsum, ut condimentum quam nunc id lacus. Nullam pulvinar eu nisl at sagittis. Morbi convallis mollis nulla, a gravida orci egestas in.",
-  price: "1300",
-  location: "Frankfurt",
-  images: [
-    "https://images.pexels.com/photos/31173368/pexels-photo-31173368/free-photo-of-colorful-facades-along-amsterdam-canal.jpeg?auto=compress&cs=tinysrgb&w=1200&lazy=load",
-    "https://images.pexels.com/photos/30675194/pexels-photo-30675194/free-photo-of-creative-watercolor-art-workspace-with-supplies.jpeg?auto=compress&cs=tinysrgb&w=1200&lazy=load",
-    "https://images.pexels.com/photos/29213973/pexels-photo-29213973/free-photo-of-picturesque-village-with-foggy-morning-landscape.jpeg?auto=compress&cs=tinysrgb&w=1200&lazy=load",
-    "https://images.pexels.com/photos/30973670/pexels-photo-30973670/free-photo-of-curious-ginger-kitten-in-wicker-basket.jpeg?auto=compress&cs=tinysrgb&w=1200&lazy=load",
-    "https://images.pexels.com/photos/32268896/pexels-photo-32268896/free-photo-of-charming-bookshop-exterior-in-clisson-france.jpeg?auto=compress&cs=tinysrgb&w=1200&lazy=load",
-    "https://images.pexels.com/photos/30563259/pexels-photo-30563259/free-photo-of-footprints-in-sand-beach-serenity.jpeg?auto=compress&cs=tinysrgb&w=1200&lazy=load",
-  ],
-  user: {
-    id: 1,
-    name: "Alice Chan",
-    email: "alice@example.com",
-    contact_number: "1234567890",
-    role: {
-      id: 1,
-      name: "admin",
-    },
-  },
-  status: "Pending",
-  created_at: "2025-06-06T14:22:54.484251Z",
-  pickup_location: "Praesentium dolor eu",
-};
+const images = [
+  "https://images.pexels.com/photos/31173368/pexels-photo-31173368/free-photo-of-colorful-facades-along-amsterdam-canal.jpeg?auto=compress&cs=tinysrgb&w=1200&lazy=load",
+  "https://images.pexels.com/photos/30675194/pexels-photo-30675194/free-photo-of-creative-watercolor-art-workspace-with-supplies.jpeg?auto=compress&cs=tinysrgb&w=1200&lazy=load",
+  "https://images.pexels.com/photos/29213973/pexels-photo-29213973/free-photo-of-picturesque-village-with-foggy-morning-landscape.jpeg?auto=compress&cs=tinysrgb&w=1200&lazy=load",
+  "https://images.pexels.com/photos/30973670/pexels-photo-30973670/free-photo-of-curious-ginger-kitten-in-wicker-basket.jpeg?auto=compress&cs=tinysrgb&w=1200&lazy=load",
+  "https://images.pexels.com/photos/32268896/pexels-photo-32268896/free-photo-of-charming-bookshop-exterior-in-clisson-france.jpeg?auto=compress&cs=tinysrgb&w=1200&lazy=load",
+  "https://images.pexels.com/photos/30563259/pexels-photo-30563259/free-photo-of-footprints-in-sand-beach-serenity.jpeg?auto=compress&cs=tinysrgb&w=1200&lazy=load",
+];
 
 interface Props {
   productId: string;
@@ -193,6 +149,11 @@ export const ProductView = ({ productId }: Props) => {
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
 
+  const { data, error, isLoading } = useSuspenseQuery({
+    queryKey: ["product", productId],
+    queryFn: () => fetchProductById(productId),
+  });
+
   return (
     <>
       <div className="px-4 lg:px-12 py-10">
@@ -208,7 +169,7 @@ export const ProductView = ({ productId }: Props) => {
                     onClick={openModal}
                   >
                     <Image
-                      src={data.images[selectedImage]}
+                      src={images[selectedImage]}
                       alt={data.name}
                       fill
                       className="object-cover "
@@ -223,7 +184,7 @@ export const ProductView = ({ productId }: Props) => {
                 {/* Thumbnail Strip */}
                 <div className="w-full sm:w-20 bg-gray-100 order-1 sm:order-2">
                   <div className="flex sm:flex-col gap-2 p-2 overflow-x-none sm:overflow-none justify-between sm:justify-start">
-                    {data.images.map((imageUrl, index) => (
+                    {images.map((imageUrl, index) => (
                       <div
                         key={index}
                         className={`
@@ -257,7 +218,7 @@ export const ProductView = ({ productId }: Props) => {
                   </h2>
                   <div className="flex items-center gap-1 text-gray-600 mb-4">
                     <MapPinIcon className="w-4 h-4" />
-                    <span className="text-sm">{data.location}</span>
+                    <span className="text-sm">{data.pickup_location}</span>
                   </div>
                 </div>
                 <div className="mb-4">
@@ -296,7 +257,7 @@ export const ProductView = ({ productId }: Props) => {
       <ImageModal
         isOpen={isModalOpen}
         onClose={closeModal}
-        images={data.images}
+        images={images}
         currentIndex={selectedImage}
         onIndexChange={setSelectedImage}
       />
