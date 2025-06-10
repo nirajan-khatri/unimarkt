@@ -5,7 +5,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
 
-from .models import Role
+from .models import Role, User
 from .serializers import LoginSerializer, UserSerializer, RegisterSerializer, RoleSerializer
 
 
@@ -54,3 +54,10 @@ class RoleListView(APIView):
         roles = Role.objects.all()
         serializer = RoleSerializer(roles, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+class SecurityQuestionChoiceView(APIView):
+    @swagger_auto_schema(tags=["Auth"])
+    def get(self, request):
+        choices = User.SECURITY_QUESTION_CHOICES
+        data = [{"key": key, "question": question} for key, question in choices]
+        return Response(data, status=status.HTTP_200_OK)
