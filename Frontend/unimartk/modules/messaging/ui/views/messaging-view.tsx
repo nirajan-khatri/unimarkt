@@ -18,14 +18,7 @@ import { Message } from "@/modules/products/types";
 import { User } from "@/modules/profile/types";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
-// Types
-
-interface Props {
-  senderId: string;
-  receiverId: string;
-}
-
-const WhatsAppMessaging = ({ receiverId, senderId }: Props) => {
+const WhatsAppMessaging = () => {
   const [selectedConversation, setSelectedConversation] = useState<
     string | null
   >(null);
@@ -34,7 +27,7 @@ const WhatsAppMessaging = ({ receiverId, senderId }: Props) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [socket, setSocket] = useState<WebSocket | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const currentUserId = senderId || "2";
+  const currentUserId = "2";
 
   // Fetch unique users/conversations
   const {
@@ -183,7 +176,9 @@ const WhatsAppMessaging = ({ receiverId, senderId }: Props) => {
           {/* Sidebar Header */}
           <div className="p-4 bg-gray-50 border-b border-gray-200">
             <div className="flex items-center justify-between mb-4">
-              <h1 className="text-xl font-semibold text-gray-800">Messages</h1>
+              <h1 className="text-xl font-semibold text-gray-800">
+                Messages (logged in as user id 2)
+              </h1>
               <button className="p-2 hover:bg-gray-200 rounded-full">
                 <MoreVertical size={20} className="text-gray-600" />
               </button>

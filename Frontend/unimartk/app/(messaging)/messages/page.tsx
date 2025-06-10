@@ -9,11 +9,9 @@ interface Props {
 }
 
 const MessagingPage = async ({ params }: Props) => {
-  const { receiverId, senderId } = await params;
-
   return (
     <div className="h-[80vh] ">
-      <MessagingView senderId={senderId} receiverId={receiverId} />
+      <MessagingView />
     </div>
   );
 };

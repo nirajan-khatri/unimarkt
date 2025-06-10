@@ -7,14 +7,10 @@ import {
   ChevronLeftIcon,
   ChevronRightIcon,
   MessageCircle,
-  Phone,
-  Mail,
-  User,
 } from "lucide-react";
 import Image from "next/image";
 import React, { useState } from "react";
 
-import { Button } from "@/components/ui/button";
 import { fetchProductById } from "@/services/products";
 
 const images = [
@@ -25,55 +21,7 @@ const images = [
   "https://images.pexels.com/photos/32268896/pexels-photo-32268896/free-photo-of-charming-bookshop-exterior-in-clisson-france.jpeg?auto=compress&cs=tinysrgb&w=1200&lazy=load",
   "https://images.pexels.com/photos/30563259/pexels-photo-30563259/free-photo-of-footprints-in-sand-beach-serenity.jpeg?auto=compress&cs=tinysrgb&w=1200&lazy=load",
 ];
-import { Progress } from "@/components/ui/progress";
-import { formatCurrency } from "@/lib/utils";
 import ProductMessageWindow from "../components/messaging-window";
-
-const data = {
-  product_id: 12,
-  name: "Macbook M3 Pro",
-  category: {
-    id: 1,
-    name: "All",
-    color: "#CCCCCC",
-    slug: "all",
-    category_id: null,
-    subcategories: [],
-  },
-  sub_category: {
-    id: 1,
-    name: "Mobile Phones",
-    color: null,
-    slug: "mobile-phones",
-    category_id: 2,
-    subcategories: [],
-  },
-  description:
-    "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec condimentum molestie posuere. Donec non odio id dui blandit tempor. Maecenas quam nibh, tempor quis sodales quis, maximus vitae est. Praesent dapibus vulputate tellus sit amet vehicula. Nunc posuere finibus turpis, sed congue erat dignissim a. Nulla suscipit, nibh ullamcorper hendrerit pellentesque, quam ipsum dictum ipsum, ut condimentum quam nunc id lacus. Nullam pulvinar eu nisl at sagittis. Morbi convallis mollis nulla, a gravida orci egestas in.",
-  price: "1300",
-  location: "Frankfurt",
-  images: [
-    "https://images.pexels.com/photos/31173368/pexels-photo-31173368/free-photo-of-colorful-facades-along-amsterdam-canal.jpeg?auto=compress&cs=tinysrgb&w=1200&lazy=load",
-    "https://images.pexels.com/photos/30675194/pexels-photo-30675194/free-photo-of-creative-watercolor-art-workspace-with-supplies.jpeg?auto=compress&cs=tinysrgb&w=1200&lazy=load",
-    "https://images.pexels.com/photos/29213973/pexels-photo-29213973/free-photo-of-picturesque-village-with-foggy-morning-landscape.jpeg?auto=compress&cs=tinysrgb&w=1200&lazy=load",
-    "https://images.pexels.com/photos/30973670/pexels-photo-30973670/free-photo-of-curious-ginger-kitten-in-wicker-basket.jpeg?auto=compress&cs=tinysrgb&w=1200&lazy=load",
-    "https://images.pexels.com/photos/32268896/pexels-photo-32268896/free-photo-of-charming-bookshop-exterior-in-clisson-france.jpeg?auto=compress&cs=tinysrgb&w=1200&lazy=load",
-    "https://images.pexels.com/photos/30563259/pexels-photo-30563259/free-photo-of-footprints-in-sand-beach-serenity.jpeg?auto=compress&cs=tinysrgb&w=1200&lazy=load",
-  ],
-  user: {
-    id: 1,
-    name: "Alice Chan",
-    email: "alice@example.com",
-    contact_number: "1234567890",
-    role: {
-      id: 1,
-      name: "admin",
-    },
-  },
-  status: "Pending",
-  created_at: "2025-06-06T14:22:54.484251Z",
-  pickup_location: "Praesentium dolor eu",
-};
 
 interface Props {
   productId: string;
@@ -208,6 +156,10 @@ export const ProductView = ({ productId }: Props) => {
   } | null>(null);
 
   // Simulate login function
+  const handleLoginUser1 = () => {
+    setIsAuthenticated(true);
+    setUser({ id: 1, name: "Alice Chan", email: "alice@example.com" });
+  };
   const handleLoginUser2 = () => {
     setIsAuthenticated(true);
     setUser({ id: 2, name: "Bob Lee", email: "bob@example.com" });
@@ -235,30 +187,46 @@ export const ProductView = ({ productId }: Props) => {
     queryFn: () => fetchProductById(productId),
   });
 
+  console.log(data);
+
   return (
     <>
       <div className="px-4 lg:px-12 py-10">
         <div className="mb-4 p-4 bg-gray-100 rounded-lg ">
           <h3 className="font-semibold mb-2">Demo Authentication Controls:</h3>
           <div className="flex gap-2 items-center">
-            <button
-              onClick={handleLoginUser2}
-              className="px-3 py-1 bg-green-500 text-white rounded text-sm hover:bg-green-600"
-            >
-              Simulate Login 2
-            </button>
-            <button
-              onClick={handleLoginUser3}
-              className="px-3 py-1 bg-green-500 text-white rounded text-sm hover:bg-green-600"
-            >
-              Simulate Login 3
-            </button>
-            <button
-              onClick={handleLoginUser4}
-              className="px-3 py-1 bg-green-500 text-white rounded text-sm hover:bg-green-600"
-            >
-              Simulate Login 4
-            </button>
+            {data.user.id.toString() !== "1" && (
+              <button
+                onClick={handleLoginUser1}
+                className="px-3 py-1 bg-green-500 text-white rounded text-sm hover:bg-green-600"
+              >
+                Simulate Login 1
+              </button>
+            )}
+            {data.user.id.toString() !== "2" && (
+              <button
+                onClick={handleLoginUser2}
+                className="px-3 py-1 bg-green-500 text-white rounded text-sm hover:bg-green-600"
+              >
+                Simulate Login 2
+              </button>
+            )}
+            {data.user.id.toString() !== "3" && (
+              <button
+                onClick={handleLoginUser3}
+                className="px-3 py-1 bg-green-500 text-white rounded text-sm hover:bg-green-600"
+              >
+                Simulate Login 3
+              </button>
+            )}
+            {data.user.id.toString() !== "4" && (
+              <button
+                onClick={handleLoginUser4}
+                className="px-3 py-1 bg-green-500 text-white rounded text-sm hover:bg-green-600"
+              >
+                Simulate Login 4
+              </button>
+            )}
             <button
               onClick={handleLogout}
               className="px-3 py-1 bg-red-500 text-white rounded text-sm hover:bg-red-600"
@@ -388,8 +356,7 @@ export const ProductView = ({ productId }: Props) => {
                 // </div>
                 <ProductMessageWindow
                   senderId={user.id.toString()}
-                  // receiverId={data.user.id.toString()}
-                  receiverId={"4"}
+                  receiverId={data.user.id.toString()}
                   productName={data.name}
                   sellerName={data.user.name}
                 />

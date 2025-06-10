@@ -13,7 +13,8 @@ async function fetchServices(
   subcategory?: string,
   filters?: ServiceFilters
 ) {
-  const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
+  const baseUrl =
+    process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
   const url = new URL(`${baseUrl}/skills/`);
 
   // Add pagination
@@ -46,7 +47,7 @@ async function fetchServices(
 
   try {
     const response = await fetch(url.toString());
-    
+
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
@@ -58,7 +59,7 @@ async function fetchServices(
       page: page,
     };
   } catch (error) {
-    console.error('Error fetching services:', error);
+    console.error("Error fetching services:", error);
     throw error;
   }
 }
@@ -72,6 +73,7 @@ export function useServices(
 ) {
   return useQuery({
     queryKey: ["services", page, searchTerm, category, subcategory, filters],
-    queryFn: () => fetchServices(page, searchTerm, category, subcategory, filters),
+    queryFn: () =>
+      fetchServices(page, searchTerm, category, subcategory, filters),
   });
 }
