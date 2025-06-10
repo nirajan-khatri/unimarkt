@@ -1,34 +1,23 @@
-import { loadProductFilters } from "@/modules/products/search-params";
-import { SearchParams } from "nuqs";
-import React from "react";
+"use client";
 
-interface Props {
-  params: Promise<{
-    category: string;
-    subcategory: string;
-  }>;
-  searchParams: Promise<SearchParams>;
-}
-export const dynamic = "force-dynamic";
+import React from 'react';
+import { useParams } from "next/navigation";
+import { ProductListView } from '@/modules/products/ui/views/ProductListView';
 
-const Page = async ({ params, searchParams }: Props) => {
-  const { subcategory } = await params;
-  const filters = await loadProductFilters(searchParams);
-  // const queryClient = getQueryClient();
-  // void queryClient.prefetchInfiniteQuery(
-  //   trpc.products.getMany.infiniteQueryOptions({
-  //     ...filters,
-  //     category: subcategory,
-  //     limit: DEFAULT_LIMIT,
-  //   })
-  // );
+export default function SubcategoryPage() {
+  const params = useParams();
+  const category = params.category as string;
+  const subcategory = params.subcategory as string;
 
   return (
-    // <HydrationBoundary state={dehydrate(queryClient)}>
-    //   <ProductListView category={subcategory} />
-    // </HydrationBoundary>
-    <p className="">{subcategory}</p>
+    <div className="font-[family-name:var(--font-geist-sans)]">
+      <main>
+        <ProductListView 
+          category={category}
+          subcategory={subcategory}
+          showSort={true}
+        />
+      </main>
+    </div>
   );
-};
-
-export default Page;
+}

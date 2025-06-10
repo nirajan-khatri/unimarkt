@@ -1,9 +1,10 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { BookmarkCheckIcon, ListFilterIcon, SearchIcon } from "lucide-react";
+import { BookmarkCheckIcon, ListFilterIcon, SearchIcon, X } from "lucide-react";
 import Link from "next/link";
 import React, { useState } from "react";
+import { useSearchParams, useRouter, usePathname } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,6 +17,21 @@ interface Props {
 
 export const SearchInput = ({ disabled }: Props) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
+
+  const currentSearch = searchParams.get("search") || "";
+
+  const handleSearch = (term: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (term) {
+      params.set("search", term);
+    } else {
+      params.delete("search");
+    }
+    router.push(`${pathname}?${params.toString()}`);
+  };
 
   return (
     <div className="flex items-center gap-2 w-full">
@@ -23,10 +39,22 @@ export const SearchInput = ({ disabled }: Props) => {
       <div className="relative w-full">
         <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-neutral-500" />
         <Input
-          className="pl-8"
-          placeholder="Search products"
+          className="pl-8 pr-10"
+          placeholder="Search skills and services..."
           disabled={disabled}
+          value={currentSearch}
+          onChange={(e) => handleSearch(e.target.value)}
         />
+        {currentSearch && (
+          <Button
+            variant="ghost"
+            size="icon"
+            className="absolute right-2 top-1/2 -translate-y-1/2 h-6 w-6"
+            onClick={() => handleSearch("")}
+          >
+            <X className="h-4 w-4" />
+          </Button>
+        )}
       </div>
       <Button
         variant={"ghost"}

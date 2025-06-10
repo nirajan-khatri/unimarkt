@@ -1,34 +1,41 @@
-import { loadProductFilters } from "@/modules/products/search-params";
-import { SearchParams } from "nuqs";
-import React from "react";
+"use client";
 
-interface Props {
-  params: Promise<{
-    department: string;
-  }>;
-  searchParams: Promise<SearchParams>;
-}
+import React, { useState } from 'react';
+import { useParams, useSearchParams } from "next/navigation";
+import { ServiceListView } from '@/modules/skills/ui/components/ServicesListView';
+import { useServices } from '@/hooks/useServices';
 
-export const dynamic = "force-dynamic";
-
-const Page = async ({ params, searchParams }: Props) => {
-  const { department } = await params;
-  const filters = await loadProductFilters(searchParams);
-  // const queryClient = getQueryClient();
-  // void queryClient.prefetchInfiniteQuery(
-  //   trpc.products.getMany.infiniteQueryOptions({
-  //     ...filters,
-  //     category,
-  //     limit: DEFAULT_LIMIT,
-  //   })
-  // );
+export default function CategoryPage() {
+  const params = useParams();
+  const searchParams = useSearchParams();
+  const [currentPage, setCurrentPage] = useState(1);
+  
+  const department = params.department as string;
+  const search = searchParams.get("search") || "";
+  
+  const { data, isLoading, error } = useServices(
+    currentPage,
+    search,
+    department.toLowerCase(), // Convert to lowercase to match backend
+    undefined,
+    {
+      minPrice: "",
+      maxPrice: "",
+      module: ""
+    }
+  );
 
   return (
-    // <HydrationBoundary state={dehydrate(queryClient)}>
-    //   <ProductListView category={category} />
-    // </HydrationBoundary>
-    <p className="">{department}</p>
+    <div className="font-[family-name:var(--font-geist-sans)]">
+      <main>
+        <ServiceListView 
+          services={data?.results || []}
+          isLoading={isLoading}
+          error={error as Error | null}
+          category={department}
+          showSort={true}
+        />
+      </main>
+    </div>
   );
-};
-
-export default Page;
+}
