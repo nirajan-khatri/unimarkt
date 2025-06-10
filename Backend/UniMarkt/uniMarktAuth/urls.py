@@ -6,5 +6,4 @@ urlpatterns = [
     path('register/', RegisterAPIView.as_view(), name='register'),
     path("roles/", RoleListView.as_view(), name="roles"),
     path("security-questions/", SecurityQuestionChoiceView.as_view(), name="security-questions"),
-
 ]

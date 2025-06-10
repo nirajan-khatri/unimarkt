@@ -191,7 +191,7 @@ const ProductMessageWindow: React.FC<ProductMessageWindowProps> = ({
   };
 
   const handleOpenFullConversation = (): void => {
-    window.open(`/messages/${senderId}/${receiverId}`, "_blank");
+    window.open(`/messages`, "_blank");
   };
 
   useEffect(() => {
