@@ -5,6 +5,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -17,9 +19,8 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-
-import { registerSchema } from "../../schemas";
 import { Checkbox } from "@/components/ui/checkbox";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
   Select,
   SelectContent,
@@ -28,7 +29,81 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import dynamic from "next/dynamic";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
+
+// Types
+interface SecurityQuestion {
+  key: string;
+  question: string;
+}
+
+interface Role {
+  id: number;
+  name: string;
+}
+
+interface RegisterData {
+  name: string;
+  email: string;
+  password: string;
+  contact_number?: string;
+  role?: number;
+  security_question1: string;
+  answer1: string;
+  security_question2: string;
+  answer2?: string;
+  security_question3: string;
+  answer3: string;
+}
+
+// Schema for form validation
+const registerSchema = z.object({
+  name: z.string().min(1, "Name is required").max(255),
+  email: z.string().email("Invalid email").max(254),
+  password: z.string().min(1, "Password is required"),
+  confirmPassword: z.string().min(1, "Please confirm your password"),
+  contact_number: z.string().max(20).optional(),
+  role: z.string().optional(),
+  securityQuestion: z.string().min(1, "Please select a security question"),
+  answer: z.string().min(1, "Answer is required").max(255),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Passwords don't match",
+  path: ["confirmPassword"],
+});
+
+// API functions
+const fetchSecurityQuestions = async (): Promise<SecurityQuestion[]> => {
+  const response = await fetch('http://localhost:8000/api/security-questions/');
+  if (!response.ok) {
+    throw new Error('Failed to fetch security questions');
+  }
+  return response.json();
+};
+
+const fetchRoles = async (): Promise<Role[]> => {
+  const response = await fetch('http://localhost:8000/api/roles/');
+  if (!response.ok) {
+    throw new Error('Failed to fetch roles');
+  }
+  return response.json();
+};
+
+const registerUser = async (data: RegisterData): Promise<any> => {
+  const response = await fetch('http://localhost:8000/api/register/', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(data),
+  });
+  
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.message || 'Registration failed');
+  }
+  
+  return response.json();
+};
 
 const SignInLink = dynamic(
   () =>
@@ -46,6 +121,45 @@ const SignInLink = dynamic(
 
 export const SignUpView = () => {
   const [redirectUrl, setRedirectUrl] = useState<string>("/");
+  const router = useRouter();
+
+  // TanStack Query to fetch security questions
+  const {
+    data: securityQuestions,
+    isLoading: isLoadingQuestions,
+    error: questionsError,
+  } = useQuery({
+    queryKey: ['security-questions'],
+    queryFn: fetchSecurityQuestions,
+  });
+
+  // TanStack Query to fetch roles
+  const {
+    data: roles,
+    isLoading: isLoadingRoles,
+    error: rolesError,
+  } = useQuery({
+    queryKey: ['roles'],
+    queryFn: fetchRoles,
+  });
+
+
+// Mutation for user registration
+const registerMutation = useMutation({
+  mutationFn: registerUser,
+  onSuccess: (data) => {
+    console.log('Registration successful:', data);
+    // Show success alert instead of redirecting
+    alert('Registration successful! Welcome to UniMarkt!');
+    // Optionally reset the form after successful registration
+    form.reset();
+  },
+  onError: (error: Error) => {
+    console.error('Registration failed:', error.message);
+    // Show error alert
+    alert(`Registration failed: ${error.message}`);
+  },
+});
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -59,20 +173,51 @@ export const SignUpView = () => {
     resolver: zodResolver(registerSchema),
     mode: "all",
     defaultValues: {
+      name: "",
       email: "",
       password: "",
       confirmPassword: "",
-      name: "",
-      admin: false,
-      faculty: false,
-      answer: "",
+      contact_number: "",
+      role: "",
       securityQuestion: "",
+      answer: "",
     },
   });
 
   const onSubmit = (values: z.infer<typeof registerSchema>) => {
-    console.log(values);
-    window.location.href = redirectUrl ? redirectUrl : "/";
+    const registerData: RegisterData = {
+      name: values.name,
+      email: values.email,
+      password: values.password,
+      contact_number: values.contact_number || undefined,
+      role: values.role ? parseInt(values.role) : undefined,
+      // Send the same security question and answer to all three fields
+      security_question1: values.securityQuestion,
+      answer1: values.answer,
+      security_question2: values.securityQuestion,
+      answer2: values.answer,
+      security_question3: values.securityQuestion,
+      answer3: values.answer,
+    };
+  
+    registerMutation.mutate(registerData);
+  };
+
+  // Filter out already selected questions for other dropdowns
+  const getAvailableQuestions = (currentField: string) => {
+    if (!securityQuestions) return [];
+    
+    const selectedQuestions = [
+      form.watch('security_question1'),
+      form.watch('security_question2'),
+      form.watch('security_question3'),
+    ].filter(Boolean);
+
+    const currentValue = form.watch(currentField as any);
+    
+    return securityQuestions.filter(q => 
+      !selectedQuestions.includes(q.key) || q.key === currentValue
+    );
   };
 
   return (
@@ -97,11 +242,12 @@ export const SignUpView = () => {
               </SignInLink>
             </div>
             <h1 className="text-4xl font-medium">Join the Community.</h1>
+            
             <FormField
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-base">Name</FormLabel>
+                  <FormLabel className="text-base">Name *</FormLabel>
                   <FormControl>
                     <Input {...field} />
                   </FormControl>
@@ -109,23 +255,38 @@ export const SignUpView = () => {
                 </FormItem>
               )}
             />
+            
             <FormField
               name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-base">Email</FormLabel>
+                  <FormLabel className="text-base">Email *</FormLabel>
                   <FormControl>
-                    <Input {...field} />
+                    <Input {...field} type="email" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
+            
+            <FormField
+              name="contact_number"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-base">Contact Number</FormLabel>
+                  <FormControl>
+                    <Input {...field} placeholder="Optional" />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            
             <FormField
               name="password"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-base">Password</FormLabel>
+                  <FormLabel className="text-base">Password *</FormLabel>
                   <FormControl>
                     <Input {...field} type="password" />
                   </FormControl>
@@ -133,11 +294,12 @@ export const SignUpView = () => {
                 </FormItem>
               )}
             />
+            
             <FormField
               name="confirmPassword"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-base">Confirm Password</FormLabel>
+                  <FormLabel className="text-base">Confirm Password *</FormLabel>
                   <FormControl>
                     <Input {...field} type="password" />
                   </FormControl>
@@ -145,101 +307,124 @@ export const SignUpView = () => {
                 </FormItem>
               )}
             />
-            <div className="">
-              <div className="flex items-center space-x-4">
-                <FormField
-                  control={form.control}
-                  name="faculty"
-                  render={({ field }) => (
-                    <FormItem className="flex items-center gap-2">
-                      <FormControl>
-                        <Checkbox
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      </FormControl>
-                      <FormLabel className="mb-0">Faculty</FormLabel>
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="admin"
-                  render={({ field }) => (
-                    <FormItem className="flex items-center gap-2">
-                      <FormControl>
-                        <Checkbox
-                          checked={field.value}
-                          onCheckedChange={field.onChange}
-                        />
-                      </FormControl>
-                      <FormLabel className="mb-0">Admin</FormLabel>
-                    </FormItem>
-                  )}
-                />
-              </div>
-              <p className="text-sm text-muted-foreground mt-2">
-                Disclaimer: Needs Approval
-              </p>
-            </div>
+            
             <FormField
               control={form.control}
-              name="securityQuestion"
+              name="role"
               render={({ field }) => (
-                <FormItem className="">
-                  <FormLabel className="text-base">Security Question</FormLabel>
-                  <Select
-                    onValueChange={field.onChange}
-                    defaultValue={field.value}
-                  >
+                <FormItem className="space-y-3">
+                  <FormLabel className="text-base">Role</FormLabel>
+                  {isLoadingRoles ? (
+                    <div className="text-sm text-muted-foreground">Loading roles...</div>
+                  ) : rolesError ? (
+                    <div className="text-sm text-red-500">Error loading roles. Please try again.</div>
+                  ) : (
                     <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Choose Security Question" />
-                      </SelectTrigger>
+                      <RadioGroup
+                        onValueChange={field.onChange}
+                        value={field.value}
+                        className="flex flex-col space-y-2"
+                      >
+                        {roles?.map((role) => (
+                          <FormItem key={role.id} className="flex items-center space-x-3 space-y-0">
+                            <FormControl>
+                              <RadioGroupItem value={role.id.toString()} />
+                            </FormControl>
+                            <FormLabel className="font-normal cursor-pointer">
+                              {role.name.charAt(0).toUpperCase() + role.name.slice(1)}
+                            </FormLabel>
+                          </FormItem>
+                        ))}
+                      </RadioGroup>
                     </FormControl>
-                    <SelectContent>
-                      <SelectItem value="pet">
-                        What is your pet’s name?
-                      </SelectItem>
-                      <SelectItem value="school">
-                        What was the name of your first school?
-                      </SelectItem>
-                      <SelectItem value="city">
-                        In which city were you born?
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="answer"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-base">Answer</FormLabel>
-                  <FormControl>
-                    <Input placeholder="Your answer..." {...field} />
-                  </FormControl>
+                  )}
                   <FormDescription>
-                    Will be used in case of possword forgotten{" "}
+                    Select your role (optional)
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
             />
+
+            <div className="space-y-4">
+              <h2 className="text-xl font-medium">Security Question</h2>
+              <p className="text-sm text-muted-foreground">
+                Please select and answer a security question for account recovery.
+              </p>
+              
+              <FormField
+                control={form.control}
+                name="securityQuestion"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-base">Security Question *</FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                      disabled={isLoadingQuestions}
+                    >
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue 
+                            placeholder={
+                              isLoadingQuestions 
+                                ? "Loading questions..." 
+                                : questionsError 
+                                ? "Error loading questions" 
+                                : "Choose a security question"
+                            } 
+                          />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {securityQuestions?.map((question) => (
+                          <SelectItem key={question.key} value={question.key}>
+                            {question.question}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              
+              <FormField
+                control={form.control}
+                name="answer"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-base">Answer *</FormLabel>
+                    <FormControl>
+                      <Input {...field} placeholder="Your answer..." />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            {questionsError && (
+              <p className="text-sm text-red-500">
+                Failed to load security questions. Please refresh the page.
+              </p>
+            )}
+
             <Button
-              disabled={false}
+              disabled={registerMutation.isPending}
               type="submit"
               size={"lg"}
               variant={"default"}
               className="bg-black text-white hover:bg-pink-400 hover:text-primary"
             >
-              Create account
+              {registerMutation.isPending ? "Creating account..." : "Create account"}
             </Button>
+
+            {registerMutation.isError && (
+              <p className="text-sm text-red-500 text-center">
+                Registration failed. Please try again.
+              </p>
+            )}
           </form>
         </Form>
       </div>
