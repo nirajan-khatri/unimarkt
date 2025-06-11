@@ -21,6 +21,8 @@ import { useRouter } from "next/navigation";
 import { loginSchema } from "../../schemas";
 import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
+import { AuthStorage } from "../../utils/auth";
+import { LoginResponse, LoginRequest } from "../../types/auth";
 
 const SignUpLink = dynamic(
   () =>
@@ -35,27 +37,6 @@ const SignUpLink = dynamic(
     }),
   { ssr: false }
 );
-
-// Define types for the API response
-interface LoginResponse {
-  user: {
-    id: number;
-    name: string;
-    email: string;
-    contact_number: string;
-    role: {
-      id: number;
-      name: string;
-    };
-  };
-  refresh: string;
-  access: string;
-}
-
-interface LoginRequest {
-  email: string;
-  password: string;
-}
 
 // API function
 const loginUser = async (loginData: LoginRequest): Promise<LoginResponse> => {
@@ -80,12 +61,19 @@ export const SignInView = () => {
   const router = useRouter();
 
   useEffect(() => {
+    // Check if user is already authenticated
+    if (AuthStorage.isAuthenticated()) {
+      router.push("/"); // Redirect to home if already logged in
+      return;
+    }
+
+    // Get redirect URL from query parameters
     const urlParams = new URLSearchParams(window.location.search);
     const redirect = urlParams.get("redirect");
     if (redirect) {
       setRedirectUrl(decodeURIComponent(redirect));
     }
-  }, []);
+  }, [router]);
 
   const form = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
@@ -100,14 +88,19 @@ export const SignInView = () => {
   const loginMutation = useMutation({
     mutationFn: loginUser,
     onSuccess: (data: LoginResponse) => {
-      // Store tokens (you might want to use a more secure storage method)
-      localStorage.setItem("user_data", JSON.stringify(data));
-      
-      // Show success alert with username and ID
-      alert(`Login successful!\nUsername: ${data.user.name}\nUser ID: ${data.user.id}`);
+      try {
+        // Store auth data
+        AuthStorage.storeAuthData(data);
+        
+        // Redirect to the appropriate page
+        router.push(redirectUrl);
+        
+      } catch (error) {
+        console.error("Error storing user data:", error);
+        alert("Login successful but failed to store user data locally.");
+      }
     },
     onError: (error: Error) => {
-      // Show error alert
       alert(`Login failed: ${error.message}`);
     },
   });
