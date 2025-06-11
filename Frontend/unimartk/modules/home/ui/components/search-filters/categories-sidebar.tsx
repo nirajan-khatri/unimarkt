@@ -12,6 +12,7 @@ import {
 import { fetchCategories } from "@/modules/home/api";
 import { Category } from "@/modules/home/types";
 import { useProducts } from "@/hooks/useProducts";
+import { CategoryService } from "@/services/categories";
 
 interface Props {
   open: boolean;
@@ -22,8 +23,12 @@ export const CategoriesSidebar = ({ onOpenChange, open }: Props) => {
   const router = useRouter();
   const params = useParams();
   const [categories, setCategories] = useState<Category[]>([]);
-  const [parentCategories, setParentCategories] = useState<Category[] | null>(null);
-  const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
+  const [parentCategories, setParentCategories] = useState<Category[] | null>(
+    null
+  );
+  const [selectedCategory, setSelectedCategory] = useState<Category | null>(
+    null
+  );
 
   // Get current category and subcategory from URL path params
   const currentCategory = params.category as string | undefined;
@@ -39,7 +44,7 @@ export const CategoriesSidebar = ({ onOpenChange, open }: Props) => {
 
   const { data } = useSuspenseQuery({
     queryKey: ["categories"],
-    queryFn: fetchCategories,
+    queryFn: CategoryService.getCategories,
   });
 
   useEffect(() => {
@@ -51,7 +56,9 @@ export const CategoriesSidebar = ({ onOpenChange, open }: Props) => {
   // Initialize selected category from URL params
   useEffect(() => {
     if (currentCategory && data) {
-      const category = data.find((cat: Category) => cat.slug === currentCategory);
+      const category = data.find(
+        (cat: Category) => cat.slug === currentCategory
+      );
       if (category) {
         setSelectedCategory(category);
         if (category.subcategories && category.subcategories.length > 0) {
@@ -109,10 +116,7 @@ export const CategoriesSidebar = ({ onOpenChange, open }: Props) => {
 
   return (
     <Sheet open={open} onOpenChange={handleOpenChange}>
-      <SheetContent
-        side="left"
-        className="p-0 transition-none bg-white"
-      >
+      <SheetContent side="left" className="p-0 transition-none bg-white">
         <SheetHeader className="p-4 border-b">
           <SheetTitle>Categories</SheetTitle>
         </SheetHeader>

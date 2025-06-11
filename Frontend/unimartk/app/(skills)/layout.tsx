@@ -9,6 +9,7 @@ import {
 } from "@tanstack/react-query";
 import React, { Suspense } from "react";
 import { fetchCategories } from "@/modules/home/api";
+import { CategoryService } from "@/services/categories";
 
 interface Props {
   children: React.ReactNode;
@@ -19,7 +20,7 @@ const Layout = async ({ children }: Props) => {
 
   await queryClient.prefetchQuery({
     queryKey: ["categories"],
-    queryFn: fetchCategories,
+    queryFn: CategoryService.getCategories,
   });
   return (
     <div className="flex flex-col min-h-screen">

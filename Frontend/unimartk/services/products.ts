@@ -9,8 +9,8 @@ export async function fetchFilteredProducts(
   priceFilters?: PriceFilters
 ) {
   const baseUrl =
-    process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
-  const url = new URL(`${baseUrl}/products/`);
+    process.env.NEXT_PUBLIC_BASE_API_URL || "http://localhost:8000/api/";
+  const url = new URL(`${baseUrl}products/`);
 
   // Add pagination
   url.searchParams.append("page", page.toString());
@@ -52,8 +52,8 @@ export async function fetchFilteredProducts(
 
 export async function fetchProductById(productId: string): Promise<Product> {
   const baseUrl =
-    process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
-  const response = await fetch(`${baseUrl}/products/${productId}/`);
+    process.env.NEXT_PUBLIC_BASE_API_URL || "http://localhost:8000/api/";
+  const response = await fetch(`${baseUrl}products/${productId}/`);
 
   if (!response.ok) {
     throw new Error(`HTTP error! status: ${response.status}`);

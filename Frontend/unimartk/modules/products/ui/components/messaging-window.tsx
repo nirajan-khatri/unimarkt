@@ -245,7 +245,10 @@ const ProductMessageWindow: React.FC<ProductMessageWindowProps> = ({
       {/* Connected Status */}
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-3 space-y-2">
+      <div
+        className="flex-1 overflow-y-auto p-3 space-y-2"
+        style={{ scrollbarWidth: "none" }}
+      >
         {messages.length === 0 ? (
           <div className="text-center text-gray-500 text-sm mt-8">
             <p>Start a conversation about this product</p>
