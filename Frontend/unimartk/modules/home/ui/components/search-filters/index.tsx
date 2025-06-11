@@ -8,6 +8,7 @@ import { SearchInput } from "./search-input";
 import { fetchCategories } from "@/modules/home/api";
 import { useEffect, useState } from "react";
 import { Category } from "@/modules/home/types";
+import { CategoryService } from "@/services/categories";
 
 export const SearchFilters = () => {
   const params = useParams();
@@ -17,7 +18,7 @@ export const SearchFilters = () => {
 
   const { data } = useSuspenseQuery({
     queryKey: ["categories"],
-    queryFn: fetchCategories,
+    queryFn: CategoryService.getCategories,
   });
 
   useEffect(() => {

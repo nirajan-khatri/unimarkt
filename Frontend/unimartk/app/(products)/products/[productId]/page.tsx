@@ -27,11 +27,6 @@ const Page = async ({ params }: Props) => {
     queryFn: () => fetchProductById(productId),
   });
 
-  // await queryClient.prefetchQuery({
-  //   queryKey: ["categories"],
-  //   queryFn: fetchCategories,
-  // });
-
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
       <Suspense fallback={<ProductViewSkeleton />}>

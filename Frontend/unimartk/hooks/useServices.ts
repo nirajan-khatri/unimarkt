@@ -14,8 +14,8 @@ async function fetchServices(
   filters?: ServiceFilters
 ) {
   const baseUrl =
-    process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
-  const url = new URL(`${baseUrl}/skills/`);
+    process.env.NEXT_PUBLIC_BASE_API_URL || "http://localhost:8000/api/";
+  const url = new URL(`${baseUrl}skills/`);
 
   // Add pagination
   url.searchParams.append("page", page.toString());
