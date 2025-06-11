@@ -63,8 +63,10 @@ const WhatsAppMessaging = () => {
       }
 
       // Create new WebSocket connection
-      const wsUrl = `ws://localhost:8000/ws/chat/${currentUserId}/${selectedConversation}/`;
-      const newSocket = new WebSocket(wsUrl);
+	const wsBaseUrl = process.env.NEXT_PUBLIC_WS_URL || 'ws://localhost:8000/ws/';
+	const wsUrl = `${wsBaseUrl}chat/${currentUserId}/${selectedConversation}/`;
+	console.log("Connecting to WebSocket:", wsUrl);
+	const newSocket = new WebSocket(wsUrl);
 
       newSocket.onmessage = (event) => {
         try {

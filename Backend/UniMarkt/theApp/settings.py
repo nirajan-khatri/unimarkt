@@ -27,7 +27,7 @@ SECRET_KEY = 'django-insecure-+xqfw6@hrn5%r9ohd+jfz2n*3!jj*dh+wn7#n31&jyw12)c%46
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 ASGI_APPLICATION = 'theApp.asgi.application'
 
 AUTH_USER_MODEL = "uniMarktAuth.User"

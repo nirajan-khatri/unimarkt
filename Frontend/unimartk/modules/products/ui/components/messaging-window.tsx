@@ -55,7 +55,8 @@ const ProductMessageWindow: React.FC<ProductMessageWindowProps> = ({
         attempt: connectionAttempts + 1,
       });
 
-      const wsUrl = `ws://localhost:8000/ws/chat/${senderId}/${receiverId}/`;
+      const wsBaseUrl = process.env.NEXT_PUBLIC_WS_URL || 'ws://localhost:8000/ws/';
+	const wsUrl = `${wsBaseUrl}chat/${senderId}/${receiverId}/`;
       console.log("WebSocket URL:", wsUrl);
 
       const ws = new WebSocket(wsUrl);
