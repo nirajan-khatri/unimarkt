@@ -27,3 +27,28 @@ export interface StoredTokens {
     refresh: string;
     timestamp: number;
 }
+
+export interface SecurityQuestion {
+    key: string;
+    question: string;
+}
+
+export interface RegisterData {
+    name: string;
+    email: string;
+    password: string;
+    contact_number?: string;
+    role?: number;
+    security_question1: string;
+    answer1: string;
+    security_question2: string;
+    answer2?: string;
+    security_question3: string;
+    answer3: string;
+}
+
+// types/auth.ts
+export interface LoginRequest {
+    email: string;
+    password: string;
+}

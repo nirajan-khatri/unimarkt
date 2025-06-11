@@ -5,6 +5,9 @@ import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { useMutation } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import dynamic from "next/dynamic";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -16,13 +19,12 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { useRouter } from "next/navigation";
 
+// Import organized modules
 import { loginSchema } from "../../schemas";
-import { useEffect, useState } from "react";
-import dynamic from "next/dynamic";
 import { AuthStorage } from "../../utils/auth";
-import { LoginResponse, LoginRequest } from "../../types/auth";
+import { LoginResponse } from "../../types/auth";
+import { loginUser } from "../../services/api";
 
 const SignUpLink = dynamic(
   () =>
@@ -37,24 +39,6 @@ const SignUpLink = dynamic(
     }),
   { ssr: false }
 );
-
-// API function
-const loginUser = async (loginData: LoginRequest): Promise<LoginResponse> => {
-  const response = await fetch("http://localhost:8000/api/login/", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(loginData),
-  });
-
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
-    throw new Error(errorData?.message || `Login failed: ${response.status}`);
-  }
-
-  return response.json();
-};
 
 export const SignInView = () => {
   const [redirectUrl, setRedirectUrl] = useState<string>("/");

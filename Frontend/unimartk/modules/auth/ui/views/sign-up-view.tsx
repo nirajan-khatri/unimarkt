@@ -6,7 +6,8 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import dynamic from "next/dynamic";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -28,82 +29,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import dynamic from "next/dynamic";
-import { useEffect } from "react";
 
-// Types
-interface SecurityQuestion {
-  key: string;
-  question: string;
-}
-
-interface Role {
-  id: number;
-  name: string;
-}
-
-interface RegisterData {
-  name: string;
-  email: string;
-  password: string;
-  contact_number?: string;
-  role?: number;
-  security_question1: string;
-  answer1: string;
-  security_question2: string;
-  answer2?: string;
-  security_question3: string;
-  answer3: string;
-}
-
-// Schema for form validation
-const registerSchema = z.object({
-  name: z.string().min(1, "Name is required").max(255),
-  email: z.string().email("Invalid email").max(254),
-  password: z.string().min(1, "Password is required"),
-  confirmPassword: z.string().min(1, "Please confirm your password"),
-  contact_number: z.string().max(20).optional(),
-  role: z.string().optional(),
-  securityQuestion: z.string().min(1, "Please select a security question"),
-  answer: z.string().min(1, "Answer is required").max(255),
-}).refine((data) => data.password === data.confirmPassword, {
-  message: "Passwords don't match",
-  path: ["confirmPassword"],
-});
-
-// API functions
-const fetchSecurityQuestions = async (): Promise<SecurityQuestion[]> => {
-  const response = await fetch('http://localhost:8000/api/security-questions/');
-  if (!response.ok) {
-    throw new Error('Failed to fetch security questions');
-  }
-  return response.json();
-};
-
-const fetchRoles = async (): Promise<Role[]> => {
-  const response = await fetch('http://localhost:8000/api/roles/');
-  if (!response.ok) {
-    throw new Error('Failed to fetch roles');
-  }
-  return response.json();
-};
-
-const registerUser = async (data: RegisterData): Promise<any> => {
-  const response = await fetch('http://localhost:8000/api/register/', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify(data),
-  });
-  
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
-    throw new Error(errorData.message || 'Registration failed');
-  }
-  
-  return response.json();
-};
+// Import types, schemas, and API functions
+import { SecurityQuestion, UserRole, RegisterData } from '../../types/auth';
+import { registerSchema } from '../../schemas';
+import { fetchSecurityQuestions, fetchRoles, registerUser } from '../../services/api';
 
 const SignInLink = dynamic(
   () =>
@@ -143,23 +73,28 @@ export const SignUpView = () => {
     queryFn: fetchRoles,
   });
 
-
-// Mutation for user registration
-const registerMutation = useMutation({
-  mutationFn: registerUser,
-  onSuccess: (data) => {
-    console.log('Registration successful:', data);
-    // Show success alert instead of redirecting
-    alert('Registration successful! Welcome to UniMarkt!');
-    // Optionally reset the form after successful registration
-    form.reset();
-  },
-  onError: (error: Error) => {
-    console.error('Registration failed:', error.message);
-    // Show error alert
-    alert(`Registration failed: ${error.message}`);
-  },
-});
+  // Mutation for user registration
+  const registerMutation = useMutation({
+    mutationFn: registerUser,
+    onSuccess: (data) => {
+      console.log('Registration successful:', data);
+      // Show success alert
+      alert('Registration successful! Welcome to UniMarkt!');
+      
+      // Construct sign-in URL with redirect parameter if it exists
+      const urlParams = new URLSearchParams(window.location.search);
+      const redirect = urlParams.get("redirect");
+      const signInUrl = redirect ? `/sign-in?redirect=${redirect}` : "/sign-in";
+      
+      // Redirect to sign-in page
+      router.push(signInUrl);
+    },
+    onError: (error: Error) => {
+      console.error('Registration failed:', error.message);
+      // Show error alert
+      alert(`Registration failed: ${error.message}`);
+    },
+  });
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
