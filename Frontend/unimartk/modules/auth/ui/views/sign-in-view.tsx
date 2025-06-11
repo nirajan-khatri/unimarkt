@@ -2,9 +2,9 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
-
-import { get, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { useMutation } from "@tanstack/react-query";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -36,8 +36,48 @@ const SignUpLink = dynamic(
   { ssr: false }
 );
 
+// Define types for the API response
+interface LoginResponse {
+  user: {
+    id: number;
+    name: string;
+    email: string;
+    contact_number: string;
+    role: {
+      id: number;
+      name: string;
+    };
+  };
+  refresh: string;
+  access: string;
+}
+
+interface LoginRequest {
+  email: string;
+  password: string;
+}
+
+// API function
+const loginUser = async (loginData: LoginRequest): Promise<LoginResponse> => {
+  const response = await fetch("http://localhost:8000/api/login/", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(loginData),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData?.message || `Login failed: ${response.status}`);
+  }
+
+  return response.json();
+};
+
 export const SignInView = () => {
   const [redirectUrl, setRedirectUrl] = useState<string>("/");
+  const router = useRouter();
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -56,9 +96,27 @@ export const SignInView = () => {
     },
   });
 
+  // TanStack Query mutation
+  const loginMutation = useMutation({
+    mutationFn: loginUser,
+    onSuccess: (data: LoginResponse) => {
+      // Store tokens (you might want to use a more secure storage method)
+      localStorage.setItem("user_data", JSON.stringify(data));
+      
+      // Show success alert with username and ID
+      alert(`Login successful!\nUsername: ${data.user.name}\nUser ID: ${data.user.id}`);
+    },
+    onError: (error: Error) => {
+      // Show error alert
+      alert(`Login failed: ${error.message}`);
+    },
+  });
+
   const onSubmit = (values: z.infer<typeof loginSchema>) => {
-    console.log(values);
-    window.location.href = redirectUrl ? redirectUrl : "/";
+    loginMutation.mutate({
+      email: values.email,
+      password: values.password,
+    });
   };
 
   return (
@@ -112,13 +170,13 @@ export const SignInView = () => {
                 forgot password?
               </Link>
               <Button
-                disabled={false}
+                disabled={loginMutation.isPending}
                 type="submit"
                 size={"lg"}
                 variant={"default"}
                 className="bg-black text-white hover:bg-pink-400 hover:text-primary"
               >
-                Log In
+                {loginMutation.isPending ? "Logging in..." : "Log In"}
               </Button>
             </form>
           </Form>
