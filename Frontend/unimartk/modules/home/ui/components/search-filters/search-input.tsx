@@ -1,13 +1,9 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
-import { BookmarkCheckIcon, ListFilterIcon, SearchIcon } from "lucide-react";
-import Link from "next/link";
+import { SearchIcon, ListFilterIcon } from "lucide-react";
 import React, { useState } from "react";
-
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-
 import { CategoriesSidebar } from "./categories-sidebar";
 import { parseAsString, useQueryState } from "nuqs";
 

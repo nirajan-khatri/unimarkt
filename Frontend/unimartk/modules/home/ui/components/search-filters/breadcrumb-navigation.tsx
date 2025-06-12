@@ -31,25 +31,25 @@ export const BreadcrumbNavigation = ({
             <BreadcrumbItem>
               <BreadcrumbLink
                 asChild
-                className="text-lg font-medium underline text-primary"
+                className="text-sm font-medium underline text-primary"
               >
                 <Link href={`/${activeCategorySlug}`}>
                   {activeCategoryName}
                 </Link>
               </BreadcrumbLink>
             </BreadcrumbItem>
-            <BreadcrumbSeparator className="text-primary font-medium text-lg">
+            <BreadcrumbSeparator className="text-primary font-medium text-sm">
               /
             </BreadcrumbSeparator>
             <BreadcrumbItem>
-              <BreadcrumbPage className="text-lg font-medium text-primary">
+              <BreadcrumbPage className="text-sm font-medium text-primary">
                 {activeSubcategoryName}
               </BreadcrumbPage>
             </BreadcrumbItem>
           </>
         ) : (
           <BreadcrumbItem>
-            <BreadcrumbPage className="text-lg font-medium  text-primary">
+            <BreadcrumbPage className="text-sm font-medium  text-primary">
               {activeCategoryName}
             </BreadcrumbPage>
           </BreadcrumbItem>

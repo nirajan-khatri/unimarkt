@@ -1,18 +1,36 @@
-import { Footer } from "@/components/Footer";
+import { Footer } from "@/components/footer";
 import { Navbar } from "@/components/navbar";
-
 import { SearchFilters } from "@/modules/skills/ui/components/search-filters";
-
-import React from "react";
+import { SearchFilterSkeleton } from "@/modules/home/ui/components/search-filters";
+import {
+  HydrationBoundary,
+  QueryClient,
+  dehydrate,
+} from "@tanstack/react-query";
+import React, { Suspense } from "react";
+import { fetchCategories } from "@/modules/home/api";
+import { CategoryService } from "@/services/categories";
 
 interface Props {
   children: React.ReactNode;
 }
 
 const Layout = async ({ children }: Props) => {
+  const queryClient = new QueryClient();
+
+  await queryClient.prefetchQuery({
+    queryKey: ["categories"],
+    queryFn: CategoryService.getCategories,
+  });
   return (
     <div className="flex flex-col min-h-screen">
-      <div className="flex-1 bg-[#f4f4f0]">{children}</div>
+      <Navbar />
+      <HydrationBoundary state={dehydrate(queryClient)}>
+        <Suspense fallback={<SearchFilterSkeleton />}>
+          <SearchFilters />
+        </Suspense>
+      </HydrationBoundary>
+      <div className="flex-1">{children}</div>
       <Footer />
     </div>
   );

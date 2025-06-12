@@ -1,15 +1,8 @@
-import { Button } from "@/components/ui/button";
-import Link from "next/link";
+import ProfileView from "@/modules/profile/ui/views/profile-view";
 import React from "react";
 
 const Page = () => {
-  return (
-    <div>
-      <Button asChild>
-        <Link href={"profile/create"}>Create a new Listing</Link>
-      </Button>
-    </div>
-  );
+  return <ProfileView />;
 };
 
 export default Page;

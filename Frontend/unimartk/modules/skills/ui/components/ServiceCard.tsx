@@ -130,9 +130,8 @@ export function ServiceCard({ service }: ServiceCardProps) {
 
           <div className="flex items-center justify-between pt-2 border-t">
             <div className="flex items-center gap-1">
-              <DollarSign className="w-4 h-4 text-green-600" />
               <span className="font-semibold text-lg text-green-600">
-                ${hourlyRate}/hr
+                €{hourlyRate}/hr
               </span>
             </div>
             

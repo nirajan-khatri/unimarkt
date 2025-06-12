@@ -6,6 +6,7 @@ import {
   SearchFilters,
   SearchFilterSkeleton,
 } from "@/modules/home/ui/components/search-filters";
+import { CategoryService } from "@/services/categories";
 import {
   HydrationBoundary,
   QueryClient,
@@ -22,7 +23,7 @@ const Layout = async ({ children }: Props) => {
 
   await queryClient.prefetchQuery({
     queryKey: ["categories"],
-    queryFn: fetchCategories,
+    queryFn: CategoryService.getCategories,
   });
 
   return (
@@ -33,7 +34,6 @@ const Layout = async ({ children }: Props) => {
           <SearchFilters />
         </Suspense>
       </HydrationBoundary>
-      {/* <SearchFilters /> */}
       <div className="flex-1">{children}</div>
       <Footer />
     </div>

@@ -23,7 +23,9 @@ class UserFilter(django_filters.FilterSet):
 
     is_active = django_filters.BooleanFilter()
     is_staff = django_filters.BooleanFilter()
+    role_name = django_filters.CharFilter(field_name='role__name', lookup_expr='iexact')  # case-insensitive exact match
+
 
     class Meta:
         model = User
-        fields = ['is_superuser','is_active', 'is_staff']
+        fields = ['is_superuser','is_active', 'is_staff', 'role_name']
