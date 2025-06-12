@@ -20,7 +20,7 @@ import {
 } from "./ui/dropdown-menu";
 import { Avatar, AvatarImage, AvatarFallback } from "./ui/avatar";
 import { useTheme } from "next-themes";
-import { AuthStorage } from "@/modules/auth/utils/auth";
+import { useAuth } from "@/modules/auth/contexts/authContext";
 import { UserProfile } from "@/modules/auth/types/auth";
 
 const poppins = Poppins({
@@ -57,23 +57,21 @@ const NavbarItem = ({ children, href, isActive }: NavbarItemProps) => {
 
 export const Navbar = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const pathname = usePathname();
   const router = useRouter();
   const { setTheme } = useTheme();
-
+  const { isAuthenticated, user } = useAuth();
+  const { logout } = useAuth();
   useEffect(() => {
     // Check authentication status on the client side
-    setIsAuthenticated(AuthStorage.isAuthenticated());
-    setUserProfile(AuthStorage.getUserProfile());
+    setUserProfile(user);
   }, []);
 
   const handleProfile = () => router.push("/profile");
   const handleAdminDashboard = () => router.push("/admin");
   const handleLogout = () => {
-    AuthStorage.clearAuthData();
-    setIsAuthenticated(false);
+    logout();
     setUserProfile(null);
     router.push("/");
   };

@@ -22,7 +22,7 @@ import { Input } from "@/components/ui/input";
 
 // Import organized modules
 import { loginSchema } from "../../schemas";
-import { AuthStorage } from "../../utils/auth";
+import { useAuth } from "../../contexts/authContext"; // Updated import
 import { LoginResponse } from "../../types/auth";
 import { loginUser } from "../../services/api";
 
@@ -42,12 +42,14 @@ const SignUpLink = dynamic(
 
 export const SignInView = () => {
   const [redirectUrl, setRedirectUrl] = useState<string>("/");
+  const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
+  const { login, isAuthenticated } = useAuth();
 
   useEffect(() => {
     // Check if user is already authenticated
-    if (AuthStorage.isAuthenticated()) {
-      router.push("/"); // Redirect to home if already logged in
+    if (isAuthenticated) {
+      router.push("/");
       return;
     }
 
@@ -57,7 +59,10 @@ export const SignInView = () => {
     if (redirect) {
       setRedirectUrl(decodeURIComponent(redirect));
     }
-  }, [router]);
+    
+    // Mark loading as complete since we've checked authentication
+    setIsLoading(false);
+  }, [router, isAuthenticated]);
 
   const form = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
@@ -73,8 +78,8 @@ export const SignInView = () => {
     mutationFn: loginUser,
     onSuccess: (data: LoginResponse) => {
       try {
-        // Store auth data
-        AuthStorage.storeAuthData(data);
+        // Store auth data using context
+        login(data);
         
         // Redirect to the appropriate page
         router.push(redirectUrl);
@@ -95,6 +100,20 @@ export const SignInView = () => {
       password: values.password,
     });
   };
+
+  // Early return while checking authentication
+  if (isLoading) {
+    return (
+      <div className="h-screen w-full flex items-center justify-center bg-[#f4f4f0]">
+        <div className="animate-pulse text-xl">Loading...</div>
+      </div>
+    );
+  }
+
+  // Don't render the form at all if authenticated
+  if (isAuthenticated) {
+    return null;
+  }
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-5">

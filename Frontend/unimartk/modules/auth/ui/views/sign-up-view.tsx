@@ -20,7 +20,6 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Checkbox } from "@/components/ui/checkbox";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
   Select,
@@ -30,8 +29,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-// Import types, schemas, and API functions
-import { SecurityQuestion, UserRole, RegisterData } from '../../types/auth';
+import { RegisterData } from '../../types/auth';
 import { registerSchema } from '../../schemas';
 import { fetchSecurityQuestions, fetchRoles, registerUser } from '../../services/api';
 
@@ -136,23 +134,6 @@ export const SignUpView = () => {
     };
   
     registerMutation.mutate(registerData);
-  };
-
-  // Filter out already selected questions for other dropdowns
-  const getAvailableQuestions = (currentField: string) => {
-    if (!securityQuestions) return [];
-    
-    const selectedQuestions = [
-      form.watch('security_question1'),
-      form.watch('security_question2'),
-      form.watch('security_question3'),
-    ].filter(Boolean);
-
-    const currentValue = form.watch(currentField as any);
-    
-    return securityQuestions.filter(q => 
-      !selectedQuestions.includes(q.key) || q.key === currentValue
-    );
   };
 
   return (
