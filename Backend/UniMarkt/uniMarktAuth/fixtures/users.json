@@ -17,6 +17,13 @@
     "model": "uniMarktAuth.role",
     "pk": 3,
     "fields": {
+      "name": "admin"
+    }
+  },
+  {
+    "model": "uniMarktAuth.role",
+    "pk": 4,
+    "fields": {
       "name": "faculty"
     }
   },
