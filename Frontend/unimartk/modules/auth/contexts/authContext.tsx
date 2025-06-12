@@ -1,8 +1,27 @@
 // modules/auth/contexts/authContext.tsx
 "use client";
 
-import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import { LoginResponse, UserProfile, StoredTokens } from '../types/auth';
+
+// Cookie management utilities
+const setCookie = (name: string, value: string, days: number = 7) => {
+  const expires = new Date();
+  expires.setTime(expires.getTime() + days * 24 * 60 * 60 * 1000);
+  document.cookie = `${name}=${value};expires=${expires.toUTCString()};path=/`;
+};
+
+const getCookie = (name: string): string | null => {
+  if (typeof document === 'undefined') return null; // Check for SSR
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) return parts.pop()?.split(';').shift() || null;
+  return null;
+};
+
+const removeCookie = (name: string) => {
+  document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/`;
+};
 
 interface AuthContextType {
   // Authentication state
@@ -32,7 +51,35 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [user, setUser] = useState<UserProfile | null>(null);
   const [tokens, setTokens] = useState<StoredTokens | null>(null);
-  const [isInitialized, setIsInitialized] = useState<boolean>(true);
+  const [isInitialized, setIsInitialized] = useState<boolean>(false);
+
+  // Initialize auth state from cookies
+  useEffect(() => {
+    const accessToken = getCookie('accessToken');
+    const refreshToken = getCookie('refreshToken');
+    const storedUser = getCookie('user');
+
+    if (accessToken && refreshToken && storedUser) {
+      try {
+        const parsedUser = JSON.parse(storedUser);
+        setTokens({
+          access: accessToken,
+          refresh: refreshToken,
+          timestamp: parseInt(getCookie('tokenTimestamp') || Date.now().toString())
+        });
+        setUser(parsedUser);
+        setIsAuthenticated(true);
+      } catch (error) {
+        console.error('Error parsing stored user data:', error);
+        // Clear invalid cookies
+        removeCookie('accessToken');
+        removeCookie('refreshToken');
+        removeCookie('user');
+        removeCookie('tokenTimestamp');
+      }
+    }
+    setIsInitialized(true);
+  }, []);
 
   const login = (loginResponse: LoginResponse) => {
     const newTokens: StoredTokens = {
@@ -42,15 +89,29 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     };
     const userProfile: UserProfile = { ...loginResponse.user };
 
+    // Update state
     setTokens(newTokens);
     setUser(userProfile);
     setIsAuthenticated(true);
+
+    // Set cookies
+    setCookie('accessToken', newTokens.access);
+    setCookie('refreshToken', newTokens.refresh);
+    setCookie('tokenTimestamp', newTokens.timestamp.toString());
+    setCookie('user', JSON.stringify(userProfile));
   };
 
   const logout = () => {
+    // Clear state
     setTokens(null);
     setUser(null);
     setIsAuthenticated(false);
+
+    // Clear cookies
+    removeCookie('accessToken');
+    removeCookie('refreshToken');
+    removeCookie('user');
+    removeCookie('tokenTimestamp');
   };
 
   const updateTokens = (access: string, refresh?: string) => {
@@ -64,11 +125,19 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       timestamp: Date.now()
     };
 
+    // Update state
     setTokens(updatedTokens);
+
+    // Update cookies
+    setCookie('accessToken', updatedTokens.access);
+    if (refresh) {
+      setCookie('refreshToken', refresh);
+    }
+    setCookie('tokenTimestamp', updatedTokens.timestamp.toString());
   };
 
-  const getAccessToken = (): string | null => tokens?.access || null;
-  const getRefreshToken = (): string | null => tokens?.refresh || null;
+  const getAccessToken = (): string | null => tokens?.access || getCookie('accessToken');
+  const getRefreshToken = (): string | null => tokens?.refresh || getCookie('refreshToken');
   const getAuthHeader = (): { Authorization: string } | {} => {
     const token = getAccessToken();
     return token ? { Authorization: `Bearer ${token}` } : {};
