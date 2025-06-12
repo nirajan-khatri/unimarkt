@@ -7,6 +7,8 @@ class Role(models.Model):
         ('user', 'User'),
         ('superuser', 'Superuser'),
         ('faculty', 'Faculty'),
+        ('admin', 'Admin')
+
     ]
     name = models.CharField(max_length=50, unique=True)
 
@@ -43,11 +45,11 @@ class User(AbstractBaseUser, PermissionsMixin):
     contact_number = models.CharField(max_length=20, blank=True, null=True)
     role = models.ForeignKey(Role, on_delete=models.SET_NULL, null=True)
 
-    security_question1 = models.CharField(max_length=50, choices=SECURITY_QUESTION_CHOICES)
+    security_question1 = models.CharField(max_length=50, choices=SECURITY_QUESTION_CHOICES,blank=True, null=True )
     answer1 = models.CharField(max_length=255)
-    security_question2 = models.CharField(max_length=50, choices=SECURITY_QUESTION_CHOICES)
+    security_question2 = models.CharField(max_length=50, choices=SECURITY_QUESTION_CHOICES, blank=True, null=True)
     answer2 = models.CharField(max_length=255, null=True, blank=True)
-    security_question3 = models.CharField(max_length=50, choices=SECURITY_QUESTION_CHOICES)
+    security_question3 = models.CharField(max_length=50, choices=SECURITY_QUESTION_CHOICES,blank=True, null=True)
     answer3 = models.CharField(max_length=255)
 
     is_active = models.BooleanField(default=True)
