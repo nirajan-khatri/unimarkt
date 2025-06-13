@@ -22,6 +22,7 @@ const images = [
   "https://images.pexels.com/photos/30563259/pexels-photo-30563259/free-photo-of-footprints-in-sand-beach-serenity.jpeg?auto=compress&cs=tinysrgb&w=1200&lazy=load",
 ];
 import ProductMessageWindow from "../components/messaging-window";
+import { useAuth } from "@/modules/auth/contexts/authContext"; // Updated import
 
 interface Props {
   productId: string;
@@ -123,11 +124,10 @@ const ImageModal = ({
                 e.stopPropagation();
                 onIndexChange(index);
               }}
-              className={`flex-shrink-0 w-16 h-12 relative rounded overflow-hidden border-2 transition-colors ${
-                index === currentIndex
+              className={`flex-shrink-0 w-16 h-12 relative rounded overflow-hidden border-2 transition-colors ${index === currentIndex
                   ? "border-blue-500"
                   : "border-transparent"
-              }`}
+                }`}
             >
               <Image
                 src={image}
@@ -146,38 +146,40 @@ const ImageModal = ({
 export const ProductView = ({ productId }: Props) => {
   const [selectedImage, setSelectedImage] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const { isAuthenticated, user } = useAuth();
+
 
   // Simulate authentication state - you can replace this with your actual auth logic
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [user, setUser] = useState<{
-    id: number;
-    name: string;
-    email: string;
-  } | null>(null);
+  // const [isAuthenticated, setIsAuthenticated] = useState(false);
+  // const [user, setUser] = useState<{
+  //   id: number;
+  //   name: string;
+  //   email: string;
+  // } | null>(null);
 
-  // Simulate login function
-  const handleLoginUser1 = () => {
-    setIsAuthenticated(true);
-    setUser({ id: 1, name: "Alice Chan", email: "alice@example.com" });
-  };
-  const handleLoginUser2 = () => {
-    setIsAuthenticated(true);
-    setUser({ id: 2, name: "Bob Lee", email: "bob@example.com" });
-  };
-  const handleLoginUser3 = () => {
-    setIsAuthenticated(true);
-    setUser({ id: 3, name: "Ccin Lee", email: "cin@example.com" });
-  };
-  const handleLoginUser4 = () => {
-    setIsAuthenticated(true);
-    setUser({ id: 4, name: "Dinn Lee", email: "din@example.com" });
-  };
+  // // Simulate login function
+  // const handleLoginUser1 = () => {
+  //   setIsAuthenticated(true);
+  //   setUser({ id: 1, name: "Alice Chan", email: "alice@example.com" });
+  // };
+  // const handleLoginUser2 = () => {
+  //   setIsAuthenticated(true);
+  //   setUser({ id: 2, name: "Bob Lee", email: "bob@example.com" });
+  // };
+  // const handleLoginUser3 = () => {
+  //   setIsAuthenticated(true);
+  //   setUser({ id: 3, name: "Ccin Lee", email: "cin@example.com" });
+  // };
+  // const handleLoginUser4 = () => {
+  //   setIsAuthenticated(true);
+  //   setUser({ id: 4, name: "Dinn Lee", email: "din@example.com" });
+  // };
 
-  // Simulate logout function
-  const handleLogout = () => {
-    setIsAuthenticated(false);
-    setUser(null);
-  };
+  // // Simulate logout function
+  // const handleLogout = () => {
+  //   setIsAuthenticated(false);
+  //   setUser(null);
+  // };
 
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
@@ -192,7 +194,7 @@ export const ProductView = ({ productId }: Props) => {
   return (
     <>
       <div className="px-4 lg:px-12 py-10">
-        <div className="mb-4 p-4 bg-gray-100 rounded-lg ">
+        {/* <div className="mb-4 p-4 bg-gray-100 rounded-lg ">
           <h3 className="font-semibold mb-2">Demo Authentication Controls:</h3>
           <div className="flex gap-2 items-center">
             {data.user.id.toString() !== "1" && (
@@ -238,7 +240,7 @@ export const ProductView = ({ productId }: Props) => {
               {isAuthenticated ? `Logged in as ${user?.name}` : "Not logged in"}
             </span>
           </div>
-        </div>
+        </div> */}
 
         <div className="bg-white rounded-lg overflow-hidden shadow-sm">
           <div className="">
