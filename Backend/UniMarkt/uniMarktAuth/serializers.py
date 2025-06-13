@@ -9,7 +9,7 @@ class RoleSerializer(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
-    role = RoleSerializer(read_only=True)
+    role = serializers.PrimaryKeyRelatedField(queryset=Role.objects.all())
 
     class Meta:
         model = User
@@ -38,10 +38,10 @@ class RegisterSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = [
-            'name', 'email', 'password', 'contact_number', 'role',
+            'name', 'email', 'password', 'contact_number', 
             'security_question1', 'answer1',
             'security_question2', 'answer2',
-            'security_question3', 'answer3'
+            'security_question3', 'answer3','is_admin','is_staff'
         ]
 
     def create(self, validated_data):

@@ -22,9 +22,9 @@ class SkillCategory(models.Model):
 
 class Skill(models.Model):
     STATUS_CHOICES = [
-        ('pending', 'Pending'),
-        ('approved', 'Approved'),
-        ('rejected', 'Rejected'),
+        ('pending', 'pending'),
+        ('approved', 'approved'),
+        ('rejected', 'rejected'),
     ]
 
     skill_id = models.AutoField(primary_key=True)
