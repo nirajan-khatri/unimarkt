@@ -4,7 +4,7 @@ import { MenuIcon, MessageSquare, Moon, Sun } from "lucide-react";
 import { Poppins } from "next/font/google";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -20,6 +20,8 @@ import {
 } from "./ui/dropdown-menu";
 import { Avatar, AvatarImage, AvatarFallback } from "./ui/avatar";
 import { useTheme } from "next-themes";
+import { useAuth } from "@/modules/auth/contexts/authContext";
+import { UserProfile } from "@/modules/auth/types/auth";
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -55,15 +57,23 @@ const NavbarItem = ({ children, href, isActive }: NavbarItemProps) => {
 
 export const Navbar = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const pathname = usePathname();
   const router = useRouter();
   const { setTheme } = useTheme();
+  const { isAuthenticated, user } = useAuth();
+  const { logout } = useAuth();
+  useEffect(() => {
+    // Check authentication status on the client side
+    setUserProfile(user);
+  }, []);
 
   const handleProfile = () => router.push("/profile");
   const handleAdminDashboard = () => router.push("/admin");
   const handleLogout = () => {
-    // Replace with your logout logic
-    console.log("Logging out...");
+    logout();
+    setUserProfile(null);
+    router.push("/");
   };
 
   return (
@@ -85,7 +95,6 @@ export const Navbar = () => {
           <NavbarItem
             key={item.href}
             href={item.href}
-            // isActive={pathname.split("/").includes(item.slug)}
             isActive={
               item.slug === "skills"
                 ? pathname.startsWith("/skills")
@@ -99,7 +108,7 @@ export const Navbar = () => {
           </NavbarItem>
         ))}
       </div>
-      {false ? (
+      {isAuthenticated ? (
         <div className="hidden lg:flex px-10 xl:px-12 gap-4 items-center">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -130,21 +139,23 @@ export const Navbar = () => {
                 <Avatar className="h-14 w-14">
                   <AvatarImage
                     src="https://i.pravatar.cc/150?img=3"
-                    alt="User Avatar"
+                    alt={userProfile?.name || "User Avatar"}
                   />
-                  <AvatarFallback>JD</AvatarFallback>
+                  <AvatarFallback>{userProfile?.name?.charAt(0) || "U"}</AvatarFallback>
                 </Avatar>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-48 bg-white">
-              <DropdownMenuLabel>My Account</DropdownMenuLabel>
+              <DropdownMenuLabel>{userProfile?.name || "My Account"}</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={handleProfile}>
                 Profile
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={handleAdminDashboard}>
-                Admin Dashboard
-              </DropdownMenuItem>
+              {userProfile?.role?.name === "admin" && (
+                <DropdownMenuItem onClick={handleAdminDashboard}>
+                  Admin Dashboard
+                </DropdownMenuItem>
+              )}
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={handleLogout}>Logout</DropdownMenuItem>
             </DropdownMenuContent>

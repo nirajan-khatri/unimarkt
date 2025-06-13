@@ -2,9 +2,12 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import Link from "next/link";
-
-import { get, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { useMutation } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import dynamic from "next/dynamic";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -16,11 +19,12 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { useRouter } from "next/navigation";
 
+// Import organized modules
 import { loginSchema } from "../../schemas";
-import { useEffect, useState } from "react";
-import dynamic from "next/dynamic";
+import { useAuth } from "../../contexts/authContext"; // Updated import
+import { LoginResponse } from "../../types/auth";
+import { loginUser } from "../../services/api";
 
 const SignUpLink = dynamic(
   () =>
@@ -38,14 +42,27 @@ const SignUpLink = dynamic(
 
 export const SignInView = () => {
   const [redirectUrl, setRedirectUrl] = useState<string>("/");
+  const [isLoading, setIsLoading] = useState(true);
+  const router = useRouter();
+  const { login, isAuthenticated } = useAuth();
 
   useEffect(() => {
+    // Check if user is already authenticated
+    if (isAuthenticated) {
+      router.push("/");
+      return;
+    }
+
+    // Get redirect URL from query parameters
     const urlParams = new URLSearchParams(window.location.search);
     const redirect = urlParams.get("redirect");
     if (redirect) {
       setRedirectUrl(decodeURIComponent(redirect));
     }
-  }, []);
+    
+    // Mark loading as complete since we've checked authentication
+    setIsLoading(false);
+  }, [router, isAuthenticated]);
 
   const form = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
@@ -56,10 +73,47 @@ export const SignInView = () => {
     },
   });
 
+  // TanStack Query mutation
+  const loginMutation = useMutation({
+    mutationFn: loginUser,
+    onSuccess: (data: LoginResponse) => {
+      try {
+        // Store auth data using context
+        login(data);
+        
+        // Redirect to the appropriate page
+        router.push(redirectUrl);
+        
+      } catch (error) {
+        console.error("Error storing user data:", error);
+        alert("Login successful but failed to store user data locally.");
+      }
+    },
+    onError: (error: Error) => {
+      alert(`Login failed: ${error.message}`);
+    },
+  });
+
   const onSubmit = (values: z.infer<typeof loginSchema>) => {
-    console.log(values);
-    window.location.href = redirectUrl ? redirectUrl : "/";
+    loginMutation.mutate({
+      email: values.email,
+      password: values.password,
+    });
   };
+
+  // Early return while checking authentication
+  if (isLoading) {
+    return (
+      <div className="h-screen w-full flex items-center justify-center bg-[#f4f4f0]">
+        <div className="animate-pulse text-xl">Loading...</div>
+      </div>
+    );
+  }
+
+  // Don't render the form at all if authenticated
+  if (isAuthenticated) {
+    return null;
+  }
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-5">
@@ -112,13 +166,13 @@ export const SignInView = () => {
                 forgot password?
               </Link>
               <Button
-                disabled={false}
+                disabled={loginMutation.isPending}
                 type="submit"
                 size={"lg"}
                 variant={"default"}
                 className="bg-black text-white hover:bg-pink-400 hover:text-primary"
               >
-                Log In
+                {loginMutation.isPending ? "Logging in..." : "Log In"}
               </Button>
             </form>
           </Form>
