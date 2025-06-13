@@ -7,6 +7,7 @@ import "./globals.css";
 import { Toaster } from "sonner";
 import TanstackProviders from "./providers/tanstack-provider";
 import { ThemeProvider } from "./providers/theme-provider";
+import { AuthProvider } from "../modules/auth/contexts/authContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -35,9 +36,10 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <TanstackProviders>
-            <NuqsAdapter>{children}</NuqsAdapter>
-
-            <Toaster />
+            <AuthProvider>
+              <NuqsAdapter>{children}</NuqsAdapter>
+              <Toaster />
+            </AuthProvider>
           </TanstackProviders>
         </ThemeProvider>
       </body>
