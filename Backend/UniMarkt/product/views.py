@@ -69,7 +69,8 @@ class ProductViewSet(viewsets.ModelViewSet):
    
 
     
-class CategoryViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+class CategoryViewSet(mixins.ListModelMixin, mixins.CreateModelMixin,
+                      mixins.DestroyModelMixin, viewsets.GenericViewSet):
     """
     List all categories or retrieve a specific category_id.
     """
@@ -90,9 +91,18 @@ class CategoryViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
             queryset = self.queryset
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
+    
+    @swagger_auto_schema(tags=["Categories"])
+    def create(self, request, *args, **kwargs):
+        return super().create(request, *args, **kwargs)
+
+    @swagger_auto_schema(tags=["Categories"])
+    def destroy(self, request, *args, **kwargs):
+        return super().destroy(request, *args, **kwargs)
 
 
-class SubCategoryViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+class SubCategoryViewSet(mixins.ListModelMixin,  mixins.CreateModelMixin,
+                      mixins.DestroyModelMixin,viewsets.GenericViewSet):
     queryset = SubCategory.objects.all()
     serializer_class = SubCategorySerializer
 
@@ -107,3 +117,12 @@ class SubCategoryViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
+
+    
+    @swagger_auto_schema(tags=["SubCategories"])
+    def create(self, request, *args, **kwargs):
+        return super().create(request, *args, **kwargs)
+
+    @swagger_auto_schema(tags=["SubCategories"])
+    def destroy(self, request, *args, **kwargs):
+        return super().destroy(request, *args, **kwargs)
