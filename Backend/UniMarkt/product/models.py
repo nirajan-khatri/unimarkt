@@ -1,5 +1,3 @@
-# products/models.py
-
 from django.db import models
 from django.conf import settings
 
@@ -26,9 +24,12 @@ class SubCategory(models.Model):
 
 class Product(models.Model):
     STATUS_CHOICES = [
-        ('pending', 'pending'),
-        ('approved', 'approved'),
-        ('rejected', 'rejected'),
+        ('pending', 'Pending'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected'),
+        ('archived', 'Archived'),
+        ('sold', 'Sold'),
+        ('deleted', 'Deleted'),
     ]
     product_id = models.AutoField(primary_key=True)
     name = models.TextField(null=True, blank=True)
@@ -38,11 +39,10 @@ class Product(models.Model):
     price = models.DecimalField(max_digits=10, decimal_places=2)
     images = models.JSONField(default=list, blank=True)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='products')
-    status = models.TextField(default='Pending')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     pickup_location = models.CharField(max_length=255, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
-
+    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return f"Product {self.product_id} - {self.description[:20]}"
-
