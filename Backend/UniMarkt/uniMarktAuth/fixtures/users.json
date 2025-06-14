@@ -2,43 +2,35 @@
   {
     "model": "uniMarktAuth.role",
     "pk": 1,
-    "fields": {
-      "name": "user"
-    }
+    "fields": { "name": "user" }
   },
   {
     "model": "uniMarktAuth.role",
     "pk": 2,
-    "fields": {
-      "name": "superuser"
-    }
+    "fields": { "name": "superuser" }
   },
   {
     "model": "uniMarktAuth.role",
     "pk": 3,
-    "fields": {
-      "name": "admin"
-    }
+    "fields": { "name": "admin" }
   },
   {
     "model": "uniMarktAuth.role",
     "pk": 4,
-    "fields": {
-      "name": "faculty"
-    }
+    "fields": { "name": "faculty" }
   },
   {
     "model": "uniMarktAuth.user",
     "pk": 1,
     "fields": {
-      "name": "Alice Chan",
-      "email": "alice@example.com",
+      "name": "UniMarkt",
+      "email": "unimarkt@example.com",
       "contact_number": "1234567890",
       "role": 2,
       "is_active": true,
       "is_staff": true,
       "is_superuser": true,
-      "password": "pbkdf2_sha256$260000$6cCkSiJjq7yH$+b4DAbTZrs/YVTFIlJGr9+XN2X/7FZlMiQqT0kXmMIQ=",
+      "password": "pbkdf2_sha256$260000$6cCkSiJjq7yH$...",
       "security_question1": "mother_maiden",
       "answer1": "Smith",
       "security_question2": "first_pet",
@@ -59,7 +51,7 @@
       "is_staff": false,
       "is_superuser": false,
       "status": "approved",
-      "password": "pbkdf2_sha256$260000$6cCkSiJjq7yH$+b4DAbTZrs/YVTFIlJGr9+XN2X/7FZlMiQqT0kXmMIQ=",
+      "password": "pbkdf2_sha256$260000$...",
       "security_question1": "mother_maiden",
       "answer1": "Johnson",
       "security_question2": "first_pet",
@@ -80,7 +72,7 @@
       "is_staff": false,
       "is_superuser": false,
       "status": "approved",
-      "password": "pbkdf2_sha256$260000$6cCkSiJjq7yH$+b4DAbTZrs/YVTFIlJGr9+XN2X/7FZlMiQqT0kXmMIQ=",
+      "password": "pbkdf2_sha256$260000$...",
       "security_question1": "mother_maiden",
       "answer1": "Brown",
       "security_question2": "first_pet",
@@ -101,13 +93,225 @@
       "is_staff": false,
       "is_superuser": false,
       "status": "approved",
-      "password": "pbkdf2_sha256$260000$6cCkSiJjq7yH$+b4DAbTZrs/YVTFIlJGr9+XN2X/7FZlMiQqT0kXmMIQ=",
+      "password": "pbkdf2_sha256$260000$...",
       "security_question1": "mother_maiden",
       "answer1": "Taylor",
       "security_question2": "first_pet",
       "answer2": "Charlie",
       "security_question3": "favorite_book",
       "answer3": "Pride and Prejudice"
+    }
+  },
+
+  {
+    "model": "uniMarktAuth.user",
+    "pk": 5,
+    "fields": {
+      "name": "Alice Chan",
+      "email": "alice@example.com",
+      "contact_number": "1234567890",
+      "role": 2,
+      "is_active": true,
+      "is_staff": true,
+      "is_superuser": true,
+      "password": "pbkdf2_sha256$260000$...",
+      "security_question1": "mother_maiden",
+      "answer1": "Smith",
+      "security_question2": "first_pet",
+      "answer2": "Fluffy",
+      "security_question3": "favorite_book",
+      "answer3": "1984"
+    }
+  },
+  {
+    "model": "uniMarktAuth.user",
+    "pk": 6,
+    "fields": {
+      "name": "Charlie Adams",
+      "email": "charlie.adams@example.com",
+      "contact_number": "5551112222",
+      "role": 2,
+      "is_active": true,
+      "is_staff": true,
+      "is_superuser": true,
+      "password": "pbkdf2_sha256$260000$...",
+      "security_question1": "mother_maiden",
+      "answer1": "Adams",
+      "security_question2": "first_pet",
+      "answer2": "Coco",
+      "security_question3": "favorite_book",
+      "answer3": "Dune"
+    }
+  },
+
+  {
+    "model": "uniMarktAuth.user",
+    "pk": 7,
+    "fields": {
+      "name": "David Moore",
+      "email": "david@example.com",
+      "contact_number": "1234567899",
+      "role": 3,
+      "is_active": true,
+      "is_staff": false,
+      "is_superuser": false,
+      "status": "pending",
+      "password": "pbkdf2_sha256$260000$...",
+      "security_question1": "mother_maiden",
+      "answer1": "Green",
+      "security_question2": "first_pet",
+      "answer2": "Bella",
+      "security_question3": "favorite_book",
+      "answer3": "The Alchemist"
+    }
+  },
+  {
+    "model": "uniMarktAuth.user",
+    "pk": 8,
+    "fields": {
+      "name": "Eve Thomas",
+      "email": "eve@example.com",
+      "contact_number": "1234567898",
+      "role": 4,
+      "is_active": true,
+      "is_staff": false,
+      "is_superuser": false,
+      "status": "pending",
+      "password": "pbkdf2_sha256$260000$...",
+      "security_question1": "mother_maiden",
+      "answer1": "Black",
+      "security_question2": "first_pet",
+      "answer2": "Rocky",
+      "security_question3": "favorite_book",
+      "answer3": "To Kill a Mockingbird"
+    }
+  },
+  {
+    "model": "uniMarktAuth.user",
+    "pk": 9,
+    "fields": {
+      "name": "Frank West",
+      "email": "frank@example.com",
+      "contact_number": "1234567897",
+      "role": 4,
+      "is_active": true,
+      "is_staff": false,
+      "is_superuser": false,
+      "status": "approved",
+      "password": "pbkdf2_sha256$260000$...",
+      "security_question1": "mother_maiden",
+      "answer1": "White",
+      "security_question2": "first_pet",
+      "answer2": "Milo",
+      "security_question3": "favorite_book",
+      "answer3": "1984"
+    }
+  },
+  {
+    "model": "uniMarktAuth.user",
+    "pk": 10,
+    "fields": {
+      "name": "Grace Hall",
+      "email": "grace@example.com",
+      "contact_number": "1234567896",
+      "role": 1,
+      "is_active": true,
+      "is_staff": false,
+      "is_superuser": false,
+      "status": "approved",
+      "password": "pbkdf2_sha256$260000$...",
+      "security_question1": "mother_maiden",
+      "answer1": "Grey",
+      "security_question2": "first_pet",
+      "answer2": "Shadow",
+      "security_question3": "favorite_book",
+      "answer3": "Little Women"
+    }
+  },
+  {
+    "model": "uniMarktAuth.user",
+    "pk": 11,
+    "fields": {
+      "name": "Henry King",
+      "email": "henry@example.com",
+      "contact_number": "1234567895",
+      "role": 1,
+      "is_active": true,
+      "is_staff": false,
+      "is_superuser": false,
+      "status": "approved",
+      "password": "pbkdf2_sha256$260000$...",
+      "security_question1": "mother_maiden",
+      "answer1": "Red",
+      "security_question2": "first_pet",
+      "answer2": "Tiger",
+      "security_question3": "favorite_book",
+      "answer3": "The Catcher in the Rye"
+    }
+  },
+
+  {
+    "model": "uniMarktAuth.user",
+    "pk": 12,
+    "fields": {
+      "name": "Ivy Scott",
+      "email": "ivy@example.com",
+      "contact_number": "1234567894",
+      "role": 3,
+      "is_active": true,
+      "is_staff": false,
+      "is_superuser": false,
+      "status": "approved",
+      "password": "pbkdf2_sha256$260000$...",
+      "security_question1": "mother_maiden",
+      "answer1": "Blue",
+      "security_question2": "first_pet",
+      "answer2": "Simba",
+      "security_question3": "favorite_book",
+      "answer3": "Brave New World"
+    }
+  },
+  {
+    "model": "uniMarktAuth.user",
+    "pk": 13,
+    "fields": {
+      "name": "Jackie Lane",
+      "email": "jackie@example.com",
+      "contact_number": "1234567893",
+      "role": 4,
+      "is_active": true,
+      "is_staff": false,
+      "is_superuser": false,
+      "status": "pending",
+      "password": "pbkdf2_sha256$260000$...",
+      "security_question1": "mother_maiden",
+      "answer1": "Orange",
+      "security_question2": "first_pet",
+      "answer2": "Luna",
+      "security_question3": "favorite_book",
+      "answer3": "Fahrenheit 451"
+    }
+  },
+
+  {
+    "model": "uniMarktAuth.user",
+    "pk": 14,
+    "fields": {
+      "name": "Kara Miles",
+      "email": "kara@example.com",
+      "contact_number": "1234567892",
+      "role": 1,
+      "is_active": true,
+      "is_staff": false,
+      "is_superuser": false,
+      "status": "approved",
+      "password": "pbkdf2_sha256$260000$...",
+      "security_question1": "mother_maiden",
+      "answer1": "Pink",
+      "security_question2": "first_pet",
+      "answer2": "Mochi",
+      "security_question3": "favorite_book",
+      "answer3": "The Giver"
     }
   }
 ]

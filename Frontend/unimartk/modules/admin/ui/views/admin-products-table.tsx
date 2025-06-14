@@ -27,7 +27,6 @@ import {
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
@@ -40,101 +39,87 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { users as allUsers } from "@/constants/users";
+
 import { useRouter } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils";
+import { cn, sendAdminMessage } from "@/lib/utils";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { approveUser, deleteUser, fetchAdminUsers } from "../../api";
-import { User } from "../../types";
-import LoadingPage from "@/app/(admin)/admin/loader";
+import { approveProduct, deleteProduct, fetchAdminProducts } from "../../api";
+import { Product } from "@/modules/products/types";
 import ErrorPage from "@/app/(admin)/admin/error";
-import { UserRole } from "@/modules/auth/types/auth";
-import ConfirmDialog from "@/components/confirm-dialog";
+import LoadingPage from "@/app/(admin)/admin/loader";
+import { Category } from "@/modules/home/types";
+import CommentDialog from "../components/comment-dialog";
 
-const FacultyApprovalTable = () => {
+const ProductTable = () => {
   const router = useRouter();
-
-  const [selectedUserId, setSelectedUserId] = React.useState<string | null>(
-    null
-  );
+  const [dialogType, setDialogType] = React.useState<
+    "reject" | "delete" | null
+  >(null);
+  const [selectedProductId, setSelectedProductId] = React.useState<
+    string | null
+  >(null);
+  const [comment, setComment] = React.useState("");
   const [dialogOpen, setDialogOpen] = React.useState(false);
-  const [dialogData, setDialogData] = React.useState<{
-    title: string;
-    subtitle: string;
-    buttonType: "default" | "destructive" | "secondary";
-    mutation: any;
-    type: "delete" | "revoke" | "make";
-  }>({
-    title: "",
-    subtitle: "",
-    buttonType: "default",
-    mutation: undefined,
-    type: "make",
-  });
 
   const { data, isLoading, error } = useQuery({
-    queryKey: ["adminUsers"],
-    queryFn: fetchAdminUsers,
+    queryKey: ["adminProducts"],
+    queryFn: fetchAdminProducts,
   });
-
-  const [sorting, setSorting] = React.useState<SortingState>([]);
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    []
-  );
-  const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>({});
-  const [rowSelection, setRowSelection] = React.useState({});
-
-  const unapprovedAdmins = React.useMemo(() => {
-    return data?.filter(
-      (user: User) => user.is_staff && user.status !== "approved"
-    );
-  }, [data]);
 
   const queryClient = useQueryClient();
 
-  const rejectFacultyMutation = useMutation({
-    mutationFn: async ({ userId }: { userId: string }) => {
-      approveUser({ userId, data: { status: "rejected", role_id: "1" } });
-    },
+  const approveProductMutation = useMutation({
+    mutationFn: approveProduct,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["adminUsers"] });
-      setDialogOpen(false);
+      // refetch products after approval
+      queryClient.invalidateQueries({ queryKey: ["adminProducts"] });
     },
   });
 
-  const makeUserAdminMutation = useMutation({
-    mutationFn: async ({ userId }: { userId: string }) => {
-      approveUser({ userId, data: { status: "approved", role_id: "3" } });
+  const rejectProductMutation = useMutation({
+    mutationFn: async ({
+      productId,
+      comment,
+    }: {
+      productId: string;
+      comment: string;
+    }) => {
+      const userId = data.filter(
+        (product: Product) => product.product_id === selectedProductId
+      )[0].user.id;
+      approveProduct({ productId, data: { status: "rejected" } });
+      await sendAdminMessage(userId, comment);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["adminUsers"] });
+      queryClient.invalidateQueries({ queryKey: ["adminProducts"] });
       setDialogOpen(false);
+      setComment("");
     },
   });
 
-  const makeUserFacultyMutation = useMutation({
-    mutationFn: async ({ userId }: { userId: string }) => {
-      approveUser({ userId, data: { status: "approved", role_id: "4" } });
+  const deleteProductMutation = useMutation({
+    mutationFn: async ({
+      productId,
+      comment,
+    }: {
+      productId: string;
+      comment: string;
+    }) => {
+      const userId = data.filter(
+        (product: Product) => product.product_id === selectedProductId
+      )[0].user.id;
+      deleteProduct(productId);
+      await sendAdminMessage(userId, comment);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["adminUsers"] });
+      queryClient.invalidateQueries({ queryKey: ["adminProducts"] });
       setDialogOpen(false);
+      setComment("");
     },
   });
 
-  const deleteUserMutation = useMutation({
-    mutationFn: async ({ userId }: { userId: string }) => {
-      deleteUser(userId);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["adminUsers"] });
-      setDialogOpen(false);
-    },
-  });
-
-  const columns: ColumnDef<User>[] = [
+  const columns: ColumnDef<Product>[] = [
     {
       id: "select",
       header: ({ table }) => (
@@ -169,20 +154,41 @@ const FacultyApprovalTable = () => {
       ),
     },
     {
-      accessorKey: "email",
-      header: "Email",
+      accessorKey: "price",
+      header: "Price",
       cell: ({ row }) => (
-        <div className="lowercase">{row.getValue("email")}</div>
+        <div className="lowercase">{row.getValue("price")}</div>
       ),
     },
     {
-      accessorKey: "role",
-      header: "Role",
+      accessorKey: "category",
+      header: "Category",
+
       cell: ({ row }) => (
-        <Badge variant={"outline"} className={cn("px-2 uppercase")}>
-          {(row.getValue("role") as UserRole).name}
-        </Badge>
+        <div className="lowercase">
+          {(row.getValue("category") as Category).name}
+        </div>
       ),
+    },
+    {
+      accessorKey: "sub_category",
+      header: "SubCategory",
+      cell: ({ row }) => {
+        return (
+          <div className="lowercase">
+            {(row.getValue("sub_category") as Category).name}
+          </div>
+        );
+      },
+    },
+    {
+      accessorKey: "pickup_location",
+      header: "Location",
+      cell: ({ row }) => {
+        return (
+          <div className="lowercase">{row.getValue("pickup_location")}</div>
+        );
+      },
     },
     {
       accessorKey: "status",
@@ -191,12 +197,12 @@ const FacultyApprovalTable = () => {
         <Badge
           className={cn(
             "px-2 uppercase",
-            row.getValue("status") === "approved" &&
-              "bg-emerald-200 border-emerald-500 text-emerald-600",
             row.getValue("status") === "pending" &&
               "bg-orange-200 border-orange-500 text-orange-600",
             row.getValue("status") === "rejected" &&
-              "bg-red-200 border-red-500 text-red-600"
+              "bg-red-200 border-red-500 text-red-600",
+            row.getValue("status") === "approved" &&
+              "bg-green-200 border-green-500 text-green-600"
           )}
         >
           {row.getValue("status")}
@@ -207,8 +213,6 @@ const FacultyApprovalTable = () => {
       id: "actions",
       enableHiding: false,
       cell: ({ row }) => {
-        const user = row.original;
-
         return (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -218,67 +222,37 @@ const FacultyApprovalTable = () => {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem
-                onClick={() => {
-                  setDialogData({
-                    mutation: makeUserFacultyMutation,
-                    buttonType: "default",
-                    title: "Make faculty",
-                    subtitle: "Giving faculty previlages for this user",
-                    type: "make",
-                  });
-                  setSelectedUserId(row.original.id);
-                  setDialogOpen(true);
-                }}
-              >
-                Make Faculty
-              </DropdownMenuItem>
-              {user.status !== "rejected" && (
+              {row.getValue("status") !== "rejected" && (
                 <DropdownMenuItem
                   onClick={() => {
-                    setDialogData({
-                      mutation: rejectFacultyMutation,
-                      buttonType: "destructive",
-                      title: "Remove faculty",
-                      subtitle: "Removing the faculty previlages for this user",
-                      type: "revoke",
-                    });
-                    setSelectedUserId(row.original.id);
+                    setDialogType("reject");
+                    setSelectedProductId(row.original.product_id);
                     setDialogOpen(true);
                   }}
                 >
-                  Reject Faculty
+                  Reject Listing
                 </DropdownMenuItem>
               )}
 
-              {user.role.name !== "admin" && (
+              {row.getValue("status") !== "approved" && (
                 <DropdownMenuItem
                   onClick={() => {
-                    setDialogData({
-                      mutation: makeUserAdminMutation,
-                      buttonType: "default",
-                      title: "Make admin",
-                      subtitle: "Giving admin previlages for this user",
-                      type: "make",
+                    approveProductMutation.mutate({
+                      productId: row.original.product_id,
+                      data: { status: "approved" },
                     });
-                    setSelectedUserId(row.original.id);
-                    setDialogOpen(true);
                   }}
                 >
-                  Make Admin
+                  Approve Listing
                 </DropdownMenuItem>
               )}
+
               <DropdownMenuSeparator />
+
               <DropdownMenuItem
                 onClick={() => {
-                  setDialogData({
-                    title: `Delete ${row.getValue("name")}'s Account?`,
-                    subtitle: `This action will permanently remove the user's account and all associated data. This operation cannot be undone.`,
-                    type: "delete",
-                    buttonType: "destructive",
-                    mutation: deleteUserMutation,
-                  });
-                  setSelectedUserId(row.original.id);
+                  setDialogType("delete");
+                  setSelectedProductId(row.original.product_id);
                   setDialogOpen(true);
                 }}
               >
@@ -291,8 +265,16 @@ const FacultyApprovalTable = () => {
     },
   ];
 
+  const [sorting, setSorting] = React.useState<SortingState>([]);
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
+    []
+  );
+  const [columnVisibility, setColumnVisibility] =
+    React.useState<VisibilityState>({});
+  const [rowSelection, setRowSelection] = React.useState({});
+
   const table = useReactTable({
-    data: unapprovedAdmins,
+    data,
     columns,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
@@ -327,14 +309,14 @@ const FacultyApprovalTable = () => {
         >
           <ArrowLeft className="" />
         </div>
-        <p className="text-3xl font-semibold">Faculty Approval</p>
+        <p className="text-3xl font-semibold">Products</p>
       </div>
       <div className="flex items-center justify-between py-4">
         <Input
-          placeholder="Filter emails..."
-          value={(table.getColumn("email")?.getFilterValue() as string) ?? ""}
+          placeholder="Filter name..."
+          value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
           onChange={(event) =>
-            table.getColumn("email")?.setFilterValue(event.target.value)
+            table.getColumn("name")?.setFilterValue(event.target.value)
           }
           className="max-w-sm"
         />
@@ -483,19 +465,19 @@ const FacultyApprovalTable = () => {
           </Button>
         </div>
       </div>
-      <ConfirmDialog
-        buttonType={dialogData.buttonType}
+      <CommentDialog
+        listingType="product"
         dialogOpen={dialogOpen}
-        mutation={dialogData.mutation}
-        selectedId={selectedUserId}
         setDialogOpen={setDialogOpen}
-        title={dialogData.title}
-        type={dialogData.type}
-        listingType="user"
-        subtitle={dialogData.subtitle}
+        dialogType={dialogType}
+        selectedId={selectedProductId}
+        comment={comment}
+        setComment={setComment}
+        rejectMutation={rejectProductMutation}
+        deleteMutation={deleteProductMutation}
       />
     </div>
   );
 };
 
-export default FacultyApprovalTable;
+export default ProductTable;

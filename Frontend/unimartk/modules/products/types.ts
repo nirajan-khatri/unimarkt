@@ -1,8 +1,8 @@
+import { User } from "../admin/types";
 import { Category } from "../home/types";
-import { User } from "../profile/types";
 
-export interface Product {
-  product_id: number;
+export type Product = {
+  product_id: string;
   name: string;
   category: Category;
   sub_category: Category;
@@ -10,10 +10,10 @@ export interface Product {
   price: string;
   images?: string[] | null;
   user: User;
-  status: string;
+  status: "approved" | "pending" | "rejected";
   created_at: string;
   pickup_location: string;
-}
+};
 
 export interface Message {
   id: string | number;
