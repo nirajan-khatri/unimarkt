@@ -51,7 +51,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['id','is_superuser', 'name', 'email', 'contact_number', 'is_active', 'is_staff', 'role', 'role_id']
+        fields = ['id','is_superuser', 'name', 'email', 'contact_number', 'is_active', 'is_staff','is_admin','status', 'role', 'role_id']
 
         ref_name = 'AdminDashboardUserSerializer'  # Unique name to avoid conflict
 
@@ -79,11 +79,18 @@ class CategorySerializer(serializers.ModelSerializer):
 
 class ProductSerializer(serializers.ModelSerializer):
     category = CategorySerializer(read_only=True)
+    sub_category = SubCategorySerializer(read_only=True)
     user = UserSerializer(read_only=True)
     class Meta:
         model = Product
         fields = '__all__'  # Or list fields explicitly
         ref_name = 'AdminDashboardProductSerializer'  # Unique name to avoid conflict
+        
+
+class ProductStatusUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Product
+        fields = ['product_id', 'name', 'status']  # Adjust fields as needed
 
 class SkillSerializer(serializers.ModelSerializer):
     available_time_week = AvailableTimeSlotSerializer(many=True)

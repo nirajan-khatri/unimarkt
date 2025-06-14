@@ -6,35 +6,35 @@
       "name": "Programming"
     }
   },
-    {
+  {
     "model": "skill.skillcategory",
     "pk": 2,
     "fields": {
       "name": "Language"
     }
   },
-    {
+  {
     "model": "skill.skillcategory",
     "pk": 3,
     "fields": {
       "name": "Music"
     }
   },
-    {
+  {
     "model": "skill.skillcategory",
     "pk": 4,
     "fields": {
       "name": "Soft Skills"
     }
   },
-    {
+  {
     "model": "skill.skillcategory",
     "pk": 5,
     "fields": {
       "name": "Creative"
     }
   },
-    {
+  {
     "model": "skill.skillcategory",
     "pk": 6,
     "fields": {
@@ -49,18 +49,46 @@
     }
   },
   {
+    "model": "skill.department",
+    "pk": 2,
+    "fields": {
+      "name": "Department of Electrical Engineering and Information Technology"
+    }
+  },
+  {
+    "model": "skill.department",
+    "pk": 3,
+    "fields": {
+      "name": "Department of Business Administration"
+    }
+  },
+  {
+    "model": "skill.department",
+    "pk": 4,
+    "fields": {
+      "name": "Department of Languages and Literature"
+    }
+  },
+  {
+    "model": "skill.department",
+    "pk": 5,
+    "fields": {
+      "name": "Department of Media and Arts"
+    }
+  },
+  {
+    "model": "skill.department",
+    "pk": 6,
+    "fields": {
+      "name": "Department of Sports Science"
+    }
+  },
+  {
     "model": "skill.degree",
     "pk": 1,
     "fields": {
       "name": "Bachelor Angewandte Informatik",
       "department": 1
-    }
-  },
-    {
-    "model": "skill.department",
-    "pk": 2,
-    "fields": {
-      "name": "Department of Electrical Engineering and Information Technology"
     }
   },
   {
@@ -69,6 +97,38 @@
     "fields": {
       "name": "Bachelor Electrical Engineering and Information Technology",
       "department": 2
+    }
+  },
+  {
+    "model": "skill.degree",
+    "pk": 3,
+    "fields": {
+      "name": "Bachelor Business Administration",
+      "department": 3
+    }
+  },
+  {
+    "model": "skill.degree",
+    "pk": 4,
+    "fields": {
+      "name": "Bachelor English Literature",
+      "department": 4
+    }
+  },
+  {
+    "model": "skill.degree",
+    "pk": 5,
+    "fields": {
+      "name": "Master Media Design",
+      "department": 5
+    }
+  },
+  {
+    "model": "skill.degree",
+    "pk": 6,
+    "fields": {
+      "name": "Bachelor Sports Science",
+      "department": 6
     }
   },
   {
@@ -81,10 +141,9 @@
       "charge_per_hour": "25.00",
       "department": 1,
       "degree": 1,
-      "user": 1,
+      "user": 2,
       "skill_category": 1,
       "created_at": "2025-05-01T10:00:00Z"
-
     }
   },
   {
@@ -140,6 +199,381 @@
       "day": "Thursday",
       "start_time": "15:00:00",
       "end_time": "17:00:00"
+    }
+  },
+  {
+    "model": "skill.skill",
+    "pk": 3,
+    "fields": {
+      "status": "approved",
+      "module": "javascript",
+      "description": "Frontend web development with JavaScript",
+      "charge_per_hour": "28.00",
+      "department": 1,
+      "degree": 1,
+      "user": 3,
+      "skill_category": 1,
+      "created_at": "2025-05-16T11:30:00Z"
+    }
+  },
+  {
+    "model": "skill.availabletimeslot",
+    "pk": 5,
+    "fields": {
+      "skill": 3,
+      "day": "Monday",
+      "start_time": "16:00:00",
+      "end_time": "18:00:00"
+    }
+  },
+  {
+    "model": "skill.availabletimeslot",
+    "pk": 6,
+    "fields": {
+      "skill": 3,
+      "day": "Friday",
+      "start_time": "10:00:00",
+      "end_time": "12:00:00"
+    }
+  },
+  {
+    "model": "skill.skill",
+    "pk": 4,
+    "fields": {
+      "status": "pending",
+      "module": "react",
+      "description": "React.js framework for modern web applications",
+      "charge_per_hour": "35.00",
+      "department": 1,
+      "degree": 1,
+      "user": 3,
+      "skill_category": 1,
+      "created_at": "2025-05-17T14:20:00Z"
+    }
+  },
+  {
+    "model": "skill.availabletimeslot",
+    "pk": 7,
+    "fields": {
+      "skill": 4,
+      "day": "Wednesday",
+      "start_time": "09:00:00",
+      "end_time": "11:00:00"
+    }
+  },
+  {
+    "model": "skill.skill",
+    "pk": 5,
+    "fields": {
+      "status": "approved",
+      "module": "german",
+      "description": "German language for international students",
+      "charge_per_hour": "20.00",
+      "department": 4,
+      "degree": 4,
+      "user": 3,
+      "skill_category": 2,
+      "created_at": "2025-05-18T08:45:00Z"
+    }
+  },
+  {
+    "model": "skill.availabletimeslot",
+    "pk": 8,
+    "fields": {
+      "skill": 5,
+      "day": "Tuesday",
+      "start_time": "13:00:00",
+      "end_time": "15:00:00"
+    }
+  },
+  {
+    "model": "skill.availabletimeslot",
+    "pk": 9,
+    "fields": {
+      "skill": 5,
+      "day": "Thursday",
+      "start_time": "13:00:00",
+      "end_time": "15:00:00"
+    }
+  },
+  {
+    "model": "skill.skill",
+    "pk": 6,
+    "fields": {
+      "status": "approved",
+      "module": "spanish",
+      "description": "Spanish conversation and grammar",
+      "charge_per_hour": "18.00",
+      "department": 4,
+      "degree": 4,
+      "user": 3,
+      "skill_category": 2,
+      "created_at": "2025-05-19T12:15:00Z"
+    }
+  },
+  {
+    "model": "skill.availabletimeslot",
+    "pk": 10,
+    "fields": {
+      "skill": 6,
+      "day": "Monday",
+      "start_time": "18:00:00",
+      "end_time": "20:00:00"
+    }
+  },
+  {
+    "model": "skill.skill",
+    "pk": 7,
+    "fields": {
+      "status": "rejected",
+      "module": "french",
+      "description": "French language basics",
+      "charge_per_hour": "22.00",
+      "department": 4,
+      "degree": 4,
+      "user": 4,
+      "skill_category": 2,
+      "created_at": "2025-05-20T16:30:00Z"
+    }
+  },
+  {
+    "model": "skill.skill",
+    "pk": 8,
+    "fields": {
+      "status": "approved",
+      "module": "guitar",
+      "description": "Acoustic guitar lessons for beginners",
+      "charge_per_hour": "25.00",
+      "department": 5,
+      "degree": 5,
+      "user": 4,
+      "skill_category": 3,
+      "created_at": "2025-05-21T10:00:00Z"
+    }
+  },
+  {
+    "model": "skill.availabletimeslot",
+    "pk": 11,
+    "fields": {
+      "skill": 8,
+      "day": "Saturday",
+      "start_time": "14:00:00",
+      "end_time": "16:00:00"
+    }
+  },
+  {
+    "model": "skill.availabletimeslot",
+    "pk": 12,
+    "fields": {
+      "skill": 8,
+      "day": "Sunday",
+      "start_time": "10:00:00",
+      "end_time": "12:00:00"
+    }
+  },
+  {
+    "model": "skill.skill",
+    "pk": 9,
+    "fields": {
+      "status": "approved",
+      "module": "piano",
+      "description": "Piano lessons from beginner to intermediate",
+      "charge_per_hour": "30.00",
+      "department": 5,
+      "degree": 5,
+      "user": 4,
+      "skill_category": 3,
+      "created_at": "2025-05-22T13:45:00Z"
+    }
+  },
+  {
+    "model": "skill.availabletimeslot",
+    "pk": 13,
+    "fields": {
+      "skill": 9,
+      "day": "Wednesday",
+      "start_time": "17:00:00",
+      "end_time": "19:00:00"
+    }
+  },
+  {
+    "model": "skill.skill",
+    "pk": 10,
+    "fields": {
+      "status": "pending",
+      "module": "violin",
+      "description": "Classical violin instruction",
+      "charge_per_hour": "35.00",
+      "department": 5,
+      "degree": 5,
+      "user": 2,
+      "skill_category": 3,
+      "created_at": "2025-05-23T09:20:00Z"
+    }
+  },
+  {
+    "model": "skill.skill",
+    "pk": 11,
+    "fields": {
+      "status": "approved",
+      "module": "presentation",
+      "description": "Public speaking and presentation skills",
+      "charge_per_hour": "22.00",
+      "department": 3,
+      "degree": 3,
+      "user": 2,
+      "skill_category": 4,
+      "created_at": "2025-05-24T11:10:00Z"
+    }
+  },
+  {
+    "model": "skill.availabletimeslot",
+    "pk": 14,
+    "fields": {
+      "skill": 11,
+      "day": "Friday",
+      "start_time": "14:00:00",
+      "end_time": "16:00:00"
+    }
+  },
+  {
+    "model": "skill.skill",
+    "pk": 12,
+    "fields": {
+      "status": "approved",
+      "module": "leadership",
+      "description": "Leadership and team management skills",
+      "charge_per_hour": "28.00",
+      "department": 3,
+      "degree": 3,
+      "user": 2,
+      "skill_category": 4,
+      "created_at": "2025-05-25T15:30:00Z"
+    }
+  },
+  {
+    "model": "skill.availabletimeslot",
+    "pk": 15,
+    "fields": {
+      "skill": 12,
+      "day": "Thursday",
+      "start_time": "16:00:00",
+      "end_time": "18:00:00"
+    }
+  },
+  {
+    "model": "skill.skill",
+    "pk": 13,
+    "fields": {
+      "status": "rejected",
+      "module": "negotiation",
+      "description": "Business negotiation techniques",
+      "charge_per_hour": "26.00",
+      "department": 3,
+      "degree": 3,
+      "user": 2,
+      "skill_category": 4,
+      "created_at": "2025-05-26T08:15:00Z"
+    }
+  },
+  {
+    "model": "skill.skill",
+    "pk": 14,
+    "fields": {
+      "status": "approved",
+      "module": "photography",
+      "description": "Digital photography and photo editing",
+      "charge_per_hour": "24.00",
+      "department": 5,
+      "degree": 5,
+      "user": 2,
+      "skill_category": 5,
+      "created_at": "2025-05-27T12:40:00Z"
+    }
+  },
+  {
+    "model": "skill.availabletimeslot",
+    "pk": 16,
+    "fields": {
+      "skill": 14,
+      "day": "Saturday",
+      "start_time": "09:00:00",
+      "end_time": "11:00:00"
+    }
+  },
+  {
+    "model": "skill.skill",
+    "pk": 15,
+    "fields": {
+      "status": "pending",
+      "module": "graphic-design",
+      "description": "Adobe Creative Suite and design principles",
+      "charge_per_hour": "32.00",
+      "department": 5,
+      "degree": 5,
+      "user": 2,
+      "skill_category": 5,
+      "created_at": "2025-05-28T14:25:00Z"
+    }
+  },
+  {
+    "model": "skill.skill",
+    "pk": 16,
+    "fields": {
+      "status": "approved",
+      "module": "drawing",
+      "description": "Traditional drawing techniques and sketching",
+      "charge_per_hour": "20.00",
+      "department": 5,
+      "degree": 5,
+      "user": 2,
+      "skill_category": 5,
+      "created_at": "2025-05-29T10:50:00Z"
+    }
+  },
+  {
+    "model": "skill.availabletimeslot",
+    "pk": 17,
+    "fields": {
+      "skill": 16,
+      "day": "Sunday",
+      "start_time": "15:00:00",
+      "end_time": "17:00:00"
+    }
+  },
+  {
+    "model": "skill.skill",
+    "pk": 17,
+    "fields": {
+      "status": "approved",
+      "module": "yoga",
+      "description": "Hatha yoga for stress relief and flexibility",
+      "charge_per_hour": "18.00",
+      "department": 6,
+      "degree": 6,
+      "user": 2,
+      "skill_category": 6,
+      "created_at": "2025-05-30T07:30:00Z"
+    }
+  },
+  {
+    "model": "skill.availabletimeslot",
+    "pk": 18,
+    "fields": {
+      "skill": 17,
+      "day": "Tuesday",
+      "start_time": "18:00:00",
+      "end_time": "19:30:00"
+    }
+  },
+  {
+    "model": "skill.availabletimeslot",
+    "pk": 19,
+    "fields": {
+      "skill": 17,
+      "day": "Thursday",
+      "start_time": "18:00:00",
+      "end_time": "19:30:00"
     }
   }
 ]

@@ -68,7 +68,7 @@
     "pk": 2,
     "fields": {
       "name": "Fiction",
-      "category":3,
+      "category": 3,
       "color": null,
       "slug": "fiction"
     }
@@ -104,6 +104,56 @@
     }
   },
   {
+    "model": "product.subcategory",
+    "pk": 6,
+    "fields": {
+      "name": "Laptops",
+      "category": 2,
+      "color": null,
+      "slug": "laptops"
+    }
+  },
+  {
+    "model": "product.subcategory",
+    "pk": 7,
+    "fields": {
+      "name": "Non-Fiction",
+      "category": 3,
+      "color": null,
+      "slug": "non-fiction"
+    }
+  },
+  {
+    "model": "product.subcategory",
+    "pk": 8,
+    "fields": {
+      "name": "Jeans",
+      "category": 4,
+      "color": null,
+      "slug": "jeans"
+    }
+  },
+  {
+    "model": "product.subcategory",
+    "pk": 9,
+    "fields": {
+      "name": "Home Furniture",
+      "category": 5,
+      "color": null,
+      "slug": "home-furniture"
+    }
+  },
+  {
+    "model": "product.subcategory",
+    "pk": 10,
+    "fields": {
+      "name": "Fitness",
+      "category": 6,
+      "color": null,
+      "slug": "fitness"
+    }
+  },
+  {
     "model": "product.product",
     "pk": 1,
     "fields": {
@@ -113,7 +163,7 @@
       "description": "Latest Apple iPhone 13",
       "price": "799.99",
       "images": ["iphone13-front.jpg", "iphone13-back.jpg"],
-      "user": 1,
+      "user": 2,
       "status": "approved",
       "pickup_location": "Fulda, Germany",
       "created_at": "2025-05-01T10:00:00Z"
@@ -145,7 +195,7 @@
       "description": "Comfortable cotton t-shirt",
       "price": "20.00",
       "images": ["tshirt-front.jpg", "tshirt-back.jpg"],
-      "user": 1,
+      "user": 4,
       "status": "approved",
       "pickup_location": "Kasele, Germany",
       "created_at": "2025-05-03T14:00:00Z"
@@ -161,7 +211,7 @@
       "description": "Ergonomic office chair",
       "price": "150.00",
       "images": ["chair1.jpg"],
-      "user": 1,
+      "user": 4,
       "status": "approved",
       "pickup_location": "Fulda, Germany",
       "created_at": "2025-05-04T09:00:00Z"
@@ -181,6 +231,246 @@
       "status": "approved",
       "pickup_location": "Fulda, Germany",
       "created_at": "2025-05-05T16:00:00Z"
+    }
+  },
+  {
+    "model": "product.product",
+    "pk": 6,
+    "fields": {
+      "name": "Samsung Galaxy S22",
+      "category": 2,
+      "sub_category": 1,
+      "description": "High-performance Android smartphone",
+      "price": "699.99",
+      "images": ["galaxy-s22-front.jpg", "galaxy-s22-back.jpg"],
+      "user": 2,
+      "status": "approved",
+      "pickup_location": "München, Germany",
+      "created_at": "2025-05-06T11:30:00Z"
+    }
+  },
+  {
+    "model": "product.product",
+    "pk": 7,
+    "fields": {
+      "name": "MacBook Pro 14",
+      "category": 2,
+      "sub_category": 6,
+      "description": "Apple MacBook Pro with M2 chip",
+      "price": "1899.00",
+      "images": ["macbook-pro-14.jpg"],
+      "user": 2,
+      "status": "approved",
+      "pickup_location": "Berlin, Germany",
+      "created_at": "2025-05-07T08:15:00Z"
+    }
+  },
+  {
+    "model": "product.product",
+    "pk": 8,
+    "fields": {
+      "name": "1984",
+      "category": 3,
+      "sub_category": 2,
+      "description": "Dystopian novel by George Orwell",
+      "price": "12.50",
+      "images": ["1984-cover.jpg"],
+      "user": 2,
+      "status": "pending",
+      "pickup_location": "Hamburg, Germany",
+      "created_at": "2025-05-08T13:45:00Z"
+    }
+  },
+  {
+    "model": "product.product",
+    "pk": 9,
+    "fields": {
+      "name": "Sapiens",
+      "category": 3,
+      "sub_category": 7,
+      "description": "A Brief History of Humankind by Yuval Noah Harari",
+      "price": "18.00",
+      "images": ["sapiens-cover.jpg"],
+      "user": 4,
+      "status": "rejected",
+      "pickup_location": "Köln, Germany",
+      "created_at": "2025-05-09T16:20:00Z"
+    }
+  },
+  {
+    "model": "product.product",
+    "pk": 10,
+    "fields": {
+      "name": "Women's Jeans",
+      "category": 4,
+      "sub_category": 8,
+      "description": "High-waisted skinny jeans, size 28",
+      "price": "45.00",
+      "images": ["womens-jeans.jpg"],
+      "user": 2,
+      "status": "approved",
+      "pickup_location": "Stuttgart, Germany",
+      "created_at": "2025-05-10T10:30:00Z"
+    }
+  },
+  {
+    "model": "product.product",
+    "pk": 11,
+    "fields": {
+      "name": "Vintage Leather Jacket",
+      "category": 4,
+      "sub_category": 3,
+      "description": "Genuine leather jacket, worn condition",
+      "price": "89.00",
+      "images": ["leather-jacket-front.jpg", "leather-jacket-back.jpg"],
+      "user": 3,
+      "status": "pending",
+      "pickup_location": "Düsseldorf, Germany",
+      "created_at": "2025-05-11T14:15:00Z"
+    }
+  },
+  {
+    "model": "product.product",
+    "pk": 12,
+    "fields": {
+      "name": "IKEA Sofa",
+      "category": 5,
+      "sub_category": 9,
+      "description": "3-seater fabric sofa, light gray",
+      "price": "299.00",
+      "images": ["ikea-sofa.jpg"],
+      "user": 2,
+      "status": "rejected",
+      "pickup_location": "Hannover, Germany",
+      "created_at": "2025-05-12T09:45:00Z"
+    }
+  },
+  {
+    "model": "product.product",
+    "pk": 13,
+    "fields": {
+      "name": "Standing Desk",
+      "category": 5,
+      "sub_category": 4,
+      "description": "Adjustable height standing desk",
+      "price": "320.00",
+      "images": ["standing-desk.jpg"],
+      "user": 2,
+      "status": "approved",
+      "pickup_location": "Fulda, Germany",
+      "created_at": "2025-05-13T12:00:00Z"
+    }
+  },
+  {
+    "model": "product.product",
+    "pk": 14,
+    "fields": {
+      "name": "Mountain Bike",
+      "category": 6,
+      "sub_category": 5,
+      "description": "Trek mountain bike, 21-speed",
+      "price": "450.00",
+      "images": ["mountain-bike.jpg"],
+      "user": 1,
+      "status": "pending",
+      "pickup_location": "Nürnberg, Germany",
+      "created_at": "2025-05-14T15:30:00Z"
+    }
+  },
+  {
+    "model": "product.product",
+    "pk": 15,
+    "fields": {
+      "name": "Yoga Mat",
+      "category": 6,
+      "sub_category": 10,
+      "description": "Premium non-slip yoga mat, 6mm thick",
+      "price": "35.00",
+      "images": ["yoga-mat.jpg"],
+      "user": 2,
+      "status": "rejected",
+      "pickup_location": "Bremen, Germany",
+      "created_at": "2025-05-15T11:20:00Z"
+    }
+  },
+  {
+    "model": "product.product",
+    "pk": 16,
+    "fields": {
+      "name": "Gaming Headset",
+      "category": 2,
+      "sub_category": 1,
+      "description": "Wireless gaming headset with noise cancellation",
+      "price": "129.00",
+      "images": ["gaming-headset.jpg"],
+      "user": 2,
+      "status": "approved",
+      "pickup_location": "Leipzig, Germany",
+      "created_at": "2025-05-16T13:10:00Z"
+    }
+  },
+  {
+    "model": "product.product",
+    "pk": 17,
+    "fields": {
+      "name": "Cookbook Collection",
+      "category": 3,
+      "sub_category": 7,
+      "description": "Set of 5 Italian cooking books",
+      "price": "42.00",
+      "images": ["cookbook-collection.jpg"],
+      "user": 2,
+      "status": "pending",
+      "pickup_location": "Dresden, Germany",
+      "created_at": "2025-05-17T10:45:00Z"
+    }
+  },
+  {
+    "model": "product.product",
+    "pk": 18,
+    "fields": {
+      "name": "Winter Coat",
+      "category": 4,
+      "sub_category": 3,
+      "description": "Warm winter parka, size L",
+      "price": "75.00",
+      "images": ["winter-coat.jpg"],
+      "user": 1,
+      "status": "rejected",
+      "pickup_location": "Dortmund, Germany",
+      "created_at": "2025-05-18T08:30:00Z"
+    }
+  },
+  {
+    "model": "product.product",
+    "pk": 19,
+    "fields": {
+      "name": "Coffee Table",
+      "category": 5,
+      "sub_category": 9,
+      "description": "Wooden coffee table with storage",
+      "price": "180.00",
+      "images": ["coffee-table.jpg"],
+      "user": 3,
+      "status": "approved",
+      "pickup_location": "Essen, Germany",
+      "created_at": "2025-05-19T16:15:00Z"
+    }
+  },
+  {
+    "model": "product.product",
+    "pk": 20,
+    "fields": {
+      "name": "Dumbbells Set",
+      "category": 6,
+      "sub_category": 10,
+      "description": "Adjustable dumbbells, 5-50 lbs each",
+      "price": "220.00",
+      "images": ["dumbbells-set.jpg"],
+      "user": 2,
+      "status": "pending",
+      "pickup_location": "Wiesbaden, Germany",
+      "created_at": "2025-05-20T14:00:00Z"
     }
   }
 ]

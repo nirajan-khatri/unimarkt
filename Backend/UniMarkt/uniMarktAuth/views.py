@@ -37,15 +37,24 @@ class RegisterAPIView(APIView):
     def post(self, request):
         serializer = RegisterSerializer(data=request.data)
         if serializer.is_valid():
-            role_id = request.data.get("role")
-            role = get_object_or_404(Role, id=role_id)
-            user = serializer.save(role=role)
-            if role.name.lower() == "superuser":
-                user.is_staff = True
-                user.is_superuser = True
-                user.save()
+            # Assign default role internally (no role in payload)
+
+            user = serializer.save()
+
+           
+
+            # Set status based on is_admin and is_staff flags
+            if not user.is_admin and not user.is_staff:
+                user.status = 'approved'
+            else:
+                user.status = 'pending'
+
+            user.save()
             return Response({"message": "User registered successfully"}, status=status.HTTP_201_CREATED)
+
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+        
 
 class RoleListView(APIView):
 
