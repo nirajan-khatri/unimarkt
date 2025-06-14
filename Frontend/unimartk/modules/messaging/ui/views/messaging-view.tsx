@@ -17,6 +17,8 @@ import {
 import { Message } from "@/modules/products/types";
 import { User } from "@/modules/profile/types";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useAuth } from "@/modules/auth/contexts/authContext";
+import { redirect } from "next/navigation";
 
 const WhatsAppMessaging = () => {
   const [selectedConversation, setSelectedConversation] = useState<
@@ -27,7 +29,11 @@ const WhatsAppMessaging = () => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [socket, setSocket] = useState<WebSocket | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const currentUserId = "2";
+  const { isAuthenticated, user, isInitialized } = useAuth();
+
+  if ((!isAuthenticated || !user) && isInitialized) {
+    redirect("/sign-in");
+  }
 
   // Fetch unique users/conversations
   const {
@@ -35,10 +41,10 @@ const WhatsAppMessaging = () => {
     isLoading,
     error,
   } = useQuery({
-    queryKey: ["uniqueUsers", currentUserId],
+    queryKey: ["uniqueUsers", user?.id],
     queryFn: async () => {
       const response = await axios.get(
-        `chat/unique-users/?user_id=${currentUserId}`
+        `chat/unique-users/?user_id=${user?.id}`
       );
       return response.data.map((user: User) => ({
         ...user,
@@ -63,10 +69,11 @@ const WhatsAppMessaging = () => {
       }
 
       // Create new WebSocket connection
-	const wsBaseUrl = process.env.NEXT_PUBLIC_WS_URL || 'ws://localhost:8000/ws/';
-	const wsUrl = `${wsBaseUrl}chat/${currentUserId}/${selectedConversation}/`;
-	console.log("Connecting to WebSocket:", wsUrl);
-	const newSocket = new WebSocket(wsUrl);
+      const wsBaseUrl =
+        process.env.NEXT_PUBLIC_WS_URL || "ws://localhost:8000/ws/";
+      const wsUrl = `${wsBaseUrl}chat/${user?.id}/${selectedConversation}/`;
+      console.log("Connecting to WebSocket:", wsUrl);
+      const newSocket = new WebSocket(wsUrl);
 
       newSocket.onmessage = (event) => {
         try {
@@ -93,7 +100,7 @@ const WhatsAppMessaging = () => {
         newSocket.close();
       };
     }
-  }, [selectedConversation, currentUserId]);
+  }, [selectedConversation, user?.id]);
 
   // Cleanup socket on unmount
   useEffect(() => {
@@ -138,6 +145,7 @@ const WhatsAppMessaging = () => {
   };
 
   const handleConversationSelect = (userId: string) => {
+    if (userId === selectedConversation) return;
     setSelectedConversation(userId);
     setMessages([]); // Clear messages when switching conversations
   };
@@ -178,9 +186,7 @@ const WhatsAppMessaging = () => {
           {/* Sidebar Header */}
           <div className="p-4 bg-gray-50 border-b border-gray-200">
             <div className="flex items-center justify-between mb-4">
-              <h1 className="text-xl font-semibold text-gray-800">
-                Messages (logged in as user id 2)
-              </h1>
+              <h1 className="text-xl font-semibold text-gray-800">Messages</h1>
               <button className="p-2 hover:bg-gray-200 rounded-full">
                 <MoreVertical size={20} className="text-gray-600" />
               </button>
@@ -223,7 +229,7 @@ const WhatsAppMessaging = () => {
                     <Avatar className="h-14 w-14">
                       <AvatarImage src="" alt="User Avatar" />
                       <AvatarFallback>
-                        {`${user.name.split(" ")[0][0].toUpperCase()}${user.name.split(" ")[1][0].toUpperCase()}`}
+                        {`${user.name.split(" ")[0][0].toUpperCase()}`}
                       </AvatarFallback>
                     </Avatar>
                   </div>
@@ -255,7 +261,7 @@ const WhatsAppMessaging = () => {
                     <Avatar className="h-14 w-14">
                       <AvatarImage src="" alt="User Avatar" />
                       <AvatarFallback>
-                        {`${selectedUser.name.split(" ")[0][0].toUpperCase()}${selectedUser.name.split(" ")[1][0].toUpperCase()}`}
+                        {`${selectedUser.name.split(" ")[0][0].toUpperCase()}`}
                       </AvatarFallback>
                     </Avatar>
                   </div>
@@ -280,15 +286,15 @@ const WhatsAppMessaging = () => {
                   </div>
                 ) : (
                   messages.map((message, index) => {
-                    console.log(message.sender_id, currentUserId);
+                    console.log(message.sender_id, user?.id);
                     return (
                       <div
                         key={index}
-                        className={`flex ${message.sender_id.toString() === currentUserId ? "justify-end" : "justify-start"}`}
+                        className={`flex ${message.sender_id.toString() === user?.id.toString() ? "justify-end" : "justify-start"}`}
                       >
                         <div
                           className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
-                            message.sender_id.toString() === currentUserId
+                            message.sender_id.toString() === user?.id.toString()
                               ? "bg-blue-500 text-white"
                               : "bg-gray-200 text-gray-800"
                           }`}

@@ -40,21 +40,20 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { users as allUsers } from "@/constants/users";
 import { useRouter } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { approveUser, deleteUser, fetchAdminUsers } from "../../api";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { User } from "../../types";
 import LoadingPage from "@/app/(admin)/admin/loader";
 import ErrorPage from "@/app/(admin)/admin/error";
 import { UserRole } from "@/modules/auth/types/auth";
 import ConfirmDialog from "@/components/confirm-dialog";
 
-const FacultyApprovalTable = () => {
+const UsersTable = () => {
   const router = useRouter();
-
+  const isSuperadmin = false;
   const [selectedUserId, setSelectedUserId] = React.useState<string | null>(
     null
   );
@@ -86,17 +85,16 @@ const FacultyApprovalTable = () => {
     React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
 
-  const unapprovedAdmins = React.useMemo(() => {
-    return data?.filter(
-      (user: User) => user.is_staff && user.status !== "approved"
-    );
+  const filterSuperAdmin = React.useMemo(() => {
+    if (isSuperadmin) return data;
+    return data?.filter((user: User) => user.role.name !== "superuser");
   }, [data]);
 
   const queryClient = useQueryClient();
 
-  const rejectFacultyMutation = useMutation({
+  const makeUserUserMutation = useMutation({
     mutationFn: async ({ userId }: { userId: string }) => {
-      approveUser({ userId, data: { status: "rejected", role_id: "1" } });
+      approveUser({ userId, data: { status: "approved", role_id: "1" } });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["adminUsers"] });
@@ -170,9 +168,32 @@ const FacultyApprovalTable = () => {
     },
     {
       accessorKey: "email",
-      header: "Email",
+      header: ({ column }) => (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Email <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      ),
       cell: ({ row }) => (
         <div className="lowercase">{row.getValue("email")}</div>
+      ),
+    },
+    {
+      accessorKey: "is_active",
+      header: "Active",
+      cell: ({ row }) => (
+        <Badge
+          className={cn(
+            "px-2 uppercase",
+            row.getValue("is_active") === true
+              ? "bg-emerald-200 border-emerald-500 text-emerald-600"
+              : "bg-orange-200 border-orange-500 text-orange-600"
+          )}
+        >
+          {row.getValue("is_active") ? "Active" : "Inactive"}
+        </Badge>
       ),
     },
     {
@@ -185,29 +206,13 @@ const FacultyApprovalTable = () => {
       ),
     },
     {
-      accessorKey: "status",
-      header: "Status",
-      cell: ({ row }) => (
-        <Badge
-          className={cn(
-            "px-2 uppercase",
-            row.getValue("status") === "approved" &&
-              "bg-emerald-200 border-emerald-500 text-emerald-600",
-            row.getValue("status") === "pending" &&
-              "bg-orange-200 border-orange-500 text-orange-600",
-            row.getValue("status") === "rejected" &&
-              "bg-red-200 border-red-500 text-red-600"
-          )}
-        >
-          {row.getValue("status")}
-        </Badge>
-      ),
-    },
-    {
       id: "actions",
       enableHiding: false,
       cell: ({ row }) => {
         const user = row.original;
+
+        const isFaculty = user.role.name === "faculty";
+        const isAdmin = user.role.name === "admin";
 
         return (
           <DropdownMenu>
@@ -218,40 +223,24 @@ const FacultyApprovalTable = () => {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem
-                onClick={() => {
-                  setDialogData({
-                    mutation: makeUserFacultyMutation,
-                    buttonType: "default",
-                    title: "Make faculty",
-                    subtitle: "Giving faculty previlages for this user",
-                    type: "make",
-                  });
-                  setSelectedUserId(row.original.id);
-                  setDialogOpen(true);
-                }}
-              >
-                Make Faculty
-              </DropdownMenuItem>
-              {user.status !== "rejected" && (
+              {isAdmin && (
                 <DropdownMenuItem
                   onClick={() => {
                     setDialogData({
-                      mutation: rejectFacultyMutation,
+                      mutation: makeUserUserMutation,
                       buttonType: "destructive",
-                      title: "Remove faculty",
-                      subtitle: "Removing the faculty previlages for this user",
+                      title: "Remove admin",
+                      subtitle: "Removing the admin previlages for this user",
                       type: "revoke",
                     });
                     setSelectedUserId(row.original.id);
                     setDialogOpen(true);
                   }}
                 >
-                  Reject Faculty
+                  Remove Admin
                 </DropdownMenuItem>
               )}
-
-              {user.role.name !== "admin" && (
+              {!isAdmin && (
                 <DropdownMenuItem
                   onClick={() => {
                     setDialogData({
@@ -268,6 +257,42 @@ const FacultyApprovalTable = () => {
                   Make Admin
                 </DropdownMenuItem>
               )}
+              {!isFaculty && (
+                <DropdownMenuItem
+                  onClick={() => {
+                    setDialogData({
+                      mutation: makeUserFacultyMutation,
+                      buttonType: "default",
+                      title: "Make faculty",
+                      subtitle: "Giving faculty previlages for this user",
+                      type: "make",
+                    });
+                    setSelectedUserId(row.original.id);
+                    setDialogOpen(true);
+                  }}
+                >
+                  Make Faculty
+                </DropdownMenuItem>
+              )}
+
+              {isFaculty && (
+                <DropdownMenuItem
+                  onClick={() => {
+                    setDialogData({
+                      mutation: makeUserUserMutation,
+                      buttonType: "destructive",
+                      title: "Remove faculty",
+                      subtitle: "Removing the faculty previlages for this user",
+                      type: "revoke",
+                    });
+                    setSelectedUserId(row.original.id);
+                    setDialogOpen(true);
+                  }}
+                >
+                  Remove Faculty
+                </DropdownMenuItem>
+              )}
+
               <DropdownMenuSeparator />
               <DropdownMenuItem
                 onClick={() => {
@@ -292,7 +317,7 @@ const FacultyApprovalTable = () => {
   ];
 
   const table = useReactTable({
-    data: unapprovedAdmins,
+    data: filterSuperAdmin,
     columns,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
@@ -327,7 +352,7 @@ const FacultyApprovalTable = () => {
         >
           <ArrowLeft className="" />
         </div>
-        <p className="text-3xl font-semibold">Faculty Approval</p>
+        <p className="text-3xl font-semibold">Users</p>
       </div>
       <div className="flex items-center justify-between py-4">
         <Input
@@ -411,7 +436,7 @@ const FacultyApprovalTable = () => {
           </DropdownMenu>
         </div>
       </div>
-      <div className="rounded-md border bg-white">
+      <div className="rounded-md border">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
@@ -498,4 +523,4 @@ const FacultyApprovalTable = () => {
   );
 };
 
-export default FacultyApprovalTable;
+export default UsersTable;

@@ -124,10 +124,11 @@ const ImageModal = ({
                 e.stopPropagation();
                 onIndexChange(index);
               }}
-              className={`flex-shrink-0 w-16 h-12 relative rounded overflow-hidden border-2 transition-colors ${index === currentIndex
+              className={`flex-shrink-0 w-16 h-12 relative rounded overflow-hidden border-2 transition-colors ${
+                index === currentIndex
                   ? "border-blue-500"
                   : "border-transparent"
-                }`}
+              }`}
             >
               <Image
                 src={image}
@@ -155,8 +156,6 @@ export const ProductView = ({ productId }: Props) => {
     queryKey: ["product", productId],
     queryFn: () => fetchProductById(productId),
   });
-
-  console.log(data);
 
   return (
     <>

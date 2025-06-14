@@ -27,7 +27,6 @@ import {
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
@@ -40,101 +39,91 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { users as allUsers } from "@/constants/users";
+
 import { useRouter } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils";
+import { cn, sendAdminMessage } from "@/lib/utils";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { approveUser, deleteUser, fetchAdminUsers } from "../../api";
-import { User } from "../../types";
-import LoadingPage from "@/app/(admin)/admin/loader";
+import { approveSkill, deleteSkill, fetchAdminSkills } from "../../api";
 import ErrorPage from "@/app/(admin)/admin/error";
-import { UserRole } from "@/modules/auth/types/auth";
-import ConfirmDialog from "@/components/confirm-dialog";
+import LoadingPage from "@/app/(admin)/admin/loader";
+import { Category } from "@/modules/home/types";
+import {
+  Degree,
+  DepartmentOrRoleOrSkillCategory,
+  Skill,
+} from "@/modules/skills/types";
+import CommentDialog from "../components/comment-dialog";
 
-const FacultyApprovalTable = () => {
+const SkillsTable = () => {
   const router = useRouter();
-
-  const [selectedUserId, setSelectedUserId] = React.useState<string | null>(
+  const [dialogType, setDialogType] = React.useState<
+    "reject" | "delete" | null
+  >(null);
+  const [selectedSkillId, setSelectedSkillId] = React.useState<string | null>(
     null
   );
+  const [comment, setComment] = React.useState("");
   const [dialogOpen, setDialogOpen] = React.useState(false);
-  const [dialogData, setDialogData] = React.useState<{
-    title: string;
-    subtitle: string;
-    buttonType: "default" | "destructive" | "secondary";
-    mutation: any;
-    type: "delete" | "revoke" | "make";
-  }>({
-    title: "",
-    subtitle: "",
-    buttonType: "default",
-    mutation: undefined,
-    type: "make",
-  });
 
   const { data, isLoading, error } = useQuery({
-    queryKey: ["adminUsers"],
-    queryFn: fetchAdminUsers,
+    queryKey: ["adminSkills"],
+    queryFn: fetchAdminSkills,
   });
-
-  const [sorting, setSorting] = React.useState<SortingState>([]);
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    []
-  );
-  const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>({});
-  const [rowSelection, setRowSelection] = React.useState({});
-
-  const unapprovedAdmins = React.useMemo(() => {
-    return data?.filter(
-      (user: User) => user.is_staff && user.status !== "approved"
-    );
-  }, [data]);
 
   const queryClient = useQueryClient();
 
-  const rejectFacultyMutation = useMutation({
-    mutationFn: async ({ userId }: { userId: string }) => {
-      approveUser({ userId, data: { status: "rejected", role_id: "1" } });
-    },
+  const approveSkillMutation = useMutation({
+    mutationFn: approveSkill,
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["adminUsers"] });
-      setDialogOpen(false);
+      // refetch products after approval
+      queryClient.invalidateQueries({ queryKey: ["adminSkills"] });
     },
   });
 
-  const makeUserAdminMutation = useMutation({
-    mutationFn: async ({ userId }: { userId: string }) => {
-      approveUser({ userId, data: { status: "approved", role_id: "3" } });
+  const rejectSkillMutation = useMutation({
+    mutationFn: async ({
+      skillId,
+      comment,
+    }: {
+      skillId: string;
+      comment: string;
+    }) => {
+      const userId = data.filter(
+        (skill: Skill) => skill.skill_id === selectedSkillId
+      )[0].user.id;
+      approveSkill({ skillId, data: { status: "rejected" } });
+      await sendAdminMessage(userId, comment);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["adminUsers"] });
+      queryClient.invalidateQueries({ queryKey: ["adminSkills"] });
       setDialogOpen(false);
+      setComment("");
     },
   });
 
-  const makeUserFacultyMutation = useMutation({
-    mutationFn: async ({ userId }: { userId: string }) => {
-      approveUser({ userId, data: { status: "approved", role_id: "4" } });
+  const deleteSkillMutation = useMutation({
+    mutationFn: async ({
+      skillId,
+      comment,
+    }: {
+      skillId: string;
+      comment: string;
+    }) => {
+      const userId = data.filter(
+        (skill: Skill) => skill.skill_id === selectedSkillId
+      )[0].user.id;
+      deleteSkill(skillId);
+      await sendAdminMessage(userId, comment);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["adminUsers"] });
+      queryClient.invalidateQueries({ queryKey: ["adminSkills"] });
       setDialogOpen(false);
+      setComment("");
     },
   });
 
-  const deleteUserMutation = useMutation({
-    mutationFn: async ({ userId }: { userId: string }) => {
-      deleteUser(userId);
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["adminUsers"] });
-      setDialogOpen(false);
-    },
-  });
-
-  const columns: ColumnDef<User>[] = [
+  const columns: ColumnDef<Skill>[] = [
     {
       id: "select",
       header: ({ table }) => (
@@ -158,31 +147,57 @@ const FacultyApprovalTable = () => {
       enableHiding: false,
     },
     {
-      accessorKey: "name",
+      accessorKey: "module",
       header: ({ column }) => (
         <Button
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
-          Name <ArrowUpDown className="ml-2 h-4 w-4" />
+          Module <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
       ),
     },
     {
-      accessorKey: "email",
-      header: "Email",
+      accessorKey: "charge_per_hour",
+      header: "Charge Per Hour",
       cell: ({ row }) => (
-        <div className="lowercase">{row.getValue("email")}</div>
+        <div className="lowercase">{row.getValue("charge_per_hour")}</div>
       ),
     },
     {
-      accessorKey: "role",
-      header: "Role",
+      accessorKey: "skill_category",
+      header: "Category",
+
       cell: ({ row }) => (
-        <Badge variant={"outline"} className={cn("px-2 uppercase")}>
-          {(row.getValue("role") as UserRole).name}
-        </Badge>
+        <div className="lowercase">
+          {(row.getValue("skill_category") as Category).name}
+        </div>
       ),
+    },
+    {
+      accessorKey: "department",
+      header: "Department",
+      cell: ({ row }) => {
+        return (
+          <div className="lowercase max-w-40 overflow-hidden text-ellipsis">
+            {
+              (row.getValue("department") as DepartmentOrRoleOrSkillCategory)
+                .name
+            }
+          </div>
+        );
+      },
+    },
+    {
+      accessorKey: "degree",
+      header: "Degree",
+      cell: ({ row }) => {
+        return (
+          <div className="lowercase max-w-40 overflow-hidden text-ellipsis">
+            {(row.getValue("degree") as Degree).name}
+          </div>
+        );
+      },
     },
     {
       accessorKey: "status",
@@ -191,12 +206,12 @@ const FacultyApprovalTable = () => {
         <Badge
           className={cn(
             "px-2 uppercase",
-            row.getValue("status") === "approved" &&
-              "bg-emerald-200 border-emerald-500 text-emerald-600",
             row.getValue("status") === "pending" &&
               "bg-orange-200 border-orange-500 text-orange-600",
             row.getValue("status") === "rejected" &&
-              "bg-red-200 border-red-500 text-red-600"
+              "bg-red-200 border-red-500 text-red-600",
+            row.getValue("status") === "approved" &&
+              "bg-green-200 border-green-500 text-green-600"
           )}
         >
           {row.getValue("status")}
@@ -207,8 +222,6 @@ const FacultyApprovalTable = () => {
       id: "actions",
       enableHiding: false,
       cell: ({ row }) => {
-        const user = row.original;
-
         return (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -218,67 +231,37 @@ const FacultyApprovalTable = () => {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem
-                onClick={() => {
-                  setDialogData({
-                    mutation: makeUserFacultyMutation,
-                    buttonType: "default",
-                    title: "Make faculty",
-                    subtitle: "Giving faculty previlages for this user",
-                    type: "make",
-                  });
-                  setSelectedUserId(row.original.id);
-                  setDialogOpen(true);
-                }}
-              >
-                Make Faculty
-              </DropdownMenuItem>
-              {user.status !== "rejected" && (
+              {row.getValue("status") !== "rejected" && (
                 <DropdownMenuItem
                   onClick={() => {
-                    setDialogData({
-                      mutation: rejectFacultyMutation,
-                      buttonType: "destructive",
-                      title: "Remove faculty",
-                      subtitle: "Removing the faculty previlages for this user",
-                      type: "revoke",
-                    });
-                    setSelectedUserId(row.original.id);
+                    setDialogType("reject");
+                    setSelectedSkillId(row.original.skill_id);
                     setDialogOpen(true);
                   }}
                 >
-                  Reject Faculty
+                  Reject Listing
                 </DropdownMenuItem>
               )}
 
-              {user.role.name !== "admin" && (
+              {row.getValue("status") !== "approved" && (
                 <DropdownMenuItem
                   onClick={() => {
-                    setDialogData({
-                      mutation: makeUserAdminMutation,
-                      buttonType: "default",
-                      title: "Make admin",
-                      subtitle: "Giving admin previlages for this user",
-                      type: "make",
+                    approveSkillMutation.mutate({
+                      skillId: row.original.skill_id,
+                      data: { status: "approved" },
                     });
-                    setSelectedUserId(row.original.id);
-                    setDialogOpen(true);
                   }}
                 >
-                  Make Admin
+                  Approve Listing
                 </DropdownMenuItem>
               )}
+
               <DropdownMenuSeparator />
+
               <DropdownMenuItem
                 onClick={() => {
-                  setDialogData({
-                    title: `Delete ${row.getValue("name")}'s Account?`,
-                    subtitle: `This action will permanently remove the user's account and all associated data. This operation cannot be undone.`,
-                    type: "delete",
-                    buttonType: "destructive",
-                    mutation: deleteUserMutation,
-                  });
-                  setSelectedUserId(row.original.id);
+                  setDialogType("delete");
+                  setSelectedSkillId(row.original.skill_id);
                   setDialogOpen(true);
                 }}
               >
@@ -291,8 +274,16 @@ const FacultyApprovalTable = () => {
     },
   ];
 
+  const [sorting, setSorting] = React.useState<SortingState>([]);
+  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
+    []
+  );
+  const [columnVisibility, setColumnVisibility] =
+    React.useState<VisibilityState>({});
+  const [rowSelection, setRowSelection] = React.useState({});
+
   const table = useReactTable({
-    data: unapprovedAdmins,
+    data,
     columns,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
@@ -327,14 +318,14 @@ const FacultyApprovalTable = () => {
         >
           <ArrowLeft className="" />
         </div>
-        <p className="text-3xl font-semibold">Faculty Approval</p>
+        <p className="text-3xl font-semibold">Skills Approval</p>
       </div>
       <div className="flex items-center justify-between py-4">
         <Input
-          placeholder="Filter emails..."
-          value={(table.getColumn("email")?.getFilterValue() as string) ?? ""}
+          placeholder="Filter module..."
+          value={(table.getColumn("module")?.getFilterValue() as string) ?? ""}
           onChange={(event) =>
-            table.getColumn("email")?.setFilterValue(event.target.value)
+            table.getColumn("module")?.setFilterValue(event.target.value)
           }
           className="max-w-sm"
         />
@@ -483,19 +474,62 @@ const FacultyApprovalTable = () => {
           </Button>
         </div>
       </div>
-      <ConfirmDialog
-        buttonType={dialogData.buttonType}
+      {/* <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>
+              {dialogType === "reject" ? "Reject Product" : "Delete Product"}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <label htmlFor="comment" className="text-sm font-medium">
+              Comment
+            </label>
+            <Textarea
+              id="comment"
+              placeholder="Enter a reason..."
+              value={comment}
+              onChange={(e) => setComment(e.target.value)}
+            />
+          </div>
+          <DialogFooter>
+            <Button
+              onClick={() => {
+                if (!selectedSkillId) return;
+                if (dialogType === "reject") {
+                  rejectProductMutation.mutate({
+                    skillId: selectedSkillId,
+                    comment,
+                  });
+                } else if (dialogType === "delete") {
+                  deleteSkillMutation.mutate({
+                    skillId: selectedSkillId,
+                    comment,
+                  });
+                }
+              }}
+              disabled={
+                rejectProductMutation.isPending || deleteSkillMutation.isPending
+              }
+            >
+              {dialogType === "reject" ? "Reject" : "Delete"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog> */}
+      <CommentDialog
+        listingType="skill"
         dialogOpen={dialogOpen}
-        mutation={dialogData.mutation}
-        selectedId={selectedUserId}
         setDialogOpen={setDialogOpen}
-        title={dialogData.title}
-        type={dialogData.type}
-        listingType="user"
-        subtitle={dialogData.subtitle}
+        dialogType={dialogType}
+        selectedId={selectedSkillId}
+        comment={comment}
+        setComment={setComment}
+        rejectMutation={rejectSkillMutation}
+        deleteMutation={deleteSkillMutation}
       />
     </div>
   );
 };
 
-export default FacultyApprovalTable;
+export default SkillsTable;

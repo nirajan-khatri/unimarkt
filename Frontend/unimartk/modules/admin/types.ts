@@ -1,3 +1,5 @@
+import { UserRole } from "../auth/types/auth";
+
 export interface User {
   id: string;
   password: string;
@@ -7,8 +9,9 @@ export interface User {
   email: string;
   contact_number: string;
   is_active: boolean;
+  is_admin: boolean;
   is_staff: boolean;
-  role: string;
-  groups: number[];
-  user_permissions: number[];
+  role: UserRole;
+  status: "approved" | "pending" | "rejected";
+  role_id: string;
 }

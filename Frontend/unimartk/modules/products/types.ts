@@ -10,7 +10,7 @@ export type Product = {
   price: string;
   images?: string[] | null;
   user: User;
-  status: string;
+  status: "approved" | "pending" | "rejected";
   created_at: string;
   pickup_location: string;
 };

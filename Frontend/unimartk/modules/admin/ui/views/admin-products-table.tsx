@@ -27,7 +27,6 @@ import {
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
@@ -42,135 +41,229 @@ import {
 } from "@/components/ui/table";
 
 import { useRouter } from "next/navigation";
-import { products } from "@/constants/products";
 import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils";
-import { Category } from "@/modules/home/types";
-import { useQuery } from "@tanstack/react-query";
-import { fetchAdminProducts } from "../../api";
+import { cn, sendAdminMessage } from "@/lib/utils";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { approveProduct, deleteProduct, fetchAdminProducts } from "../../api";
 import { Product } from "@/modules/products/types";
 import ErrorPage from "@/app/(admin)/admin/error";
 import LoadingPage from "@/app/(admin)/admin/loader";
-
-export const columns: ColumnDef<Product>[] = [
-  {
-    id: "select",
-    header: ({ table }) => (
-      <Checkbox
-        checked={
-          table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && "indeterminate")
-        }
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Select all"
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
-      />
-    ),
-    enableSorting: false,
-    enableHiding: false,
-  },
-  {
-    accessorKey: "name",
-    header: ({ column }) => (
-      <Button
-        variant="ghost"
-        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-      >
-        Name <ArrowUpDown className="ml-2 h-4 w-4" />
-      </Button>
-    ),
-  },
-  {
-    accessorKey: "price",
-    header: "Price",
-    cell: ({ row }) => <div className="lowercase">{row.getValue("price")}</div>,
-  },
-  {
-    accessorKey: "category",
-    header: "Category",
-
-    cell: ({ row }) => (
-      <div className="lowercase">{row.getValue("category")}</div>
-    ),
-  },
-  {
-    accessorKey: "sub_category",
-    header: "SubCategory",
-    cell: ({ row }) => {
-      return <div className="lowercase">{row.getValue("sub_category")}</div>;
-    },
-  },
-  {
-    accessorKey: "pickup_location",
-    header: "Location",
-    cell: ({ row }) => {
-      return <div className="lowercase">{row.getValue("pickup_location")}</div>;
-    },
-  },
-  {
-    accessorKey: "status",
-    header: "Status",
-    cell: ({ row }) => (
-      <Badge
-        className={cn(
-          "px-2 uppercase",
-          row.getValue("status") === "pending" &&
-            "bg-orange-200 border-orange-500 text-orange-600",
-          row.getValue("status") === "rejected" &&
-            "bg-red-200 border-red-500 text-red-600"
-        )}
-      >
-        {row.getValue("status")}
-      </Badge>
-    ),
-  },
-  {
-    id: "actions",
-    enableHiding: false,
-    cell: ({ row }) => {
-      return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Open menu</span>
-              <MoreHorizontal />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            {row.getValue("status") !== "rejected" && (
-              <DropdownMenuItem onClick={() => alert(`Approved listing `)}>
-                Reject Listing
-              </DropdownMenuItem>
-            )}
-
-            <DropdownMenuItem onClick={() => alert(`Rejected Listing `)}>
-              Approve Listing
-            </DropdownMenuItem>
-
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => alert(`Delete `)}>
-              Delete
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      );
-    },
-  },
-];
+import { Category } from "@/modules/home/types";
+import CommentDialog from "../components/comment-dialog";
 
 const ProductTable = () => {
   const router = useRouter();
+  const [dialogType, setDialogType] = React.useState<
+    "reject" | "delete" | null
+  >(null);
+  const [selectedProductId, setSelectedProductId] = React.useState<
+    string | null
+  >(null);
+  const [comment, setComment] = React.useState("");
+  const [dialogOpen, setDialogOpen] = React.useState(false);
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["adminProducts"],
     queryFn: fetchAdminProducts,
   });
+
+  const queryClient = useQueryClient();
+
+  const approveProductMutation = useMutation({
+    mutationFn: approveProduct,
+    onSuccess: () => {
+      // refetch products after approval
+      queryClient.invalidateQueries({ queryKey: ["adminProducts"] });
+    },
+  });
+
+  const rejectProductMutation = useMutation({
+    mutationFn: async ({
+      productId,
+      comment,
+    }: {
+      productId: string;
+      comment: string;
+    }) => {
+      const userId = data.filter(
+        (product: Product) => product.product_id === selectedProductId
+      )[0].user.id;
+      approveProduct({ productId, data: { status: "rejected" } });
+      await sendAdminMessage(userId, comment);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["adminProducts"] });
+      setDialogOpen(false);
+      setComment("");
+    },
+  });
+
+  const deleteProductMutation = useMutation({
+    mutationFn: async ({
+      productId,
+      comment,
+    }: {
+      productId: string;
+      comment: string;
+    }) => {
+      const userId = data.filter(
+        (product: Product) => product.product_id === selectedProductId
+      )[0].user.id;
+      deleteProduct(productId);
+      await sendAdminMessage(userId, comment);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["adminProducts"] });
+      setDialogOpen(false);
+      setComment("");
+    },
+  });
+
+  const columns: ColumnDef<Product>[] = [
+    {
+      id: "select",
+      header: ({ table }) => (
+        <Checkbox
+          checked={
+            table.getIsAllPageRowsSelected() ||
+            (table.getIsSomePageRowsSelected() && "indeterminate")
+          }
+          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+          aria-label="Select all"
+        />
+      ),
+      cell: ({ row }) => (
+        <Checkbox
+          checked={row.getIsSelected()}
+          onCheckedChange={(value) => row.toggleSelected(!!value)}
+          aria-label="Select row"
+        />
+      ),
+      enableSorting: false,
+      enableHiding: false,
+    },
+    {
+      accessorKey: "name",
+      header: ({ column }) => (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Name <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      ),
+    },
+    {
+      accessorKey: "price",
+      header: "Price",
+      cell: ({ row }) => (
+        <div className="lowercase">{row.getValue("price")}</div>
+      ),
+    },
+    {
+      accessorKey: "category",
+      header: "Category",
+
+      cell: ({ row }) => (
+        <div className="lowercase">
+          {(row.getValue("category") as Category).name}
+        </div>
+      ),
+    },
+    {
+      accessorKey: "sub_category",
+      header: "SubCategory",
+      cell: ({ row }) => {
+        return (
+          <div className="lowercase">
+            {(row.getValue("sub_category") as Category).name}
+          </div>
+        );
+      },
+    },
+    {
+      accessorKey: "pickup_location",
+      header: "Location",
+      cell: ({ row }) => {
+        return (
+          <div className="lowercase">{row.getValue("pickup_location")}</div>
+        );
+      },
+    },
+    {
+      accessorKey: "status",
+      header: "Status",
+      cell: ({ row }) => (
+        <Badge
+          className={cn(
+            "px-2 uppercase",
+            row.getValue("status") === "pending" &&
+              "bg-orange-200 border-orange-500 text-orange-600",
+            row.getValue("status") === "rejected" &&
+              "bg-red-200 border-red-500 text-red-600",
+            row.getValue("status") === "approved" &&
+              "bg-green-200 border-green-500 text-green-600"
+          )}
+        >
+          {row.getValue("status")}
+        </Badge>
+      ),
+    },
+    {
+      id: "actions",
+      enableHiding: false,
+      cell: ({ row }) => {
+        return (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="h-8 w-8 p-0">
+                <span className="sr-only">Open menu</span>
+                <MoreHorizontal />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              {row.getValue("status") !== "rejected" && (
+                <DropdownMenuItem
+                  onClick={() => {
+                    setDialogType("reject");
+                    setSelectedProductId(row.original.product_id);
+                    setDialogOpen(true);
+                  }}
+                >
+                  Reject Listing
+                </DropdownMenuItem>
+              )}
+
+              {row.getValue("status") !== "approved" && (
+                <DropdownMenuItem
+                  onClick={() => {
+                    approveProductMutation.mutate({
+                      productId: row.original.product_id,
+                      data: { status: "approved" },
+                    });
+                  }}
+                >
+                  Approve Listing
+                </DropdownMenuItem>
+              )}
+
+              <DropdownMenuSeparator />
+
+              <DropdownMenuItem
+                onClick={() => {
+                  setDialogType("delete");
+                  setSelectedProductId(row.original.product_id);
+                  setDialogOpen(true);
+                }}
+              >
+                Delete
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        );
+      },
+    },
+  ];
 
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -216,7 +309,7 @@ const ProductTable = () => {
         >
           <ArrowLeft className="" />
         </div>
-        <p className="text-3xl font-semibold">Product Approval</p>
+        <p className="text-3xl font-semibold">Products</p>
       </div>
       <div className="flex items-center justify-between py-4">
         <Input
@@ -372,6 +465,17 @@ const ProductTable = () => {
           </Button>
         </div>
       </div>
+      <CommentDialog
+        listingType="product"
+        dialogOpen={dialogOpen}
+        setDialogOpen={setDialogOpen}
+        dialogType={dialogType}
+        selectedId={selectedProductId}
+        comment={comment}
+        setComment={setComment}
+        rejectMutation={rejectProductMutation}
+        deleteMutation={deleteProductMutation}
+      />
     </div>
   );
 };

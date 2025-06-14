@@ -44,12 +44,18 @@ import { useRouter } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
-import { fetchAdminProducts } from "../../api";
+import { fetchAdminSkills } from "../../api";
 import { Product } from "@/modules/products/types";
 import ErrorPage from "@/app/(admin)/admin/error";
 import LoadingPage from "@/app/(admin)/admin/loader";
+import { Category } from "@/modules/home/types";
+import {
+  Degree,
+  DepartmentOrRoleOrSkillCategory,
+  Skill,
+} from "@/modules/skills/types";
 
-export const columns: ColumnDef<Product>[] = [
+export const columns: ColumnDef<Skill>[] = [
   {
     id: "select",
     header: ({ table }) => (
@@ -73,41 +79,53 @@ export const columns: ColumnDef<Product>[] = [
     enableHiding: false,
   },
   {
-    accessorKey: "name",
+    accessorKey: "module",
     header: ({ column }) => (
       <Button
         variant="ghost"
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
       >
-        Name <ArrowUpDown className="ml-2 h-4 w-4" />
+        Module <ArrowUpDown className="ml-2 h-4 w-4" />
       </Button>
     ),
   },
   {
-    accessorKey: "price",
-    header: "Price",
-    cell: ({ row }) => <div className="lowercase">{row.getValue("price")}</div>,
-  },
-  {
-    accessorKey: "category",
-    header: "Category",
-
+    accessorKey: "charge_per_hour",
+    header: "Charge Per Hour",
     cell: ({ row }) => (
-      <div className="lowercase">{row.getValue("category")}</div>
+      <div className="lowercase">{row.getValue("charge_per_hour")}</div>
     ),
   },
   {
-    accessorKey: "sub_category",
-    header: "SubCategory",
+    accessorKey: "skill_category",
+    header: "Category",
+
+    cell: ({ row }) => (
+      <div className="lowercase">
+        {(row.getValue("skill_category") as Category).name}
+      </div>
+    ),
+  },
+  {
+    accessorKey: "department",
+    header: "Department",
     cell: ({ row }) => {
-      return <div className="lowercase">{row.getValue("sub_category")}</div>;
+      return (
+        <div className="lowercase max-w-40 overflow-hidden text-ellipsis">
+          {(row.getValue("department") as DepartmentOrRoleOrSkillCategory).name}
+        </div>
+      );
     },
   },
   {
-    accessorKey: "pickup_location",
-    header: "Location",
+    accessorKey: "degree",
+    header: "Degree",
     cell: ({ row }) => {
-      return <div className="lowercase">{row.getValue("pickup_location")}</div>;
+      return (
+        <div className="lowercase max-w-40 overflow-hidden text-ellipsis">
+          {(row.getValue("degree") as Degree).name}
+        </div>
+      );
     },
   },
   {
@@ -161,24 +179,16 @@ export const columns: ColumnDef<Product>[] = [
   },
 ];
 
-const ApproveProductTable = () => {
+const ApproveSkillsTable = () => {
   const router = useRouter();
-  const [unapprovedProducts, setUnapprovedProducts] = React.useState<Product[]>(
-    []
-  );
 
   const { data, isLoading, error } = useQuery({
-    queryKey: ["adminProducts"],
-    queryFn: fetchAdminProducts,
+    queryKey: ["adminSkills"],
+    queryFn: fetchAdminSkills,
   });
 
-  React.useEffect(() => {
-    if (data) {
-      const unapproved = data.filter(
-        (product: Product) => product.status !== "approved"
-      );
-      setUnapprovedProducts(unapproved);
-    }
+  const unapprovedSkills = React.useMemo(() => {
+    return data?.filter((skill: Skill) => skill.status !== "approved");
   }, [data]);
 
   const [sorting, setSorting] = React.useState<SortingState>([]);
@@ -190,7 +200,7 @@ const ApproveProductTable = () => {
   const [rowSelection, setRowSelection] = React.useState({});
 
   const table = useReactTable({
-    data: unapprovedProducts,
+    data: unapprovedSkills,
     columns,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
@@ -225,14 +235,14 @@ const ApproveProductTable = () => {
         >
           <ArrowLeft className="" />
         </div>
-        <p className="text-3xl font-semibold">Product Approval</p>
+        <p className="text-3xl font-semibold">Skills Approval</p>
       </div>
       <div className="flex items-center justify-between py-4">
         <Input
-          placeholder="Filter name..."
-          value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
+          placeholder="Filter module..."
+          value={(table.getColumn("module")?.getFilterValue() as string) ?? ""}
           onChange={(event) =>
-            table.getColumn("name")?.setFilterValue(event.target.value)
+            table.getColumn("module")?.setFilterValue(event.target.value)
           }
           className="max-w-sm"
         />
@@ -385,4 +395,4 @@ const ApproveProductTable = () => {
   );
 };
 
-export default ApproveProductTable;
+export default ApproveSkillsTable;
