@@ -175,7 +175,7 @@ export const ProductView = ({ productId }: Props) => {
                       src={images[selectedImage]}
                       alt={data.name}
                       fill
-                      className="object-cover "
+                      className="object-cover"
                     />
                     {/* Click to view indicator */}
                     <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-black bg-opacity-70 text-white px-2 py-1 rounded text-xs">

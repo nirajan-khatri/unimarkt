@@ -2,7 +2,7 @@ import { User } from "../admin/types";
 
 export interface Skill {
   skill_id: string;
-  available_time_week?: AvailableTimeWeekEntity[] | null;
+  available_time_week: AvailableTimeWeekEntity[];
   skill_category: DepartmentOrRoleOrSkillCategory;
   department: DepartmentOrRoleOrSkillCategory;
   degree: Degree;
@@ -34,4 +34,27 @@ export interface Degree {
   id: number;
   department: DepartmentOrRoleOrSkillCategory;
   name: string;
+}
+
+export interface Message {
+  id: string | number;
+  message: string;
+  sender_id: string;
+  receiver_id: string;
+  timestamp: string;
+  created_at?: string;
+}
+
+export interface WebSocketMessage {
+  message: string;
+  sender_id: string;
+  timestamp: string;
+}
+
+export interface SkillMessageWindowProps {
+  senderId: string;
+  receiverId: string;
+  productName: string;
+  sellerName: string;
+  initialMessage: string;
 }

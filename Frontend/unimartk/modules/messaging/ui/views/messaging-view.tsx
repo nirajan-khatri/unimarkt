@@ -286,7 +286,6 @@ const WhatsAppMessaging = () => {
                   </div>
                 ) : (
                   messages.map((message, index) => {
-                    console.log(message.sender_id, user?.id);
                     return (
                       <div
                         key={index}

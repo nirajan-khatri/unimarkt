@@ -52,3 +52,46 @@ export const sendAdminMessage = (
     };
   });
 };
+
+export const generateTimeSlots = (
+  start: string,
+  end: string,
+  interval = 30
+): string[] => {
+  const slots: string[] = [];
+  let [startH, startM] = start.split(":").map(Number);
+  let [endH, endM] = end.split(":").map(Number);
+
+  while (startH < endH || (startH === endH && startM < endM)) {
+    const time = `${String(startH).padStart(2, "0")}:${String(startM).padStart(2, "0")}`;
+    slots.push(time);
+
+    startM += interval;
+    if (startM >= 60) {
+      startM = startM % 60;
+      startH += 1;
+    }
+  }
+  return slots;
+};
+
+export const getNextDateForWeekday = (weekday: string): string => {
+  const weekdays = [
+    "Sunday",
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
+  ];
+  const today = new Date();
+  const todayIndex = today.getDay();
+  const targetIndex = weekdays.indexOf(weekday);
+
+  const diff = (targetIndex + 7 - todayIndex) % 7 || 7;
+  const nextDate = new Date(today);
+  nextDate.setDate(today.getDate() + diff);
+
+  return nextDate.toISOString().split("T")[0]; // Format: YYYY-MM-DD
+};
