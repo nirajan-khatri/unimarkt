@@ -142,7 +142,7 @@ export const fetchDashboardStats = async (): Promise<DashboardStats> => {
     // Calculate user statistics
     const totalUsersWithSuperUser = users.length;
     const totalUsersWithoutSuperUser = users.filter(
-      (u: User) => u.role.name !== "superuser"
+      (u: User) => u.role?.name !== "superuser"
     ).length;
     const activeUsers = users.filter((u: any) => u.is_active === true).length;
     const inactiveUsers = users.filter(

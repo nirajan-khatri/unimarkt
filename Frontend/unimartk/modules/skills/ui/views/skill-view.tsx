@@ -59,8 +59,6 @@ export const SkillView = ({ skillId }: Props) => {
       ? `Hi ${data.user.name}, I'm interested in your "${data.module}" skill. Could we schedule on ${selectedDay}, ${formatDate(selectedDate, "MMMM do")} at ${selectedTime}?`
       : `Hi ${data.user.name}, I'm interested in your "${data.module}" skill.`;
 
-  console.log(selectedDay);
-
   return (
     <>
       <div className="px-4 lg:px-12 py-10">

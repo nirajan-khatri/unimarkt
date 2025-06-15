@@ -8,7 +8,7 @@ export type Product = {
   sub_category: Category;
   description: string;
   price: string;
-  images?: string[] | null;
+  images: string[];
   user: User;
   status: "approved" | "pending" | "rejected";
   created_at: string;

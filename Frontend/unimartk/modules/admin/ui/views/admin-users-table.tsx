@@ -87,7 +87,7 @@ const UsersTable = () => {
 
   const filterSuperAdmin = React.useMemo(() => {
     if (isSuperadmin) return data;
-    return data?.filter((user: User) => user.role.name !== "superuser");
+    return data?.filter((user: User) => user.role?.name !== "superuser");
   }, [data]);
 
   const queryClient = useQueryClient();
@@ -201,7 +201,7 @@ const UsersTable = () => {
       header: "Role",
       cell: ({ row }) => (
         <Badge variant={"outline"} className={cn("px-2 uppercase")}>
-          {(row.getValue("role") as UserRole).name}
+          {(row.getValue("role") as UserRole)?.name ?? "user"}
         </Badge>
       ),
     },
@@ -211,8 +211,8 @@ const UsersTable = () => {
       cell: ({ row }) => {
         const user = row.original;
 
-        const isFaculty = user.role.name === "faculty";
-        const isAdmin = user.role.name === "admin";
+        const isFaculty = user.role?.name === "faculty";
+        const isAdmin = user.role?.name === "admin";
 
         return (
           <DropdownMenu>

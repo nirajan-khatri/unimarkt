@@ -9,11 +9,11 @@ import {
   MessageCircle,
 } from "lucide-react";
 import Image from "next/image";
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 
 import { fetchProductById } from "@/services/products";
 
-const images = [
+const dummyImages = [
   "https://images.pexels.com/photos/31173368/pexels-photo-31173368/free-photo-of-colorful-facades-along-amsterdam-canal.jpeg?auto=compress&cs=tinysrgb&w=1200&lazy=load",
   "https://images.pexels.com/photos/30675194/pexels-photo-30675194/free-photo-of-creative-watercolor-art-workspace-with-supplies.jpeg?auto=compress&cs=tinysrgb&w=1200&lazy=load",
   "https://images.pexels.com/photos/29213973/pexels-photo-29213973/free-photo-of-picturesque-village-with-foggy-morning-landscape.jpeg?auto=compress&cs=tinysrgb&w=1200&lazy=load",
@@ -157,6 +157,14 @@ export const ProductView = ({ productId }: Props) => {
     queryFn: () => fetchProductById(productId),
   });
 
+  const images = useMemo(() => {
+    if (data.images?.length > 0) {
+      return data.images;
+    } else {
+      return dummyImages;
+    }
+  }, [isLoading, data]);
+
   return (
     <>
       <div className="px-4 lg:px-12 py-10">
@@ -168,7 +176,7 @@ export const ProductView = ({ productId }: Props) => {
                 {/* Main Image */}
                 <div className="flex-1 order-2 sm:order-1">
                   <div
-                    className="aspect-[4/3] sm:aspect-auto w-full h-full sm:max-h-[500px] bg-gray-200 relative cursor-pointer hover:scale-[1.02] transition-transform group"
+                    className="w-full relative aspect-[4/3] sm:aspect-auto min-h-[430px] sm:max-h-[500px] bg-gray-200 cursor-pointer hover:scale-[1.02] transition-transform group"
                     onClick={openModal}
                   >
                     <Image

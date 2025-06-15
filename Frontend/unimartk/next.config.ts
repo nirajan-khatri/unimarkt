@@ -4,7 +4,10 @@ const nextConfig: NextConfig = {
   /* config options here */
   devIndicators: false,
   images: {
-    domains: ["images.pexels.com"],
+    domains: [
+      "images.pexels.com",
+      "unimarkt-bucket.s3.eu-central-1.amazonaws.com",
+    ],
   },
 };
 

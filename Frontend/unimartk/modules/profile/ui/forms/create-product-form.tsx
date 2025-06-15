@@ -26,7 +26,7 @@ import { useMutation, useQuery } from "@tanstack/react-query";
 import axios from "@/lib/axios";
 import { Button } from "../../../../components/ui/button";
 import { Loader2, UploadCloud } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn, uploadToS3 } from "@/lib/utils";
 
 import { Category } from "@/modules/home/types";
 import LoadingPage from "@/app/(admin)/admin/loader";
@@ -35,22 +35,12 @@ import {
   fetchproductCategories,
   fetchProductSubcategories,
 } from "@/modules/home/api";
+import { useAuth } from "@/modules/auth/contexts/authContext";
+import { redirect } from "next/navigation";
 
 const uploadImageToAWS = async (file: File): Promise<string> => {
-  // Simulate upload delay
-  await new Promise((resolve) =>
-    setTimeout(resolve, 1000 + Math.random() * 2000)
-  );
-
-  // In a real implementation, you would:
-  // 1. Get pre-signed URL from your backend
-  // 2. Upload file to S3 using the pre-signed URL
-  // 3. Return the public URL of the uploaded image
-
-  // For now, return a dummy URL based on the file name
-  const timestamp = Date.now();
-  const randomId = Math.random().toString(36).substring(7);
-  return `https://your-bucket.s3.amazonaws.com/products/${timestamp}-${randomId}-${file.name}`;
+  const url = await uploadToS3(file);
+  return url;
 };
 
 const uploadMultipleImages = async (files: File[]): Promise<string[]> => {
@@ -67,8 +57,13 @@ const uploadMultipleImages = async (files: File[]): Promise<string[]> => {
 type ProductFormData = z.infer<typeof productSchema>;
 
 const CreateProductForm = () => {
+  const { isAuthenticated, user, isInitialized } = useAuth();
   const [uploadingImages, setUploadingImages] = useState(false);
   const [previewImages, setPreviewImages] = useState<string[]>([]);
+
+  if (!isAuthenticated) {
+    redirect("sign-in");
+  }
 
   const form = useForm<ProductFormData>({
     resolver: zodResolver(productSchema),
@@ -190,7 +185,7 @@ const CreateProductForm = () => {
       const payload = {
         ...data,
         price: data.price,
-        user_id: "1",
+        user_id: user!.id,
         category_id: data.category_id,
         sub_category_id: data.sub_category_id,
         images: data.images || [], // Array of AWS S3 URLs

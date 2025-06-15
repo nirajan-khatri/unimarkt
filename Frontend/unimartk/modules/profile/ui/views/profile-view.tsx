@@ -53,7 +53,7 @@ const ProfileView = () => {
           name={user.name}
           email={user.email}
           contact_number={user.contact_number}
-          role={user.role.name}
+          role={user.role?.name || "User"}
           isEditing={isEditing}
           onEdit={handleEdit}
           onCancel={handleCancel}

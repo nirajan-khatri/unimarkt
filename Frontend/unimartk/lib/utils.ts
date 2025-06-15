@@ -95,3 +95,36 @@ export const getNextDateForWeekday = (weekday: string): string => {
 
   return nextDate.toISOString().split("T")[0]; // Format: YYYY-MM-DD
 };
+
+export async function uploadToS3(file: File): Promise<string> {
+  const res = await fetch("http://localhost:3000/api/s3-upload", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      fileName: file.name,
+      fileType: file.type,
+    }),
+  });
+
+  if (!res.ok) {
+    throw new Error("Failed to get presigned URL");
+  }
+
+  const { uploadUrl, publicUrl } = await res.json(); // ✅ Only call once!
+
+  // Now upload to S3
+  const uploadRes = await fetch(uploadUrl, {
+    method: "PUT",
+    headers: {
+      "Content-Type": file.type,
+    },
+    body: file,
+  });
+
+  if (!uploadRes.ok) {
+    throw new Error("Upload to S3 failed");
+  }
+
+  console.log("✅ Uploaded:", publicUrl);
+  return publicUrl;
+}

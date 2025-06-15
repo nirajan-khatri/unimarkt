@@ -38,10 +38,17 @@ import {
   Trash2,
 } from "lucide-react";
 import { degrees, departments } from "@/constants/departments";
+import { useAuth } from "@/modules/auth/contexts/authContext";
+import { redirect } from "next/navigation";
 
 type SkillFormData = z.infer<typeof skillSchema>;
 
 const CreateSkillForm = () => {
+  const { isAuthenticated, user, isInitialized } = useAuth();
+
+  if (!isAuthenticated) {
+    redirect("sign-in");
+  }
   const form = useForm<SkillFormData>({
     resolver: zodResolver(skillSchema),
     defaultValues: {
@@ -107,7 +114,7 @@ const CreateSkillForm = () => {
     try {
       const payload = {
         ...data,
-        user_id: "1",
+        user_id: user!.id,
         status: "pending",
       };
 
