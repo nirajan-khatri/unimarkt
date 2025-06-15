@@ -2,6 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Star, Clock, User, DollarSign, Calendar, CheckCircle } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 interface ServiceCardProps {
   service: {
@@ -47,6 +48,7 @@ interface ServiceCardProps {
 }
 
 export function ServiceCard({ service }: ServiceCardProps) {
+  const router = useRouter();
   const hourlyRate = parseFloat(service.charge_per_hour);
   const availableSlots = service.available_time_week.filter(slot => slot.status === 'open');
   
@@ -71,9 +73,16 @@ export function ServiceCard({ service }: ServiceCardProps) {
     }
   };
 
+  
+  
+    const handleClick = () => {
+      router.push(`/skills/id/${service.skill_id}`);
+    };
+
+
   return (
     <Card className="group hover:shadow-lg transition-shadow duration-200 cursor-pointer">
-      <CardHeader className="pb-3">
+      <CardHeader className="pb-3" onClick={handleClick}>
         <div className="flex items-start justify-between">
           <div className="flex-1">
             <CardTitle className="text-lg font-semibold line-clamp-2 group-hover:text-blue-600 transition-colors">
