@@ -150,7 +150,7 @@ export const Navbar = () => {
                 </Avatar>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-48 bg-white">
+            <DropdownMenuContent align="end" className="w-48 ">
               <DropdownMenuLabel>
                 {userProfile?.name || "My Account"}
               </DropdownMenuLabel>
