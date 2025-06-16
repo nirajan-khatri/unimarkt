@@ -50,6 +50,7 @@ import ErrorPage from "@/app/(admin)/admin/error";
 import LoadingPage from "@/app/(admin)/admin/loader";
 import { Category } from "@/modules/home/types";
 import CommentDialog from "../components/comment-dialog";
+import Link from "next/link";
 
 const ProductTable = () => {
   const router = useRouter();
@@ -124,28 +125,28 @@ const ProductTable = () => {
   }, [data]);
 
   const columns: ColumnDef<Product>[] = [
-    {
-      id: "select",
-      header: ({ table }) => (
-        <Checkbox
-          checked={
-            table.getIsAllPageRowsSelected() ||
-            (table.getIsSomePageRowsSelected() && "indeterminate")
-          }
-          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-          aria-label="Select all"
-        />
-      ),
-      cell: ({ row }) => (
-        <Checkbox
-          checked={row.getIsSelected()}
-          onCheckedChange={(value) => row.toggleSelected(!!value)}
-          aria-label="Select row"
-        />
-      ),
-      enableSorting: false,
-      enableHiding: false,
-    },
+    // {
+    //   id: "select",
+    //   header: ({ table }) => (
+    //     <Checkbox
+    //       checked={
+    //         table.getIsAllPageRowsSelected() ||
+    //         (table.getIsSomePageRowsSelected() && "indeterminate")
+    //       }
+    //       onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+    //       aria-label="Select all"
+    //     />
+    //   ),
+    //   cell: ({ row }) => (
+    //     <Checkbox
+    //       checked={row.getIsSelected()}
+    //       onCheckedChange={(value) => row.toggleSelected(!!value)}
+    //       aria-label="Select row"
+    //     />
+    //   ),
+    //   enableSorting: false,
+    //   enableHiding: false,
+    // },
     {
       accessorKey: "name",
       header: ({ column }) => (
@@ -155,6 +156,11 @@ const ProductTable = () => {
         >
           Name <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
+      ),
+      cell: ({ row }) => (
+        <Link href={`/admin/products/${row.original.product_id}`}>
+          <span className="font-medium">{row.getValue("name")}</span>
+        </Link>
       ),
     },
     {
@@ -201,11 +207,11 @@ const ProductTable = () => {
         <Badge
           className={cn(
             "px-2 uppercase",
-            row.getValue("status") === "pending" &&
+            (row.getValue("status") as string).toLowerCase() === "pending" &&
               "bg-orange-200 border-orange-500 text-orange-600",
-            row.getValue("status") === "rejected" &&
+            (row.getValue("status") as string).toLowerCase() === "rejected" &&
               "bg-red-200 border-red-500 text-red-600",
-            row.getValue("status") === "approved" &&
+            (row.getValue("status") as string).toLowerCase() === "approved" &&
               "bg-green-200 border-green-500 text-green-600"
           )}
         >
@@ -226,6 +232,13 @@ const ProductTable = () => {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
+              <DropdownMenuItem
+                onClick={() => {
+                  router.push(`/admin/products/${row.original.product_id}`);
+                }}
+              >
+                View Details
+              </DropdownMenuItem>
               {row.getValue("status") !== "rejected" && (
                 <DropdownMenuItem
                   onClick={() => {
@@ -313,7 +326,7 @@ const ProductTable = () => {
         >
           <ArrowLeft className="" />
         </div>
-        <p className="text-3xl font-semibold">Products</p>
+        <p className="text-3xl font-semibold">Products Approval</p>
       </div>
       <div className="flex items-center justify-between py-4">
         <Input
@@ -325,7 +338,7 @@ const ProductTable = () => {
           className="max-w-sm"
         />
         <div className="flex flex-row gap-4">
-          {table.getSelectedRowModel().rows.length > 0 && (
+          {/* {table.getSelectedRowModel().rows.length > 0 && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" className="">
@@ -368,7 +381,7 @@ const ProductTable = () => {
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-          )}
+          )} */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" className="ml-auto">
