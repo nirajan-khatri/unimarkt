@@ -207,11 +207,11 @@ const SkillsTable = () => {
           className={cn(
             "px-2 uppercase",
             row.getValue("status") === "pending" &&
-              "bg-orange-200 border-orange-500 text-orange-600",
+            "bg-orange-200 border-orange-500 text-orange-600",
             row.getValue("status") === "rejected" &&
-              "bg-red-200 border-red-500 text-red-600",
+            "bg-red-200 border-red-500 text-red-600",
             row.getValue("status") === "approved" &&
-              "bg-green-200 border-green-500 text-green-600"
+            "bg-green-200 border-green-500 text-green-600"
           )}
         >
           {row.getValue("status")}
@@ -412,9 +412,9 @@ const SkillsTable = () => {
                     {header.isPlaceholder
                       ? null
                       : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
+                        header.column.columnDef.header,
+                        header.getContext()
+                      )}
                   </TableHead>
                 ))}
               </TableRow>
@@ -426,6 +426,21 @@ const SkillsTable = () => {
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
+                  className="cursor-pointer hover:bg-gray-50"
+                  onClick={(e) => {
+                    // Prevent navigation if clicking on checkbox, dropdown, or other interactive elements
+                    if (
+                      e.target instanceof HTMLElement &&
+                      (e.target.closest('button') ||
+                        e.target.closest('[role="checkbox"]') ||
+                        e.target.closest('[role="menuitem"]'))
+                    ) {
+                      return;
+                    }
+
+                    // Navigate to the skill details page
+                    router.push(`/admin/skills/${row.original.skill_id}`);
+                  }}
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>

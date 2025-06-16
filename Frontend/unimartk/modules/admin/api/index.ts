@@ -90,11 +90,12 @@ export const approveSkill = async ({
   skillId: string;
   data: Partial<Skill>;
 }) => {
+  console.log("data", data);
   const response = await axios.put(`/admin_dashboard/skills/${skillId}/`, data);
   return response.data;
 };
 
-// Delete product
+// Delete skill
 export const deleteSkill = async (skillId: string) => {
   const response = await axios.delete(`/admin_dashboard/skills/${skillId}/`);
   return response.data;
