@@ -2,16 +2,14 @@
 
 import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
 import {
-  MapPinIcon,
   XIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
-  PencilIcon,
   Trash2Icon,
-  PlusIcon,
   CheckIcon,
   User,
   MapPin,
+  ArrowLeft,
 } from "lucide-react";
 import Image from "next/image";
 import React, { useState } from "react";
@@ -20,11 +18,11 @@ import { fetchProductById } from "@/services/products";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { approveProduct, deleteProduct } from "../../api";
-import { Product } from "@/modules/products/types";
-import { sendAdminMessage } from "@/lib/utils";
+import { cn, sendAdminMessage } from "@/lib/utils";
 import CommentDialog from "../components/comment-dialog";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { Badge } from "@/components/ui/badge";
 
 const images = [
   "https://images.pexels.com/photos/31173368/pexels-photo-31173368/free-photo-of-colorful-facades-along-amsterdam-canal.jpeg?auto=compress&cs=tinysrgb&w=1200&lazy=load",
@@ -253,10 +251,39 @@ export const ProductDetailsView = ({ productId }: Props) => {
   const showApproveButton = data?.status !== "approved";
   const showRejectButton = data?.status !== "rejected";
 
+  const getStatusBadge = (status: string) => {
+    return (
+      <Badge
+        className={cn(
+          "px-3 py-1 text-sm font-medium uppercase",
+          status === "pending" &&
+          "bg-orange-100 border-orange-300 text-orange-700 hover:bg-orange-200",
+          status === "rejected" &&
+          "bg-red-100 border-red-300 text-red-700 hover:bg-red-200",
+          status === "approved" &&
+          "bg-green-100 border-green-300 text-green-700 hover:bg-green-200"
+        )}
+      >
+        {status}
+      </Badge>
+    );
+  };
+
   return (
     <>
       <div className="px-4 lg:px-12 py-10">
-        <div className="bg-white rounded-lg overflow-hidden shadow-sm">
+        <div className="flex items-center gap-4 mb-6 justify-between">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => router.back()}
+            className="p-2 hover:bg-gray-100 rounded-full"
+          >
+            <ArrowLeft className="w-5 h-5" />
+          </Button>
+          {data?.status && getStatusBadge(data.status)}
+        </div>
+        <div className="bg-background text-foreground rounded-lg overflow-hidden shadow-sm border">
           <div className="">
             <div className="lg:col-span-2">
               <div className="flex flex-col sm:flex-row">
@@ -306,60 +333,70 @@ export const ProductDetailsView = ({ productId }: Props) => {
 
           <div className="flex flex-col lg:flex-row">
             <div className="flex-1">
-              <div className="p-4 border-t flex flex-row justify-between items-center">
+              <div className="p-4 border-t border-border flex flex-row justify-between items-center">
                 <div>
-                  <h2 className="text-2xl font-bold text-gray-900 mb-2">{data.name}</h2>
-                  <div className="flex items-center gap-2 text-gray-600 mb-4">
+                  <h2 className="text-xl sm:text-2xl font-semibold mb-2">{data.name}</h2>
+                  <div className="flex items-center gap-1 text-muted-foreground">
                     <MapPin className="w-4 h-4" />
                     <span className="text-sm">{data.pickup_location}</span>
                   </div>
                 </div>
-                <div className="text-3xl font-bold text-gray-900">{data.price}€</div>
-                <div className="flex items-center gap-2">
-                  <Avatar className="w-8 h-8">
-                    <AvatarFallback className="bg-gray-300 text-gray-600">
-                      <User className="w-4 h-4" />
-                    </AvatarFallback>
-                  </Avatar>
-                  <span className="text-sm text-gray-600">{data.user.name || "Unknown"}</span>
+                <div className="mb-4 text-xl sm:text-2xl font-bold">{data.price}€</div>
+              </div>
+              {data?.user && (
+                <div className="p-4 sm:p-6 border-t border-border">
+                  <h3 className="text-lg font-semibold mb-3">Product Owner</h3>
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
+                      <span className="text-sm font-medium">
+                        {data.user.name?.[0]}
+                      </span>
+                    </div>
+                    <div>
+                      <p className="font-medium">{data.user.name}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {data.user.email}
+                      </p>
+                    </div>
+                  </div>
                 </div>
-              </div>  
-              <div className="p-4 sm:p-6 border-t">
-                <p className="text-gray-700 leading-relaxed text-sm sm:text-base">
-                  {data.description || "No description available"}
+              )}
+              <div className="p-4 sm:p-6 border-t border-border">
+                <h3 className="text-lg font-semibold mb-3">Description</h3>
+                <p className="text-muted-foreground leading-relaxed text-sm sm:text-base">
+                  {data?.description || "No description provided"}
                 </p>
+              </div>
+              <div className="flex flex-row gap-2 mt-4 justify-end items-center w-full p-4 border-t border-border bg-gray-50">
+                <Button
+                  variant="outline"
+                  className="flex flex-row gap-2 hover:bg-red-50 hover:border-red-300"
+                  onClick={handleDelete}
+                  disabled={deleteProductMutation.isPending}
+                >
+                  <Trash2Icon className="w-4 h-4 text-red-500" />
+                  {deleteProductMutation.isPending ? "Deleting..." : "Delete"}
+                </Button>
 
-                <div className="flex flex-row gap-2 mt-4 justify-end items-center w-full">
-                  <Button
-                    variant="outline"
-                    className="flex flex-row gap-2"
-                    onClick={handleDelete}
-                    disabled={deleteProductMutation.isPending}
-                  >
-                    <Trash2Icon className="w-4 h-4 text-red-500" />
-                    {deleteProductMutation.isPending ? "Deleting..." : "Delete"}
-                  </Button>
+                <Button
+                  variant="destructive"
+                  className="flex flex-row gap-2"
+                  onClick={handleReject}
+                  disabled={!showRejectButton || rejectProductMutation.isPending}
+                >
+                  <XIcon className="w-4 h-4" />
+                  {rejectProductMutation.isPending ? "Rejecting..." : "Reject"}
+                </Button>
 
-                  <Button
-                    variant="destructive"
-                    className="flex flex-row gap-2"
-                    onClick={handleReject}
-                    disabled={!showRejectButton || rejectProductMutation.isPending}
-                  >
-                    <XIcon className="w-4 h-4" />
-                    {rejectProductMutation.isPending ? "Rejecting..." : "Reject"}
-                  </Button>
-
-                  <Button
-                    variant="default"
-                    className="flex flex-row gap-2"
-                    onClick={handleApprove}
-                    disabled={!showApproveButton || approveProductMutation.isPending}
-                  >
-                    <CheckIcon className="w-4 h-4 text-green-500" />
-                    {approveProductMutation.isPending ? "Approving..." : "Approve"}
-                  </Button>
-                </div>
+                <Button
+                  variant="default"
+                  className="flex flex-row gap-2 bg-green-600 hover:bg-green-700"
+                  onClick={handleApprove}
+                  disabled={!showApproveButton || approveProductMutation.isPending}
+                >
+                  <CheckIcon className="w-4 h-4" />
+                  {approveProductMutation.isPending ? "Approving..." : "Approve"}
+                </Button>
               </div>
             </div>
           </div>

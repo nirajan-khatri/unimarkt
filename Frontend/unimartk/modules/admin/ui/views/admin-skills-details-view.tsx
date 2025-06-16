@@ -6,7 +6,6 @@ import {
   useQueryClient,
 } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
 import React, { useState } from "react";
 
 import {
