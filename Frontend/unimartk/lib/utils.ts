@@ -1,3 +1,4 @@
+import { AvailableTimeWeekEntity } from "@/modules/skills/types";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
@@ -52,3 +53,92 @@ export const sendAdminMessage = (
     };
   });
 };
+
+export const generateTimeSlots = (
+  start: string,
+  end: string,
+  interval = 30
+): string[] => {
+  const slots: string[] = [];
+  let [startH, startM] = start.split(":").map(Number);
+  let [endH, endM] = end.split(":").map(Number);
+
+  while (startH < endH || (startH === endH && startM < endM)) {
+    const time = `${String(startH).padStart(2, "0")}:${String(startM).padStart(2, "0")}`;
+    slots.push(time);
+
+    startM += interval;
+    if (startM >= 60) {
+      startM = startM % 60;
+      startH += 1;
+    }
+  }
+  return slots;
+};
+
+export const getNextDateForWeekday = (weekday: string): string => {
+  const weekdays = [
+    "Sunday",
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
+  ];
+  const today = new Date();
+  const todayIndex = today.getDay();
+  const targetIndex = weekdays.indexOf(weekday);
+
+  const diff = (targetIndex + 7 - todayIndex) % 7 || 7;
+  const nextDate = new Date(today);
+  nextDate.setDate(today.getDate() + diff);
+
+  return nextDate.toISOString().split("T")[0]; // Format: YYYY-MM-DD
+};
+
+export async function uploadToS3(file: File): Promise<string> {
+  const res = await fetch("http://localhost:3000/api/s3-upload", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      fileName: file.name,
+      fileType: file.type,
+    }),
+  });
+
+  if (!res.ok) {
+    throw new Error("Failed to get presigned URL");
+  }
+
+  const { uploadUrl, publicUrl } = await res.json(); // ✅ Only call once!
+
+  // Now upload to S3
+  const uploadRes = await fetch(uploadUrl, {
+    method: "PUT",
+    headers: {
+      "Content-Type": file.type,
+    },
+    body: file,
+  });
+
+  if (!uploadRes.ok) {
+    throw new Error("Upload to S3 failed");
+  }
+
+  console.log("✅ Uploaded:", publicUrl);
+  return publicUrl;
+}
+
+const daysOrder = [
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+  "Sunday",
+];
+
+export const sortedAvailability = (data: AvailableTimeWeekEntity[]) =>
+  data.sort((a, b) => daysOrder.indexOf(a.day) - daysOrder.indexOf(b.day));

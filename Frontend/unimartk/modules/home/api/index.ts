@@ -1,11 +1,13 @@
-export async function fetchCategories() {
-  const res = await fetch("http://localhost:8000/api/categories/", {
-    next: { revalidate: 60 }, // optional, for ISR
-  });
+import axios from "@/lib/axios";
+import { Category } from "../types";
 
-  if (!res.ok) {
-    throw new Error("Failed to fetch categories");
-  }
-
-  return res.json();
-}
+export const fetchproductCategories = async (): Promise<Category[]> => {
+  // add logic to ckeck if user is actually superadmin
+  const response = await axios.get(`/categories/`);
+  return response.data;
+};
+export const fetchProductSubcategories = async (): Promise<Category[]> => {
+  // add logic to ckeck if user is actually superadmin
+  const response = await axios.get(`/subcategories/`);
+  return response.data;
+};

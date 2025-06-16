@@ -5,7 +5,6 @@ import { useParams } from "next/navigation";
 import { BreadcrumbNavigation } from "./breadcrumb-navigation";
 import { Categories } from "./categories";
 import { SearchInput } from "./search-input";
-import { fetchCategories } from "@/modules/home/api";
 import { useEffect, useState } from "react";
 import { Category } from "@/modules/home/types";
 import { CategoryService } from "@/services/categories";

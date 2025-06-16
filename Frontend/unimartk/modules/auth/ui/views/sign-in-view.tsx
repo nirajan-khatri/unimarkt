@@ -59,7 +59,7 @@ export const SignInView = () => {
     if (redirect) {
       setRedirectUrl(decodeURIComponent(redirect));
     }
-    
+
     // Mark loading as complete since we've checked authentication
     setIsLoading(false);
   }, [router, isAuthenticated]);
@@ -80,10 +80,9 @@ export const SignInView = () => {
       try {
         // Store auth data using context
         login(data);
-        
+
         // Redirect to the appropriate page
         router.push(redirectUrl);
-        
       } catch (error) {
         console.error("Error storing user data:", error);
         alert("Login successful but failed to store user data locally.");

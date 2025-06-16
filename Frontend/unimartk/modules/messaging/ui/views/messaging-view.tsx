@@ -21,6 +21,8 @@ import { useAuth } from "@/modules/auth/contexts/authContext";
 import { redirect } from "next/navigation";
 
 const WhatsAppMessaging = () => {
+  const [isMobile, setIsMobile] = useState(false);
+  const [isChatOpenOnMobile, setIsChatOpenOnMobile] = useState(false);
   const [selectedConversation, setSelectedConversation] = useState<
     string | null
   >(null);
@@ -34,6 +36,16 @@ const WhatsAppMessaging = () => {
   if ((!isAuthenticated || !user) && isInitialized) {
     redirect("/sign-in");
   }
+
+  useEffect(() => {
+    const checkIsMobile = () => {
+      setIsMobile(window.innerWidth < 768); // Tailwind `md` breakpoint
+    };
+
+    checkIsMobile();
+    window.addEventListener("resize", checkIsMobile);
+    return () => window.removeEventListener("resize", checkIsMobile);
+  }, []);
 
   // Fetch unique users/conversations
   const {
@@ -145,6 +157,10 @@ const WhatsAppMessaging = () => {
   };
 
   const handleConversationSelect = (userId: string) => {
+    if (isMobile) {
+      setIsChatOpenOnMobile(true);
+    }
+
     if (userId === selectedConversation) return;
     setSelectedConversation(userId);
     setMessages([]); // Clear messages when switching conversations
@@ -153,7 +169,7 @@ const WhatsAppMessaging = () => {
   if (isLoading) {
     return (
       <div className="px-4 h-full lg:px-12 py-10">
-        <div className="flex h-full bg-gray-100 rounded-xl overflow-hidden border border-gray-200 items-center justify-center">
+        <div className="flex h-full rounded-xl overflow-hidden border border-border items-center justify-center">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-500 mx-auto mb-4"></div>
             <p className="text-gray-600">Loading conversations...</p>
@@ -166,7 +182,7 @@ const WhatsAppMessaging = () => {
   if (error) {
     return (
       <div className="px-4 h-full lg:px-12 py-10">
-        <div className="flex h-full bg-gray-100 rounded-xl overflow-hidden border border-gray-200 items-center justify-center">
+        <div className="flex h-full  rounded-xl overflow-hidden border border-border items-center justify-center">
           <div className="text-center">
             <p className="text-red-600 mb-2">Error loading conversations</p>
             <p className="text-gray-500 text-sm">
@@ -180,15 +196,22 @@ const WhatsAppMessaging = () => {
 
   return (
     <div className="px-4 h-full lg:px-12 py-10">
-      <div className="flex h-full bg-gray-100 rounded-xl overflow-hidden border border-gray-200">
+      <div className="flex h-full bg-muted rounded-xl overflow-hidden border border-border">
         {/* Sidebar */}
-        <div className="w-1/3 bg-white border-r border-gray-200 flex flex-col">
+        <div
+          className={`
+          w-full md:w-1/3 bg-background border-r border-border flex flex-col 
+          ${selectedConversation ? "hidden md:flex" : "flex"}
+        `}
+        >
           {/* Sidebar Header */}
-          <div className="p-4 bg-gray-50 border-b border-gray-200">
+          <div className="p-4 bg-muted border-b border-border">
             <div className="flex items-center justify-between mb-4">
-              <h1 className="text-xl font-semibold text-gray-800">Messages</h1>
-              <button className="p-2 hover:bg-gray-200 rounded-full">
-                <MoreVertical size={20} className="text-gray-600" />
+              <h1 className="text-xl font-semibold text-foreground">
+                Messages
+              </h1>
+              <button className="p-2 hover:bg-accent rounded-full">
+                <MoreVertical size={20} className="text-muted-foreground" />
               </button>
             </div>
 
@@ -196,14 +219,14 @@ const WhatsAppMessaging = () => {
             <div className="relative">
               <Search
                 size={20}
-                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground"
               />
               <input
                 type="text"
                 placeholder="Search conversations..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 bg-white border border-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full pl-10 pr-4 py-2 bg-background border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-foreground"
               />
             </div>
           </div>
@@ -211,7 +234,7 @@ const WhatsAppMessaging = () => {
           {/* Conversations List */}
           <div className="flex-1 overflow-y-auto">
             {filteredUsers.length === 0 ? (
-              <div className="p-4 text-center text-gray-500">
+              <div className="p-4 text-center text-muted-foreground">
                 No conversations found
               </div>
             ) : (
@@ -219,9 +242,9 @@ const WhatsAppMessaging = () => {
                 <div
                   key={user.id}
                   onClick={() => handleConversationSelect(user.id)}
-                  className={`flex items-center p-4 hover:bg-gray-50 cursor-pointer border-b border-gray-100 ${
+                  className={`flex items-center p-4 hover:bg-muted cursor-pointer border-b border-border ${
                     selectedConversation === user.id
-                      ? "bg-blue-50 border-r-4 border-r-blue-500"
+                      ? "bg-primary/10 border-r-4 border-primary"
                       : ""
                   }`}
                 >
@@ -236,11 +259,11 @@ const WhatsAppMessaging = () => {
 
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between">
-                      <h3 className="text-sm font-medium text-gray-900 truncate">
+                      <h3 className="text-sm font-medium text-foreground truncate">
                         {user.name}
                       </h3>
                     </div>
-                    <p className="text-sm text-gray-500 truncate mt-1">
+                    <p className="text-sm text-muted-foreground truncate mt-1">
                       {user.email}
                     </p>
                   </div>
@@ -251,12 +274,24 @@ const WhatsAppMessaging = () => {
         </div>
 
         {/* Main Chat Area */}
-        <div className="flex-1 flex flex-col">
+        <div
+          className={`
+          flex-1 flex flex-col 
+          ${!selectedConversation ? "hidden md:flex" : "flex"}
+        `}
+        >
           {selectedUser ? (
             <>
               {/* Chat Header */}
-              <div className="bg-white p-4 border-b border-gray-200 flex items-center justify-between">
+              <div className="bg-background p-4 border-b border-border flex items-center justify-between">
                 <div className="flex items-center">
+                  {/* Back button on small screens */}
+                  <button
+                    className="mr-4 md:hidden text-muted-foreground hover:text-foreground"
+                    onClick={() => setSelectedConversation(null)}
+                  >
+                    <X />
+                  </button>
                   <div className="relative mr-3">
                     <Avatar className="h-14 w-14">
                       <AvatarImage src="" alt="User Avatar" />
@@ -266,10 +301,10 @@ const WhatsAppMessaging = () => {
                     </Avatar>
                   </div>
                   <div>
-                    <h2 className="text-lg font-medium text-gray-900">
+                    <h2 className="text-lg font-medium text-foreground">
                       {selectedUser.name}
                     </h2>
-                    <p className="text-sm text-gray-500">
+                    <p className="text-sm text-muted-foreground">
                       {selectedUser.isOnline ? "Online" : selectedUser.lastSeen}
                     </p>
                   </div>
@@ -277,105 +312,74 @@ const WhatsAppMessaging = () => {
               </div>
 
               {/* Messages */}
-              <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-50">
+              <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-muted">
                 {messages.length === 0 ? (
                   <div className="flex items-center justify-center h-full">
-                    <p className="text-gray-500">
+                    <p className="text-muted-foreground">
                       No messages yet. Start the conversation!
                     </p>
                   </div>
                 ) : (
-                  messages.map((message, index) => {
-                    console.log(message.sender_id, user?.id);
-                    return (
+                  messages.map((message, index) => (
+                    <div
+                      key={index}
+                      className={`flex ${
+                        message.sender_id.toString() === user?.id.toString()
+                          ? "justify-end"
+                          : "justify-start"
+                      }`}
+                    >
                       <div
-                        key={index}
-                        className={`flex ${message.sender_id.toString() === user?.id.toString() ? "justify-end" : "justify-start"}`}
+                        className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
+                          message.sender_id.toString() === user?.id.toString()
+                            ? "bg-primary text-primary-foreground"
+                            : "bg-accent text-accent-foreground"
+                        }`}
                       >
-                        <div
-                          className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
-                            message.sender_id.toString() === user?.id.toString()
-                              ? "bg-blue-500 text-white"
-                              : "bg-gray-200 text-gray-800"
-                          }`}
-                        >
-                          <p className="break-words">{message.message}</p>
-                          {/* <div
-                            className={`flex items-center justify-end mt-1 text-xs ${
-                              message.sender_id.toString() === currentUserId
-                                ? "text-green-100"
-                                : "text-gray-500"
-                            }`}
-                          >
-                            <span>{formatTime(message.timestamp)}</span>
-                            {message.sender_id === currentUserId && (
-                            <span className="ml-1">
-                              {message.status === "sent" && "✓"}
-                              {message.status === "delivered" && "✓✓"}
-                              {message.status === "read" && (
-                                <span className="text-blue-200">✓✓</span>
-                              )}
-                            </span>
-                          )}
-                          </div> */}
-                        </div>
+                        <p className="break-words">{message.message}</p>
                       </div>
-                    );
-                  })
+                    </div>
+                  ))
                 )}
                 <div ref={messagesEndRef} />
               </div>
 
               {/* Message Input */}
-              <div className="bg-white p-4 border-t border-gray-200">
+              <div className="bg-background p-4 border-t border-border">
                 <div className="flex items-center space-x-4">
-                  {/* <input
-                      type="text"
-                      value={newMessage}
-                      onChange={(e) => setNewMessage(e.target.value)}
-                      onKeyPress={handleKeyPress}
-                      placeholder="Type a message..."
-                      className="flex-1 bg-transparent border-none focus:outline-none"
-                      disabled={!socket}
-                    /> */}
                   <textarea
                     value={newMessage}
-                    onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
-                      setNewMessage(e.target.value)
-                    }
+                    onChange={(e) => setNewMessage(e.target.value)}
                     onKeyDown={handleKeyPress}
                     placeholder="Type a message..."
-                    style={{ scrollbarWidth: "none" }}
-                    className="flex-1 px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                    className="flex-1 px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary text-sm bg-background text-foreground border-border"
                     disabled={!socket}
                   />
-
                   <button
                     onClick={sendMessage}
                     disabled={!socket || !newMessage.trim()}
-                    className="bg-blue-500 hover:bg-blue-600 disabled:bg-gray-300 text-white p-2 rounded-lg transition-colors h-10 w-10 flex items-center justify-center"
+                    className="bg-primary hover:bg-primary/90 disabled:bg-muted text-primary-foreground p-2 rounded-lg transition-colors h-10 w-10 flex items-center justify-center"
                   >
                     <Send size={20} />
                   </button>
                 </div>
                 {!socket && selectedConversation && (
-                  <p className="text-xs text-red-500 mt-2 text-center">
+                  <p className="text-xs text-destructive mt-2 text-center">
                     Connecting to chat...
                   </p>
                 )}
               </div>
             </>
           ) : (
-            /* No conversation selected */
-            <div className="flex-1 flex items-center justify-center bg-gray-50">
+            <div className="flex-1 flex items-center justify-center bg-muted">
               <div className="text-center">
-                <div className="w-32 h-32 bg-gray-200 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <Search size={48} className="text-gray-400" />
+                <div className="w-32 h-32 bg-muted-foreground/10 dark:bg-muted-foreground/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Search size={48} className="text-muted-foreground" />
                 </div>
-                <h2 className="text-xl font-medium text-gray-600 mb-2">
+                <h2 className="text-xl font-medium text-muted-foreground mb-2">
                   Select a conversation
                 </h2>
-                <p className="text-gray-500">
+                <p className="text-muted-foreground">
                   Choose a conversation from the sidebar to start messaging
                 </p>
               </div>

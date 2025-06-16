@@ -3,15 +3,16 @@ import { useState, useEffect, useRef } from "react";
 import { X, Send, MessageCircle } from "lucide-react";
 import {
   Message,
+  SkillMessageWindowProps,
   WebSocketMessage,
-  ProductMessageWindowProps,
 } from "../../types";
 
-const ProductMessageWindow: React.FC<ProductMessageWindowProps> = ({
+const SkillMessageWindow: React.FC<SkillMessageWindowProps> = ({
   senderId,
   receiverId,
   productName,
   sellerName,
+  initialMessage,
 }) => {
   const [socket, setSocket] = useState<WebSocket | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -198,13 +199,11 @@ const ProductMessageWindow: React.FC<ProductMessageWindowProps> = ({
 
   useEffect(() => {
     if (messages.length === 0) {
-      setNewMessage(
-        "Hi, I'm interested in the item you posted. Is it still available? Could you please let me know its condition and if the price is negotiable?"
-      );
+      setNewMessage(initialMessage);
     } else {
       setNewMessage("");
     }
-  }, [messages]);
+  }, [initialMessage, messages]);
 
   // return (
   //   <div className="bg-white border overflow-hidden rounded-lg shadow-xl w-full h-96 flex flex-col z-50">
@@ -242,10 +241,6 @@ const ProductMessageWindow: React.FC<ProductMessageWindowProps> = ({
   //       )}
   //     </div>
 
-  //     {/* Connection Status */}
-
-  //     {/* Connected Status */}
-
   //     {/* Messages */}
   //     <div
   //       className="flex-1 overflow-y-auto p-3 space-y-2"
@@ -269,18 +264,6 @@ const ProductMessageWindow: React.FC<ProductMessageWindowProps> = ({
   //               }`}
   //             >
   //               <p>{msg.message}</p>
-  //               {/* <p
-  //                 className={`text-xs mt-1 ${
-  //                   msg.sender_id.toString() === senderId
-  //                     ? "text-blue-100"
-  //                     : "text-gray-500"
-  //                 }`}
-  //               >
-  //                 {new Date(msg.timestamp).toLocaleTimeString([], {
-  //                   hour: "2-digit",
-  //                   minute: "2-digit",
-  //                 })}
-  //               </p> */}
   //             </div>
   //           </div>
   //         ))
@@ -454,4 +437,4 @@ const ProductMessageWindow: React.FC<ProductMessageWindowProps> = ({
   );
 };
 
-export default ProductMessageWindow;
+export default SkillMessageWindow;
