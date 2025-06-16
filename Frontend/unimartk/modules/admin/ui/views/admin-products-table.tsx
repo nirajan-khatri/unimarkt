@@ -18,6 +18,7 @@ import {
   ArrowUpDown,
   ChevronDown,
   MoreHorizontal,
+  ExternalLink,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -119,6 +120,17 @@ const ProductTable = () => {
     },
   });
 
+  // Handle row click to navigate to product details
+  const handleRowClick = (productId: string, event: React.MouseEvent) => {
+    // Don't navigate if clicking on interactive elements
+    const target = event.target as HTMLElement;
+    const isInteractiveElement = target.closest('button, input, [role="checkbox"]');
+    
+    if (!isInteractiveElement) {
+      router.push(`/admin/products/${productId}`);
+    }
+  };
+
   const columns: ColumnDef<Product>[] = [
     {
       id: "select",
@@ -152,6 +164,12 @@ const ProductTable = () => {
           Name <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
       ),
+      cell: ({ row }) => (
+        <div className="flex items-center gap-2">
+          <span className="font-medium">{row.getValue("name")}</span>
+          <ExternalLink className="h-3 w-3 text-gray-400" />
+        </div>
+      ),
     },
     {
       accessorKey: "price",
@@ -163,7 +181,6 @@ const ProductTable = () => {
     {
       accessorKey: "category",
       header: "Category",
-
       cell: ({ row }) => (
         <div className="lowercase">
           {(row.getValue("category") as Category).name}
@@ -222,6 +239,16 @@ const ProductTable = () => {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
+              <DropdownMenuItem
+                onClick={() => {
+                  router.push(`/admin/products/${row.original.product_id}`);
+                }}
+              >
+                View Details
+              </DropdownMenuItem>
+              
+              <DropdownMenuSeparator />
+              
               {row.getValue("status") !== "rejected" && (
                 <DropdownMenuItem
                   onClick={() => {
@@ -304,7 +331,7 @@ const ProductTable = () => {
     <div className="w-full px-4 lg:px-12 py-8 flex flex-col gap-4">
       <div className="flex flex-row gap-4 items-center">
         <div
-          className="p-3 hover:bg-gray-200 rounded-full"
+          className="p-3 hover:bg-gray-200 rounded-full cursor-pointer"
           onClick={() => router.back()}
         >
           <ArrowLeft className="" />
@@ -417,6 +444,8 @@ const ProductTable = () => {
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
+                  className="cursor-pointer hover:bg-gray-50 transition-colors"
+                  onClick={(event) => handleRowClick(row.original.product_id, event)}
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>
