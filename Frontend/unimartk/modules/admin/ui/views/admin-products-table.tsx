@@ -51,6 +51,7 @@ import ErrorPage from "@/app/(admin)/admin/error";
 import LoadingPage from "@/app/(admin)/admin/loader";
 import { Category } from "@/modules/home/types";
 import CommentDialog from "../components/comment-dialog";
+import Link from "next/link";
 
 const ProductTable = () => {
   const router = useRouter();
@@ -120,40 +121,29 @@ const ProductTable = () => {
     },
   });
 
-  // Handle row click to navigate to product details
-  const handleRowClick = (productId: string, event: React.MouseEvent) => {
-    // Don't navigate if clicking on interactive elements
-    const target = event.target as HTMLElement;
-    const isInteractiveElement = target.closest('button, input, [role="checkbox"]');
-    
-    if (!isInteractiveElement) {
-      router.push(`/admin/products/${productId}`);
-    }
-  };
-
   const columns: ColumnDef<Product>[] = [
-    {
-      id: "select",
-      header: ({ table }) => (
-        <Checkbox
-          checked={
-            table.getIsAllPageRowsSelected() ||
-            (table.getIsSomePageRowsSelected() && "indeterminate")
-          }
-          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-          aria-label="Select all"
-        />
-      ),
-      cell: ({ row }) => (
-        <Checkbox
-          checked={row.getIsSelected()}
-          onCheckedChange={(value) => row.toggleSelected(!!value)}
-          aria-label="Select row"
-        />
-      ),
-      enableSorting: false,
-      enableHiding: false,
-    },
+    // {
+    //   id: "select",
+    //   header: ({ table }) => (
+    //     <Checkbox
+    //       checked={
+    //         table.getIsAllPageRowsSelected() ||
+    //         (table.getIsSomePageRowsSelected() && "indeterminate")
+    //       }
+    //       onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+    //       aria-label="Select all"
+    //     />
+    //   ),
+    //   cell: ({ row }) => (
+    //     <Checkbox
+    //       checked={row.getIsSelected()}
+    //       onCheckedChange={(value) => row.toggleSelected(!!value)}
+    //       aria-label="Select row"
+    //     />
+    //   ),
+    //   enableSorting: false,
+    //   enableHiding: false,
+    // },
     {
       accessorKey: "name",
       header: ({ column }) => (
@@ -165,10 +155,9 @@ const ProductTable = () => {
         </Button>
       ),
       cell: ({ row }) => (
-        <div className="flex items-center gap-2">
+        <Link href={`/admin/products/${row.original.product_id}`}>
           <span className="font-medium">{row.getValue("name")}</span>
-          <ExternalLink className="h-3 w-3 text-gray-400" />
-        </div>
+        </Link>
       ),
     },
     {
@@ -214,11 +203,11 @@ const ProductTable = () => {
         <Badge
           className={cn(
             "px-2 uppercase",
-            row.getValue("status") === "pending" &&
+            (row.getValue("status") as string).toLowerCase() === "pending" &&
               "bg-orange-200 border-orange-500 text-orange-600",
-            row.getValue("status") === "rejected" &&
+            (row.getValue("status") as string).toLowerCase() === "rejected" &&
               "bg-red-200 border-red-500 text-red-600",
-            row.getValue("status") === "approved" &&
+            (row.getValue("status") as string).toLowerCase() === "approved" &&
               "bg-green-200 border-green-500 text-green-600"
           )}
         >
@@ -246,9 +235,9 @@ const ProductTable = () => {
               >
                 View Details
               </DropdownMenuItem>
-              
+
               <DropdownMenuSeparator />
-              
+
               {row.getValue("status") !== "rejected" && (
                 <DropdownMenuItem
                   onClick={() => {
@@ -348,7 +337,7 @@ const ProductTable = () => {
           className="max-w-sm"
         />
         <div className="flex flex-row gap-4">
-          {table.getSelectedRowModel().rows.length > 0 && (
+          {/* {table.getSelectedRowModel().rows.length > 0 && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" className="">
@@ -391,7 +380,7 @@ const ProductTable = () => {
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-          )}
+          )} */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" className="ml-auto">
@@ -444,8 +433,6 @@ const ProductTable = () => {
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
-                  className="cursor-pointer hover:bg-gray-50 transition-colors"
-                  onClick={(event) => handleRowClick(row.original.product_id, event)}
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>

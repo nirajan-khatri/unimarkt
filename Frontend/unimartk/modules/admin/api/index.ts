@@ -217,32 +217,3 @@ export const fetchDashboardStats = async (): Promise<DashboardStats> => {
     throw error;
   }
 };
-
-// Bulk operations
-export const bulkApproveProducts = async (productIds: string[]) => {
-  const response = await axios.post(`/admin_dashboard/products/bulk-approve/`, {
-    product_ids: productIds,
-  });
-  return response.data;
-};
-
-export const bulkRejectProducts = async (productIds: string[]) => {
-  const response = await axios.post(`/admin_dashboard/products/bulk-reject/`, {
-    product_ids: productIds,
-  });
-  return response.data;
-};
-
-export const bulkApproveSkills = async (skillIds: string[]) => {
-  const response = await axios.post(`/admin_dashboard/skills/bulk-approve/`, {
-    skill_ids: skillIds,
-  });
-  return response.data;
-};
-
-export const bulkRejectSkills = async (skillIds: string[]) => {
-  const response = await axios.post(`/admin_dashboard/skills/bulk-reject/`, {
-    skill_ids: skillIds,
-  });
-  return response.data;
-};
