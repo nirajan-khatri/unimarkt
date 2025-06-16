@@ -168,7 +168,7 @@ export const ProductView = ({ productId }: Props) => {
   return (
     <>
       <div className="px-4 lg:px-12 py-10">
-        <div className="bg-white rounded-lg overflow-hidden shadow-sm">
+        <div className="bg-background rounded-lg overflow-hidden shadow-sm">
           <div className="">
             {/* Image Gallery */}
             <div className="lg:col-span-2">
@@ -176,7 +176,7 @@ export const ProductView = ({ productId }: Props) => {
                 {/* Main Image */}
                 <div className="flex-1 order-2 sm:order-1">
                   <div
-                    className="w-full relative aspect-[4/3] sm:aspect-auto min-h-[430px] sm:max-h-[500px] bg-gray-200 cursor-pointer hover:scale-[1.02] transition-transform group"
+                    className="w-full relative aspect-[4/3] sm:aspect-auto min-h-[430px] sm:max-h-[500px] bg-muted cursor-pointer hover:scale-[1.02] transition-transform group"
                     onClick={openModal}
                   >
                     <Image
@@ -193,7 +193,7 @@ export const ProductView = ({ productId }: Props) => {
                 </div>
 
                 {/* Thumbnail Strip */}
-                <div className="w-full sm:w-20 bg-gray-100 order-1 sm:order-2">
+                <div className="w-full sm:w-20 bg-muted order-1 sm:order-2">
                   <div className="flex sm:flex-col gap-2 p-2 overflow-x-none sm:overflow-none justify-between sm:justify-start">
                     {images.map((imageUrl, index) => (
                       <div
@@ -222,31 +222,31 @@ export const ProductView = ({ productId }: Props) => {
 
           <div className="flex flex-col lg:flex-row">
             <div className="flex-1">
-              <div className="p-4 border-t flex flex-row justify-between items-center">
+              <div className="p-4 border-t border-border flex flex-row justify-between items-center">
                 <div className="">
                   <h2 className="text-xl sm:text-2xl font-semibold mb-2">
                     {data.name}
                   </h2>
-                  <div className="flex items-center gap-1 text-gray-600 mb-4">
+                  <div className="flex items-center gap-1 text-muted-foreground mb-4">
                     <MapPinIcon className="w-4 h-4" />
                     <span className="text-sm">{data.pickup_location}</span>
                   </div>
                 </div>
                 <div className="mb-4">
-                  <span className="text-xl sm:text-2xl font-bold text-gray-900">
+                  <span className="text-xl sm:text-2xl font-bold ">
                     {data.price}€
                   </span>
                 </div>
               </div>
               {/* Description */}
-              <div className="p-4 sm:p-6 border-t">
-                <p className="text-gray-700 leading-relaxed text-sm sm:text-base">
+              <div className="p-4 sm:p-6 border-border border-t">
+                <p className="text-muted-foreground  leading-relaxed text-sm sm:text-base">
                   {data.description}
                 </p>
               </div>
             </div>
             {/* Right Sidebar */}
-            <div className="flex w-full lg:w-80 justify-center items-center bg-gray-50 p-2 sm:p-4 border-t lg:border-l">
+            <div className="flex w-full lg:w-80 justify-center items-center  p-2 sm:p-4 border-t lg:border-l border-border">
               {!isInitialized ? (
                 // Loading state while auth is initializing
                 <div className="text-center w-full">

@@ -47,7 +47,7 @@ export const CategoryDropdown = ({
           className={cn(
             "h-11 px-4 border-transparent rounded-full text-accent-foreground",
             isActive && !isNavigationHovered && "bg-primary border-primary",
-            isOpen && "bg-white"
+            isOpen && "bg-muted"
           )}
         >
           <Link href={`/${category.slug === "all" ? "" : category.slug}`}>

@@ -1,3 +1,4 @@
+import { AvailableTimeWeekEntity } from "@/modules/skills/types";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
@@ -128,3 +129,16 @@ export async function uploadToS3(file: File): Promise<string> {
   console.log("✅ Uploaded:", publicUrl);
   return publicUrl;
 }
+
+const daysOrder = [
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+  "Sunday",
+];
+
+export const sortedAvailability = (data: AvailableTimeWeekEntity[]) =>
+  data.sort((a, b) => daysOrder.indexOf(a.day) - daysOrder.indexOf(b.day));

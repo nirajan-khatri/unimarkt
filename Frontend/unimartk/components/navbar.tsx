@@ -61,8 +61,7 @@ export const Navbar = () => {
   const pathname = usePathname();
   const router = useRouter();
   const { setTheme } = useTheme();
-  const { isAuthenticated, user } = useAuth();
-  const { logout } = useAuth();
+  const { isAuthenticated, user, logout } = useAuth();
   useEffect(() => {
     // Check authentication status on the client side
     setUserProfile(user);
@@ -215,7 +214,7 @@ export const Navbar = () => {
       <div className="flex lg:hidden items-center justify-center">
         <Button
           variant={"ghost"}
-          className="size-12 border-transparent bg-white"
+          className="size-12 border-transparent"
           onClick={() => setIsSidebarOpen(true)}
         >
           <MenuIcon />

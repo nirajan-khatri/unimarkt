@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Link from "next/link";
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -10,7 +10,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
-import { MessageSquare } from "lucide-react";
+import { MessageSquare, Moon, Sun } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -21,6 +21,9 @@ import {
 } from "./ui/dropdown-menu";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/modules/auth/contexts/authContext";
+import { UserProfile } from "@/modules/auth/types/auth";
+import { useTheme } from "next-themes";
 
 interface NavbarItem {
   href: string;
@@ -35,12 +38,21 @@ interface Props {
 
 export const NavbarSidebar = ({ items, onOpenChange, open }: Props) => {
   const router = useRouter();
+  const { isAuthenticated, user, logout } = useAuth();
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
+  const { setTheme } = useTheme();
+
+  useEffect(() => {
+    // Check authentication status on the client side
+    setUserProfile(user);
+  }, []);
 
   const handleProfile = () => router.push("/profile");
   const handleAdminDashboard = () => router.push("/admin");
   const handleLogout = () => {
-    // Replace with your logout logic
-    console.log("Logging out...");
+    logout();
+    setUserProfile(null);
+    router.push("/");
   };
 
   return (
@@ -63,10 +75,32 @@ export const NavbarSidebar = ({ items, onOpenChange, open }: Props) => {
             </Link>
           ))}
         </ScrollArea>
-        {true ? (
-          <div className="border-t flex flex-row gap-4 p-3">
-            <Button variant="outline" className="rounded-full size-14 ">
-              <MessageSquare className="size-8" strokeWidth={1} />
+        {isAuthenticated ? (
+          <div className="border-t flex flex-row gap-4 p-3 items-center">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="icon">
+                  <Sun className="h-[1.2rem] w-[1.2rem] scale-100 rotate-0 transition-all dark:scale-0 dark:-rotate-90" />
+                  <Moon className="absolute h-[1.2rem] w-[1.2rem] scale-0 rotate-90 transition-all dark:scale-100 dark:rotate-0" />
+                  <span className="sr-only">Toggle theme</span>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => setTheme("light")}>
+                  Light
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setTheme("dark")}>
+                  Dark
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setTheme("system")}>
+                  System
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <Button variant="outline" className="rounded-full size-14 " asChild>
+              <Link href={"/messages"}>
+                <MessageSquare className="size-8" strokeWidth={1} />
+              </Link>
             </Button>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
@@ -81,14 +115,18 @@ export const NavbarSidebar = ({ items, onOpenChange, open }: Props) => {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="start" className="w-48">
-                <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                <DropdownMenuLabel>
+                  {userProfile?.name || "My Account"}
+                </DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleProfile}>
                   Profile
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={handleAdminDashboard}>
-                  Admin Dashboard
-                </DropdownMenuItem>
+                {userProfile?.role?.name === "admin" && (
+                  <DropdownMenuItem onClick={handleAdminDashboard}>
+                    Admin Dashboard
+                  </DropdownMenuItem>
+                )}
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={handleLogout}>
                   Logout

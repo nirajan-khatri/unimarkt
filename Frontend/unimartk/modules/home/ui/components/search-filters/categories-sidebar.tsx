@@ -9,7 +9,6 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/ui/sheet";
-import { fetchCategories } from "@/modules/home/api";
 import { Category } from "@/modules/home/types";
 import { useProducts } from "@/hooks/useProducts";
 import { CategoryService } from "@/services/categories";
@@ -115,16 +114,53 @@ export const CategoriesSidebar = ({ onOpenChange, open }: Props) => {
   };
 
   return (
+    // <Sheet open={open} onOpenChange={handleOpenChange}>
+    //   <SheetContent side="left" className="p-0 transition-none bg-white">
+    //     <SheetHeader className="p-4 border-b">
+    //       <SheetTitle>Categories</SheetTitle>
+    //     </SheetHeader>
+    //     <ScrollArea className="flex flex-col overflow-y-auto h-full pb-2">
+    //       {parentCategories && (
+    //         <button
+    //           onClick={handleBackClick}
+    //           className="w-full text-left p-4 hover:bg-black hover:text-white flex items-center text-base font-medium cursor-pointer"
+    //         >
+    //           <ChevronLeftIcon className="size-4 mr-2" />
+    //           Back
+    //         </button>
+    //       )}
+    //       {currentCategories.map((category) => (
+    //         <button
+    //           key={category.slug}
+    //           onClick={() => handleCategoryClick(category as Category)}
+    //           className="w-full text-left p-4 hover:bg-black hover:text-white flex items-center justify-between text-base font-medium cursor-pointer"
+    //         >
+    //           {category.name}
+    //           {category.subcategories && category.subcategories.length > 0 && (
+    //             <ChevronRightIcon className="size-4" />
+    //           )}
+    //         </button>
+    //       ))}
+    //     </ScrollArea>
+    //   </SheetContent>
+    // </Sheet>
     <Sheet open={open} onOpenChange={handleOpenChange}>
-      <SheetContent side="left" className="p-0 transition-none bg-white">
-        <SheetHeader className="p-4 border-b">
-          <SheetTitle>Categories</SheetTitle>
+      <SheetContent
+        side="left"
+        className="p-0 transition-none bg-white dark:bg-gray-900"
+      >
+        <SheetHeader className="p-4 border-b border-gray-200 dark:border-gray-700">
+          <SheetTitle className="text-gray-900 dark:text-gray-100">
+            Categories
+          </SheetTitle>
         </SheetHeader>
         <ScrollArea className="flex flex-col overflow-y-auto h-full pb-2">
           {parentCategories && (
             <button
               onClick={handleBackClick}
-              className="w-full text-left p-4 hover:bg-black hover:text-white flex items-center text-base font-medium cursor-pointer"
+              className="w-full text-left p-4 flex items-center text-base font-medium cursor-pointer
+            hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black
+            text-gray-900 dark:text-gray-100"
             >
               <ChevronLeftIcon className="size-4 mr-2" />
               Back
@@ -134,7 +170,9 @@ export const CategoriesSidebar = ({ onOpenChange, open }: Props) => {
             <button
               key={category.slug}
               onClick={() => handleCategoryClick(category as Category)}
-              className="w-full text-left p-4 hover:bg-black hover:text-white flex items-center justify-between text-base font-medium cursor-pointer"
+              className="w-full text-left p-4 flex items-center justify-between text-base font-medium cursor-pointer
+            hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black
+            text-gray-900 dark:text-gray-100"
             >
               {category.name}
               {category.subcategories && category.subcategories.length > 0 && (
