@@ -1,10 +1,10 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-
 import { Skill } from "../../types";
 import { useRouter } from "next/navigation";
 import { Calendar, CheckCircle, User } from "lucide-react";
+import { Star, Clock, User, DollarSign, Calendar, CheckCircle } from "lucide-react";
 
 interface ServiceCardProps {
   // service: {

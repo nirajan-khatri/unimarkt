@@ -1,4 +1,5 @@
 import { Product } from "@/modules/products/types";
+import { Skill } from "@/modules/skills/types";
 import { PriceFilters } from "@/types/filters";
 
 export async function fetchFilteredProducts(
@@ -54,6 +55,19 @@ export async function fetchProductById(productId: string): Promise<Product> {
   const baseUrl =
     process.env.NEXT_PUBLIC_BASE_API_URL || "http://localhost:8000/api/";
   const response = await fetch(`${baseUrl}products/${productId}/`);
+
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+
+  return response.json();
+}
+
+
+export async function fetchSkillById(skillId: string):Promise<Skill> {
+  const baseUrl =
+    process.env.NEXT_PUBLIC_BASE_API_URL || "http://localhost:8000/api/";
+  const response = await fetch(`${baseUrl}skills/${skillId}/`);
 
   if (!response.ok) {
     throw new Error(`HTTP error! status: ${response.status}`);
