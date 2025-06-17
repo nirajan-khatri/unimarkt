@@ -4,8 +4,15 @@ import Link from "next/link";
 import React from "react";
 import ProfileDetailsCard from "../components/profile-details-card";
 import { useUser } from "../../hooks/useUser";
+import { redirect } from "next/navigation";
+import { useAuth } from "@/modules/auth/contexts/authContext";
 
 const ProfileView = () => {
+  const { isAuthenticated, user, isInitialized } = useAuth();
+
+  if ((!isAuthenticated || !user) && isInitialized) {
+    redirect("/sign-in");
+  }
   const { deleteUser, updateUser, isLoading } = useUser("1");
 
   const [isEditing, setIsEditing] = React.useState(false);
@@ -34,30 +41,27 @@ const ProfileView = () => {
     }
   };
 
-  const user = {
-    id: 1,
-    name: "John Doe",
-    email: "murtaza@hs-fulda.de",
-    contact_number: undefined,
-    role: "admin",
-    avatarUrl: undefined,
-  };
+  if ((!isAuthenticated || !user) && isInitialized) {
+    redirect("/sign-in");
+  }
 
   return (
     <div className="px-4 lg:px-12 py-10 flex flex-col gap-y-8">
-      <ProfileDetailsCard
-        avatarUrl={user.avatarUrl}
-        name={user.name}
-        email={user.email}
-        contact_number={user.contact_number}
-        role={user.role}
-        isEditing={isEditing}
-        onEdit={handleEdit}
-        onCancel={handleCancel}
-        onSave={handleSave}
-        onDelete={handleDelete}
-        loading={isLoading}
-      />
+      {user && (
+        <ProfileDetailsCard
+          // avatarUrl={user?.}
+          name={user.name}
+          email={user.email}
+          contact_number={user.contact_number}
+          role={user.role?.name || "User"}
+          isEditing={isEditing}
+          onEdit={handleEdit}
+          onCancel={handleCancel}
+          onSave={handleSave}
+          onDelete={handleDelete}
+          loading={isLoading}
+        />
+      )}
       <div className="">
         <div className="flex justify-between gap-3">
           <p className="text-2xl">Your Listings</p>

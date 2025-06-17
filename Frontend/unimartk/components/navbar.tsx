@@ -61,8 +61,7 @@ export const Navbar = () => {
   const pathname = usePathname();
   const router = useRouter();
   const { setTheme } = useTheme();
-  const { isAuthenticated, user } = useAuth();
-  const { logout } = useAuth();
+  const { isAuthenticated, user, logout } = useAuth();
   useEffect(() => {
     // Check authentication status on the client side
     setUserProfile(user);
@@ -97,11 +96,13 @@ export const Navbar = () => {
             href={item.href}
             isActive={
               item.slug === "skills"
-                ? pathname.startsWith("/skills")
+                ? pathname.startsWith("/skillDetail") ||
+                  pathname.startsWith("/skills")
                 : item.slug === "jobs"
                   ? pathname.startsWith("/jobs")
                   : !pathname.startsWith("/skills") &&
-                    !pathname.startsWith("/jobs")
+                    !pathname.startsWith("/jobs") &&
+                    !pathname.startsWith("/skillDetail")
             }
           >
             {item.children}
@@ -130,8 +131,10 @@ export const Navbar = () => {
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-          <Button variant="outline" className="rounded-full size-14 ">
-            <MessageSquare className="size-8" strokeWidth={1} />
+          <Button variant="outline" className="rounded-full size-14 " asChild>
+            <Link href={"/messages"}>
+              <MessageSquare className="size-8" strokeWidth={1} />
+            </Link>
           </Button>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -141,12 +144,16 @@ export const Navbar = () => {
                     src="https://i.pravatar.cc/150?img=3"
                     alt={userProfile?.name || "User Avatar"}
                   />
-                  <AvatarFallback>{userProfile?.name?.charAt(0) || "U"}</AvatarFallback>
+                  <AvatarFallback>
+                    {userProfile?.name?.charAt(0) || "U"}
+                  </AvatarFallback>
                 </Avatar>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-48 bg-white">
-              <DropdownMenuLabel>{userProfile?.name || "My Account"}</DropdownMenuLabel>
+            <DropdownMenuContent align="end" className="w-48 ">
+              <DropdownMenuLabel>
+                {userProfile?.name || "My Account"}
+              </DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={handleProfile}>
                 Profile
@@ -207,7 +214,7 @@ export const Navbar = () => {
       <div className="flex lg:hidden items-center justify-center">
         <Button
           variant={"ghost"}
-          className="size-12 border-transparent bg-white"
+          className="size-12 border-transparent"
           onClick={() => setIsSidebarOpen(true)}
         >
           <MenuIcon />

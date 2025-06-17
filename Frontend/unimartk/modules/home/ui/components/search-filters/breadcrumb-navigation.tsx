@@ -1,5 +1,5 @@
-import Link from 'next/link';
-import React from 'react';
+import Link from "next/link";
+import React from "react";
 
 import {
   Breadcrumb,
@@ -8,7 +8,7 @@ import {
   BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
-} from '@/components/ui/breadcrumb';
+} from "@/components/ui/breadcrumb";
 
 interface Props {
   activeCategorySlug?: string | null;
@@ -21,8 +21,7 @@ export const BreadcrumbNavigation = ({
   activeCategoryName,
   activeSubcategoryName,
 }: Props) => {
-  if (!activeCategoryName || activeCategorySlug === 'all')
-    return null;
+  if (!activeCategoryName || activeCategorySlug === "all") return null;
   return (
     <Breadcrumb>
       <BreadcrumbList>

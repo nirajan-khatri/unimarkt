@@ -27,7 +27,6 @@ import {
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
@@ -42,66 +41,89 @@ import {
 } from "@/components/ui/table";
 
 import { useRouter } from "next/navigation";
-import { products } from "@/constants/products";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { useQuery } from "@tanstack/react-query";
+import { fetchAdminSkills } from "../../api";
+import { Product } from "@/modules/products/types";
+import ErrorPage from "@/app/(admin)/admin/error";
+import LoadingPage from "@/app/(admin)/admin/loader";
+import { Category } from "@/modules/home/types";
+import {
+  Degree,
+  DepartmentOrRoleOrSkillCategory,
+  Skill,
+} from "@/modules/skills/types";
 
-export const columns: ColumnDef<Product>[] = [
+export const columns: ColumnDef<Skill>[] = [
+  // {
+  //   id: "select",
+  //   header: ({ table }) => (
+  //     <Checkbox
+  //       checked={
+  //         table.getIsAllPageRowsSelected() ||
+  //         (table.getIsSomePageRowsSelected() && "indeterminate")
+  //       }
+  //       onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+  //       aria-label="Select all"
+  //     />
+  //   ),
+  //   cell: ({ row }) => (
+  //     <Checkbox
+  //       checked={row.getIsSelected()}
+  //       onCheckedChange={(value) => row.toggleSelected(!!value)}
+  //       aria-label="Select row"
+  //     />
+  //   ),
+  //   enableSorting: false,
+  //   enableHiding: false,
+  // },
   {
-    id: "select",
-    header: ({ table }) => (
-      <Checkbox
-        checked={
-          table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && "indeterminate")
-        }
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Select all"
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
-      />
-    ),
-    enableSorting: false,
-    enableHiding: false,
-  },
-  {
-    accessorKey: "name",
+    accessorKey: "module",
     header: ({ column }) => (
       <Button
         variant="ghost"
         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
       >
-        Name <ArrowUpDown className="ml-2 h-4 w-4" />
+        Module <ArrowUpDown className="ml-2 h-4 w-4" />
       </Button>
     ),
   },
   {
-    accessorKey: "price",
-    header: "Price",
-    cell: ({ row }) => <div className="lowercase">{row.getValue("price")}</div>,
+    accessorKey: "charge_per_hour",
+    header: "Charge Per Hour",
+    cell: ({ row }) => (
+      <div className="lowercase">{row.getValue("charge_per_hour")}</div>
+    ),
   },
   {
-    accessorKey: "category",
+    accessorKey: "skill_category",
     header: "Category",
 
     cell: ({ row }) => (
       <div className="lowercase">
-        {(row.getValue("category") as Category).name}
+        {(row.getValue("skill_category") as Category).name}
       </div>
     ),
   },
   {
-    accessorKey: "subCategory",
-    header: "SubCategory",
+    accessorKey: "department",
+    header: "Department",
     cell: ({ row }) => {
       return (
-        <div className="lowercase">
-          {(row.getValue("subCategory") as Category).name}
+        <div className="lowercase max-w-40 overflow-hidden text-ellipsis">
+          {(row.getValue("department") as DepartmentOrRoleOrSkillCategory).name}
+        </div>
+      );
+    },
+  },
+  {
+    accessorKey: "degree",
+    header: "Degree",
+    cell: ({ row }) => {
+      return (
+        <div className="lowercase max-w-40 overflow-hidden text-ellipsis">
+          {(row.getValue("degree") as Degree).name}
         </div>
       );
     },
@@ -157,8 +179,17 @@ export const columns: ColumnDef<Product>[] = [
   },
 ];
 
-const PendingApprovalTable = () => {
+const ApproveSkillsTable = () => {
   const router = useRouter();
+
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["adminSkills"],
+    queryFn: fetchAdminSkills,
+  });
+
+  const unapprovedSkills = React.useMemo(() => {
+    return data?.filter((skill: Skill) => skill.status !== "approved");
+  }, [data]);
 
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -168,12 +199,8 @@ const PendingApprovalTable = () => {
     React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
 
-  const data = React.useMemo(() => {
-    return products.filter((product) => product.status !== "approved");
-  }, []);
-
   const table = useReactTable({
-    data,
+    data: unapprovedSkills,
     columns,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
@@ -191,8 +218,16 @@ const PendingApprovalTable = () => {
     },
   });
 
+  if (isLoading) {
+    return <LoadingPage />;
+  }
+
+  if (error) {
+    return <ErrorPage />;
+  }
+
   return (
-    <div className="w-full">
+    <div className="w-full px-4 lg:px-12 py-8 flex flex-col gap-4">
       <div className="flex flex-row gap-4 items-center">
         <div
           className="p-3 hover:bg-gray-200 rounded-full"
@@ -200,19 +235,19 @@ const PendingApprovalTable = () => {
         >
           <ArrowLeft className="" />
         </div>
-        <p className="text-3xl font-semibold">Product Approval</p>
+        <p className="text-3xl font-semibold">Skills Approval</p>
       </div>
       <div className="flex items-center justify-between py-4">
         <Input
-          placeholder="Filter name..."
-          value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
+          placeholder="Filter module..."
+          value={(table.getColumn("module")?.getFilterValue() as string) ?? ""}
           onChange={(event) =>
-            table.getColumn("name")?.setFilterValue(event.target.value)
+            table.getColumn("module")?.setFilterValue(event.target.value)
           }
           className="max-w-sm"
         />
         <div className="flex flex-row gap-4">
-          {table.getSelectedRowModel().rows.length > 0 && (
+          {/* {table.getSelectedRowModel().rows.length > 0 && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" className="">
@@ -255,7 +290,7 @@ const PendingApprovalTable = () => {
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-          )}
+          )} */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" className="ml-auto">
@@ -360,4 +395,4 @@ const PendingApprovalTable = () => {
   );
 };
 
-export default PendingApprovalTable;
+export default ApproveSkillsTable;

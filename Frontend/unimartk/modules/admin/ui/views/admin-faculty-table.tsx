@@ -44,125 +44,39 @@ import { users as allUsers } from "@/constants/users";
 import { useRouter } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-
-export type UserApproval = {
-  id: string;
-  name: string;
-  email: string;
-  requestedRoles: ("admin" | "faculty")[];
-  approvedRoles: ("admin" | "faculty")[];
-  status: "pending" | "approved" | "rejected";
-};
-
-export const columns: ColumnDef<UserApproval>[] = [
-  {
-    id: "select",
-    header: ({ table }) => (
-      <Checkbox
-        checked={
-          table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && "indeterminate")
-        }
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Select all"
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
-      />
-    ),
-    enableSorting: false,
-    enableHiding: false,
-  },
-  {
-    accessorKey: "name",
-    header: ({ column }) => (
-      <Button
-        variant="ghost"
-        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-      >
-        Name <ArrowUpDown className="ml-2 h-4 w-4" />
-      </Button>
-    ),
-  },
-  {
-    accessorKey: "email",
-    header: "Email",
-    cell: ({ row }) => <div className="lowercase">{row.getValue("email")}</div>,
-  },
-  {
-    accessorKey: "status",
-    header: "Status",
-    cell: ({ row }) => (
-      <Badge
-        className={cn(
-          "px-2 uppercase",
-          row.getValue("status") === "approved" &&
-            "bg-emerald-200 border-emerald-500 text-emerald-600",
-          row.getValue("status") === "pending" &&
-            "bg-orange-200 border-orange-500 text-orange-600"
-        )}
-      >
-        {row.getValue("status")}
-      </Badge>
-    ),
-  },
-  {
-    id: "actions",
-    enableHiding: false,
-    cell: ({ row }) => {
-      const user = row.original;
-
-      const isFaculty = user.approvedRoles.includes("faculty");
-
-      return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Open menu</span>
-              <MoreHorizontal />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            {
-              <DropdownMenuItem
-                onClick={() => alert(`Approved as Admin: ${user.name}`)}
-              >
-                Make Admin
-              </DropdownMenuItem>
-            }
-            {!isFaculty && (
-              <DropdownMenuItem
-                onClick={() => alert(`Approved as Faculty: ${user.name}`)}
-              >
-                Make Faculty
-              </DropdownMenuItem>
-            )}
-
-            {isFaculty && (
-              <DropdownMenuItem
-                onClick={() => alert(`Removed Faculty: ${user.name}`)}
-              >
-                Remove Faculty
-              </DropdownMenuItem>
-            )}
-
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => alert(`Delete ${user.name}`)}>
-              Delete
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      );
-    },
-  },
-];
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { approveUser, deleteUser, fetchAdminUsers } from "../../api";
+import { User } from "../../types";
+import LoadingPage from "@/app/(admin)/admin/loader";
+import ErrorPage from "@/app/(admin)/admin/error";
+import { UserRole } from "@/modules/auth/types/auth";
+import ConfirmDialog from "@/components/confirm-dialog";
 
 const FacultyApprovalTable = () => {
   const router = useRouter();
+
+  const [selectedUserId, setSelectedUserId] = React.useState<string | null>(
+    null
+  );
+  const [dialogOpen, setDialogOpen] = React.useState(false);
+  const [dialogData, setDialogData] = React.useState<{
+    title: string;
+    subtitle: string;
+    buttonType: "default" | "destructive" | "secondary";
+    mutation: any;
+    type: "delete" | "revoke" | "make";
+  }>({
+    title: "",
+    subtitle: "",
+    buttonType: "default",
+    mutation: undefined,
+    type: "make",
+  });
+
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["adminUsers"],
+    queryFn: fetchAdminUsers,
+  });
 
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -172,16 +86,213 @@ const FacultyApprovalTable = () => {
     React.useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = React.useState({});
 
-  const data = React.useMemo(() => {
-    return allUsers.filter(
-      (user) =>
-        user.requestedRoles.includes("faculty") ||
-        user.approvedRoles.includes("faculty")
+  const unapprovedAdmins = React.useMemo(() => {
+    return data?.filter(
+      (user: User) => user.is_staff && user.status !== "approved"
     );
-  }, []);
+  }, [data]);
+
+  const queryClient = useQueryClient();
+
+  const rejectFacultyMutation = useMutation({
+    mutationFn: async ({ userId }: { userId: string }) => {
+      approveUser({ userId, data: { status: "rejected", role_id: "1" } });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["adminUsers"] });
+      setDialogOpen(false);
+    },
+  });
+
+  const makeUserAdminMutation = useMutation({
+    mutationFn: async ({ userId }: { userId: string }) => {
+      approveUser({ userId, data: { status: "approved", role_id: "3" } });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["adminUsers"] });
+      setDialogOpen(false);
+    },
+  });
+
+  const makeUserFacultyMutation = useMutation({
+    mutationFn: async ({ userId }: { userId: string }) => {
+      approveUser({ userId, data: { status: "approved", role_id: "4" } });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["adminUsers"] });
+      setDialogOpen(false);
+    },
+  });
+
+  const deleteUserMutation = useMutation({
+    mutationFn: async ({ userId }: { userId: string }) => {
+      deleteUser(userId);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["adminUsers"] });
+      setDialogOpen(false);
+    },
+  });
+
+  const columns: ColumnDef<User>[] = [
+    // {
+    //   id: "select",
+    //   header: ({ table }) => (
+    //     <Checkbox
+    //       checked={
+    //         table.getIsAllPageRowsSelected() ||
+    //         (table.getIsSomePageRowsSelected() && "indeterminate")
+    //       }
+    //       onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+    //       aria-label="Select all"
+    //     />
+    //   ),
+    //   cell: ({ row }) => (
+    //     <Checkbox
+    //       checked={row.getIsSelected()}
+    //       onCheckedChange={(value) => row.toggleSelected(!!value)}
+    //       aria-label="Select row"
+    //     />
+    //   ),
+    //   enableSorting: false,
+    //   enableHiding: false,
+    // },
+    {
+      accessorKey: "name",
+      header: ({ column }) => (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Name <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      ),
+    },
+    {
+      accessorKey: "email",
+      header: "Email",
+      cell: ({ row }) => (
+        <div className="lowercase">{row.getValue("email")}</div>
+      ),
+    },
+    {
+      accessorKey: "role",
+      header: "Role",
+      cell: ({ row }) => (
+        <Badge variant={"outline"} className={cn("px-2 uppercase")}>
+          {(row.getValue("role") as UserRole).name}
+        </Badge>
+      ),
+    },
+    {
+      accessorKey: "status",
+      header: "Status",
+      cell: ({ row }) => (
+        <Badge
+          className={cn(
+            "px-2 uppercase",
+            row.getValue("status") === "approved" &&
+              "bg-emerald-200 border-emerald-500 text-emerald-600",
+            row.getValue("status") === "pending" &&
+              "bg-orange-200 border-orange-500 text-orange-600",
+            row.getValue("status") === "rejected" &&
+              "bg-red-200 border-red-500 text-red-600"
+          )}
+        >
+          {row.getValue("status")}
+        </Badge>
+      ),
+    },
+    {
+      id: "actions",
+      enableHiding: false,
+      cell: ({ row }) => {
+        const user = row.original;
+
+        return (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="h-8 w-8 p-0">
+                <span className="sr-only">Open menu</span>
+                <MoreHorizontal />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem
+                onClick={() => {
+                  setDialogData({
+                    mutation: makeUserFacultyMutation,
+                    buttonType: "default",
+                    title: "Make faculty",
+                    subtitle: "Giving faculty previlages for this user",
+                    type: "make",
+                  });
+                  setSelectedUserId(row.original.id);
+                  setDialogOpen(true);
+                }}
+              >
+                Make Faculty
+              </DropdownMenuItem>
+              {user.status !== "rejected" && (
+                <DropdownMenuItem
+                  onClick={() => {
+                    setDialogData({
+                      mutation: rejectFacultyMutation,
+                      buttonType: "destructive",
+                      title: "Remove faculty",
+                      subtitle: "Removing the faculty previlages for this user",
+                      type: "revoke",
+                    });
+                    setSelectedUserId(row.original.id);
+                    setDialogOpen(true);
+                  }}
+                >
+                  Reject Faculty
+                </DropdownMenuItem>
+              )}
+
+              {user.role.name !== "admin" && (
+                <DropdownMenuItem
+                  onClick={() => {
+                    setDialogData({
+                      mutation: makeUserAdminMutation,
+                      buttonType: "default",
+                      title: "Make admin",
+                      subtitle: "Giving admin previlages for this user",
+                      type: "make",
+                    });
+                    setSelectedUserId(row.original.id);
+                    setDialogOpen(true);
+                  }}
+                >
+                  Make Admin
+                </DropdownMenuItem>
+              )}
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                onClick={() => {
+                  setDialogData({
+                    title: `Delete ${row.getValue("name")}'s Account?`,
+                    subtitle: `This action will permanently remove the user's account and all associated data. This operation cannot be undone.`,
+                    type: "delete",
+                    buttonType: "destructive",
+                    mutation: deleteUserMutation,
+                  });
+                  setSelectedUserId(row.original.id);
+                  setDialogOpen(true);
+                }}
+              >
+                Delete
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        );
+      },
+    },
+  ];
 
   const table = useReactTable({
-    data,
+    data: unapprovedAdmins,
     columns,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
@@ -199,8 +310,16 @@ const FacultyApprovalTable = () => {
     },
   });
 
+  if (isLoading) {
+    return <LoadingPage />;
+  }
+
+  if (error) {
+    return <ErrorPage />;
+  }
+
   return (
-    <div className="w-full">
+    <div className="w-full px-4 lg:px-12 py-8 flex flex-col gap-4">
       <div className="flex flex-row gap-4 items-center">
         <div
           className="p-3 hover:bg-gray-200 rounded-full"
@@ -220,7 +339,7 @@ const FacultyApprovalTable = () => {
           className="max-w-sm"
         />
         <div className="flex flex-row gap-4">
-          {table.getSelectedRowModel().rows.length > 0 && (
+          {/* {table.getSelectedRowModel().rows.length > 0 && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" className="">
@@ -263,7 +382,7 @@ const FacultyApprovalTable = () => {
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-          )}
+          )} */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" className="ml-auto">
@@ -364,6 +483,17 @@ const FacultyApprovalTable = () => {
           </Button>
         </div>
       </div>
+      <ConfirmDialog
+        buttonType={dialogData.buttonType}
+        dialogOpen={dialogOpen}
+        mutation={dialogData.mutation}
+        selectedId={selectedUserId}
+        setDialogOpen={setDialogOpen}
+        title={dialogData.title}
+        type={dialogData.type}
+        listingType="user"
+        subtitle={dialogData.subtitle}
+      />
     </div>
   );
 };

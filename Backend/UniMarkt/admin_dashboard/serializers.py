@@ -102,3 +102,8 @@ class SkillSerializer(serializers.ModelSerializer):
         model = Skill
         fields = '__all__'  # Or list fields explicitly
         ref_name = 'AdminDashboardSkillSerializer'  # Unique name to avoid conflict
+
+class SkillStatusUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Skill
+        fields = ['status']

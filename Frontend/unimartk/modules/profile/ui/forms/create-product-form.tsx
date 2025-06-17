@@ -22,27 +22,25 @@ import { Textarea } from "../../../../components/ui/textarea";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { productSchema } from "../../schemas";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import axios from "@/lib/axios";
 import { Button } from "../../../../components/ui/button";
 import { Loader2, UploadCloud } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { cn, uploadToS3 } from "@/lib/utils";
+
+import { Category } from "@/modules/home/types";
+import LoadingPage from "@/app/(admin)/admin/loader";
+import ErrorPage from "@/app/(admin)/admin/error";
+import {
+  fetchproductCategories,
+  fetchProductSubcategories,
+} from "@/modules/home/api";
+import { useAuth } from "@/modules/auth/contexts/authContext";
+import { redirect } from "next/navigation";
 
 const uploadImageToAWS = async (file: File): Promise<string> => {
-  // Simulate upload delay
-  await new Promise((resolve) =>
-    setTimeout(resolve, 1000 + Math.random() * 2000)
-  );
-
-  // In a real implementation, you would:
-  // 1. Get pre-signed URL from your backend
-  // 2. Upload file to S3 using the pre-signed URL
-  // 3. Return the public URL of the uploaded image
-
-  // For now, return a dummy URL based on the file name
-  const timestamp = Date.now();
-  const randomId = Math.random().toString(36).substring(7);
-  return `https://your-bucket.s3.amazonaws.com/products/${timestamp}-${randomId}-${file.name}`;
+  const url = await uploadToS3(file);
+  return url;
 };
 
 const uploadMultipleImages = async (files: File[]): Promise<string[]> => {
@@ -59,8 +57,13 @@ const uploadMultipleImages = async (files: File[]): Promise<string[]> => {
 type ProductFormData = z.infer<typeof productSchema>;
 
 const CreateProductForm = () => {
+  const { isAuthenticated, user, isInitialized } = useAuth();
   const [uploadingImages, setUploadingImages] = useState(false);
   const [previewImages, setPreviewImages] = useState<string[]>([]);
+
+  if (!isAuthenticated) {
+    redirect("sign-in");
+  }
 
   const form = useForm<ProductFormData>({
     resolver: zodResolver(productSchema),
@@ -71,9 +74,26 @@ const CreateProductForm = () => {
       description: "",
       pickup_location: "",
       price: "",
-      // status: "pending",
       images: [],
     },
+  });
+
+  const {
+    data: categoryData,
+    isLoading: categoryIsLoading,
+    error: categoryError,
+  } = useQuery({
+    queryKey: ["categories"],
+    queryFn: fetchproductCategories,
+  });
+
+  const {
+    data: subCategoryData,
+    isLoading: subCategoryIsLoading,
+    error: subCategoryError,
+  } = useQuery({
+    queryKey: ["subCategories"],
+    queryFn: fetchProductSubcategories,
   });
 
   const mutation = useMutation({
@@ -90,29 +110,20 @@ const CreateProductForm = () => {
     },
   });
 
-  // Mock data for dropdowns
-  const categories = [
-    { category_id: 1, name: "Electronics" },
-    { category_id: 2, name: "Clothing" },
-    { category_id: 3, name: "Books" },
-    { category_id: 4, name: "Home & Garden" },
-  ];
-
-  const subCategories = [
-    { sub_category_id: 1, name: "Smartphones", category_id: 1 },
-    { sub_category_id: 2, name: "Laptops", category_id: 1 },
-    { sub_category_id: 3, name: "T-Shirts", category_id: 2 },
-    { sub_category_id: 4, name: "Jeans", category_id: 2 },
-    { sub_category_id: 5, name: "Fiction", category_id: 3 },
-    { sub_category_id: 6, name: "Tools", category_id: 4 },
-  ];
-
   const filteredSubcategories = useMemo(() => {
-    return subCategories.filter(
-      (subCategory) =>
-        subCategory.category_id === parseInt(form.getValues("category_id"))
+    return (subCategoryData || []).filter(
+      (subCategory: Category) =>
+        subCategory.category_id?.toString() === form.getValues("category_id")
     );
   }, [form.watch("category_id")]);
+
+  if (categoryIsLoading || subCategoryIsLoading) {
+    return <LoadingPage />;
+  }
+
+  if (categoryError || subCategoryError) {
+    return <ErrorPage />;
+  }
 
   const handleFiles = async (newFiles: FileList | null) => {
     if (!newFiles) return;
@@ -174,7 +185,7 @@ const CreateProductForm = () => {
       const payload = {
         ...data,
         price: data.price,
-        user_id: "1",
+        user_id: user!.id,
         category_id: data.category_id,
         sub_category_id: data.sub_category_id,
         images: data.images || [], // Array of AWS S3 URLs
@@ -214,70 +225,72 @@ const CreateProductForm = () => {
           />
 
           {/* Category */}
-          <FormField
-            control={form.control}
-            name="category_id"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Category </FormLabel>
-                <Select
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select a category" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {categories.map((category) => (
-                      <SelectItem
-                        key={category.category_id}
-                        value={category.category_id.toString()}
-                      >
-                        {category.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
+          <div className="flex gap-3">
+            <FormField
+              control={form.control}
+              name="category_id"
+              render={({ field }) => (
+                <FormItem className="flex-1">
+                  <FormLabel>Category </FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
+                    <FormControl className="w-full">
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a category" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {categoryData &&
+                        categoryData.slice(1).map((category: Category) => (
+                          <SelectItem
+                            key={category.id}
+                            value={category.id.toString()}
+                          >
+                            {category.name}
+                          </SelectItem>
+                        ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
-          {/* Sub Category */}
-          <FormField
-            control={form.control}
-            name="sub_category_id"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Sub Category </FormLabel>
-                <Select
-                  disabled={form.watch("category_id") === ""}
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select a sub category" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {filteredSubcategories.map((subCategory) => (
-                      <SelectItem
-                        key={subCategory.sub_category_id}
-                        value={subCategory.sub_category_id.toString()}
-                      >
-                        {subCategory.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-
+            {/* Sub Category */}
+            <FormField
+              control={form.control}
+              name="sub_category_id"
+              render={({ field }) => (
+                <FormItem className="flex-1">
+                  <FormLabel>Sub Category </FormLabel>
+                  <Select
+                    disabled={form.watch("category_id") === ""}
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
+                    <FormControl className="w-full">
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a sub category" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {filteredSubcategories.map((subCategory: Category) => (
+                        <SelectItem
+                          key={subCategory.id}
+                          value={subCategory.id.toString()}
+                        >
+                          {subCategory.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          </div>
           {/* Description */}
           <FormField
             control={form.control}

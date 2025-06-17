@@ -9,11 +9,11 @@ import {
   MessageCircle,
 } from "lucide-react";
 import Image from "next/image";
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 
 import { fetchProductById } from "@/services/products";
 
-const images = [
+const dummyImages = [
   "https://images.pexels.com/photos/31173368/pexels-photo-31173368/free-photo-of-colorful-facades-along-amsterdam-canal.jpeg?auto=compress&cs=tinysrgb&w=1200&lazy=load",
   "https://images.pexels.com/photos/30675194/pexels-photo-30675194/free-photo-of-creative-watercolor-art-workspace-with-supplies.jpeg?auto=compress&cs=tinysrgb&w=1200&lazy=load",
   "https://images.pexels.com/photos/29213973/pexels-photo-29213973/free-photo-of-picturesque-village-with-foggy-morning-landscape.jpeg?auto=compress&cs=tinysrgb&w=1200&lazy=load",
@@ -124,10 +124,11 @@ const ImageModal = ({
                 e.stopPropagation();
                 onIndexChange(index);
               }}
-              className={`flex-shrink-0 w-16 h-12 relative rounded overflow-hidden border-2 transition-colors ${index === currentIndex
+              className={`flex-shrink-0 w-16 h-12 relative rounded overflow-hidden border-2 transition-colors ${
+                index === currentIndex
                   ? "border-blue-500"
                   : "border-transparent"
-                }`}
+              }`}
             >
               <Image
                 src={image}
@@ -156,12 +157,18 @@ export const ProductView = ({ productId }: Props) => {
     queryFn: () => fetchProductById(productId),
   });
 
-  console.log(data);
+  const images = useMemo(() => {
+    if (data.images?.length > 0) {
+      return data.images;
+    } else {
+      return dummyImages;
+    }
+  }, [isLoading, data]);
 
   return (
     <>
       <div className="px-4 lg:px-12 py-10">
-        <div className="bg-white rounded-lg overflow-hidden shadow-sm">
+        <div className="bg-background rounded-lg overflow-hidden shadow-sm">
           <div className="">
             {/* Image Gallery */}
             <div className="lg:col-span-2">
@@ -169,14 +176,14 @@ export const ProductView = ({ productId }: Props) => {
                 {/* Main Image */}
                 <div className="flex-1 order-2 sm:order-1">
                   <div
-                    className="aspect-[4/3] sm:aspect-auto w-full h-full sm:max-h-[500px] bg-gray-200 relative cursor-pointer hover:scale-[1.02] transition-transform group"
+                    className="w-full relative aspect-[4/3] sm:aspect-auto min-h-[430px] sm:max-h-[500px] bg-muted cursor-pointer hover:scale-[1.02] transition-transform group"
                     onClick={openModal}
                   >
                     <Image
                       src={images[selectedImage]}
                       alt={data.name}
                       fill
-                      className="object-cover "
+                      className="object-cover"
                     />
                     {/* Click to view indicator */}
                     <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity bg-black bg-opacity-70 text-white px-2 py-1 rounded text-xs">
@@ -186,7 +193,7 @@ export const ProductView = ({ productId }: Props) => {
                 </div>
 
                 {/* Thumbnail Strip */}
-                <div className="w-full sm:w-20 bg-gray-100 order-1 sm:order-2">
+                <div className="w-full sm:w-20 bg-muted order-1 sm:order-2">
                   <div className="flex sm:flex-col gap-2 p-2 overflow-x-none sm:overflow-none justify-between sm:justify-start">
                     {images.map((imageUrl, index) => (
                       <div
@@ -215,31 +222,31 @@ export const ProductView = ({ productId }: Props) => {
 
           <div className="flex flex-col lg:flex-row">
             <div className="flex-1">
-              <div className="p-4 border-t flex flex-row justify-between items-center">
+              <div className="p-4 border-t border-border flex flex-row justify-between items-center">
                 <div className="">
                   <h2 className="text-xl sm:text-2xl font-semibold mb-2">
                     {data.name}
                   </h2>
-                  <div className="flex items-center gap-1 text-gray-600 mb-4">
+                  <div className="flex items-center gap-1 text-muted-foreground mb-4">
                     <MapPinIcon className="w-4 h-4" />
                     <span className="text-sm">{data.pickup_location}</span>
                   </div>
                 </div>
                 <div className="mb-4">
-                  <span className="text-xl sm:text-2xl font-bold text-gray-900">
+                  <span className="text-xl sm:text-2xl font-bold ">
                     {data.price}€
                   </span>
                 </div>
               </div>
               {/* Description */}
-              <div className="p-4 sm:p-6 border-t">
-                <p className="text-gray-700 leading-relaxed text-sm sm:text-base">
+              <div className="p-4 sm:p-6 border-border border-t">
+                <p className="text-muted-foreground  leading-relaxed text-sm sm:text-base">
                   {data.description}
                 </p>
               </div>
             </div>
             {/* Right Sidebar */}
-            <div className="flex w-full lg:w-80 justify-center items-center bg-gray-50 p-2 sm:p-4 border-t lg:border-l">
+            <div className="flex w-full lg:w-80 justify-center items-center  p-2 sm:p-4 border-t lg:border-l border-border">
               {!isInitialized ? (
                 // Loading state while auth is initializing
                 <div className="text-center w-full">
