@@ -1,4 +1,6 @@
-import React, { useMemo } from "react";
+"use client";
+
+import React, { useEffect, useMemo } from "react";
 import {
   Select,
   SelectContent,
@@ -22,7 +24,7 @@ import { Textarea } from "../../../../components/ui/textarea";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { DayEnum, skillSchema } from "../../schemas";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "@/lib/axios";
 import { Button } from "../../../../components/ui/button";
 import {
@@ -40,15 +42,33 @@ import {
 import { degrees, departments } from "@/constants/departments";
 import { useAuth } from "@/modules/auth/contexts/authContext";
 import { redirect } from "next/navigation";
+import { fetchSkillById } from "@/services/products";
 
 type SkillFormData = z.infer<typeof skillSchema>;
 
-const CreateSkillForm = () => {
+interface Props {
+  skillId?: string;
+}
+
+const CreateSkillForm = ({ skillId }: Props) => {
   const { isAuthenticated, user, isInitialized } = useAuth();
 
-  if (!isAuthenticated) {
-    redirect("sign-in");
+  if ((!isAuthenticated || !user) && isInitialized) {
+    redirect("/sign-in");
   }
+
+  const {
+    data: skill,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ["skill", skillId],
+    queryFn: () => fetchSkillById(skillId!),
+    enabled: !!skillId, // Only run when skillId exists
+  });
+
+  const queryClient = useQueryClient();
+
   const form = useForm<SkillFormData>({
     resolver: zodResolver(skillSchema),
     defaultValues: {
@@ -62,40 +82,82 @@ const CreateSkillForm = () => {
       module: "",
       description: "",
       charge_per_hour: "",
-      skill_cover: "",
     },
   });
 
-  const categories = [
-    { category_id: 1, name: "Programming" },
-    { category_id: 2, name: "Creative" },
-    { category_id: 3, name: "Maths" },
-    { category_id: 4, name: "Fitness" },
-  ];
+  useEffect(() => {
+    if (skill) {
+      // Map the skill data to form structure
+      const formData: Partial<SkillFormData> = {
+        name: skill.module || "", // Use skill.name if it exists, otherwise fall back to module
+        department_id: skill.degree?.department?.id?.toString() || "",
+        degree_id: skill.degree?.id?.toString() || "",
+        skill_category_id: skill.skill_category?.id?.toString() || "",
+        module: skill.module || "",
+        description: skill.description || "",
+        charge_per_hour: skill.charge_per_hour || "",
+        available_time_week:
+          skill.available_time_week?.length > 0
+            ? skill.available_time_week.map((slot) => ({
+                day: slot.day as
+                  | "Monday"
+                  | "Tuesday"
+                  | "Wednesday"
+                  | "Thursday"
+                  | "Friday"
+                  | "Saturday"
+                  | "Sunday",
+                start_time: slot.start_time?.substring(0, 5) || "", // Convert "18:00:00" to "18:00"
+                end_time: slot.end_time?.substring(0, 5) || "", // Convert "19:30:00" to "19:30"
+                status: (slot.status as "open" | "booked") || "open",
+              }))
+            : [{ day: "Monday", start_time: "", end_time: "", status: "open" }],
+      };
+
+      form.reset(formData);
+    }
+  }, [skill, form]);
+
+  // const mutation = useMutation({
+  //   mutationFn: (newSkill: SkillFormData) => {
+  //     return axios.post("/skills/", newSkill);
+  //   },
+  //   onError: () => {
+  //     // An error happened!
+  //     toast.error("Something went wrong!");
+  //   },
+  //   onSuccess: () => {
+  //     toast.success("Skill created successfully!");
+  //     window.location.href = "/";
+  //   },
+  // });
 
   const mutation = useMutation({
     mutationFn: (newSkill: SkillFormData) => {
+      if (skillId) {
+        return axios.put(`/skills/${skillId}/`, newSkill);
+      }
       return axios.post("/skills/", newSkill);
     },
     onError: () => {
-      // An error happened!
       toast.error("Something went wrong!");
     },
     onSuccess: () => {
-      toast.success("Skill created successfully!");
-      window.location.href = "/";
+      queryClient.invalidateQueries({ queryKey: ["skill", "profileSkills"] });
+      toast.success(
+        skillId ? "Skill updated successfully!" : "Skill created successfully!"
+      );
+      // window.location.href = "/";
     },
   });
 
   const skillCovers = [
-    { value: "academic", label: "Academic", icon: Book },
-    { value: "programming", label: "Programming", icon: Code },
-    { value: "language", label: "Language", icon: Languages },
-    { value: "creative", label: "Creative", icon: Palette },
-    { value: "finance", label: "Finance", icon: DollarSign },
-    { value: "music", label: "Music", icon: Music },
-    { value: "fitness", label: "Fitness", icon: Dumbbell },
-    { value: "softskills", label: "Soft Skills", icon: Lightbulb },
+    { category_id: 1, value: "academic", label: "Academic", icon: Book },
+    { category_id: 2, value: "programming", label: "Programming", icon: Code },
+    { category_id: 3, value: "language", label: "Language", icon: Languages },
+    { category_id: 4, value: "creative", label: "Creative", icon: Palette },
+    { category_id: 5, value: "finance", label: "Finance", icon: DollarSign },
+    { category_id: 6, value: "music", label: "Music", icon: Music },
   ];
 
   const filteredDegrees = useMemo(() => {
@@ -138,7 +200,7 @@ const CreateSkillForm = () => {
 
   return (
     <Form {...form}>
-      <div className="space-y-6">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
         {/* Product Name */}
         <FormField
           control={form.control}
@@ -213,7 +275,7 @@ const CreateSkillForm = () => {
           )}
         />
 
-        <FormField
+        {/* <FormField
           control={form.control}
           name="skill_category_id"
           render={({ field }) => (
@@ -239,7 +301,7 @@ const CreateSkillForm = () => {
               <FormMessage />
             </FormItem>
           )}
-        />
+        /> */}
 
         <FormField
           control={form.control}
@@ -420,7 +482,7 @@ const CreateSkillForm = () => {
 
         <FormField
           control={form.control}
-          name="skill_cover"
+          name="skill_category_id"
           render={({ field }) => (
             <FormItem>
               <FormLabel>Skill Cover</FormLabel>
@@ -428,18 +490,20 @@ const CreateSkillForm = () => {
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                   {skillCovers.map((cover) => (
                     <label
-                      key={cover.value}
+                      key={cover.category_id}
                       className={`border rounded-lg p-4 text-center cursor-pointer transition ${
-                        field.value === cover.value
+                        field.value === cover.category_id.toString()
                           ? "border-blue-500 bg-blue-50"
                           : "border-gray-300"
                       }`}
                     >
                       <input
                         type="radio"
-                        value={cover.value}
-                        checked={field.value === cover.value}
-                        onChange={() => field.onChange(cover.value)}
+                        value={cover.category_id}
+                        checked={field.value === cover.category_id.toString()}
+                        onChange={() =>
+                          field.onChange(cover.category_id.toString())
+                        }
                         className="hidden"
                       />
                       <cover.icon className="mx-auto mb-2 h-8 w-8" />
@@ -458,9 +522,14 @@ const CreateSkillForm = () => {
             type="submit"
             disabled={form.formState.isSubmitting}
             className="flex-1"
-            onClick={form.handleSubmit(onSubmit)}
           >
-            {form.formState.isSubmitting ? "Creating Skill..." : "Create Skill"}
+            {form.formState.isSubmitting
+              ? skillId
+                ? "Updating Skill..."
+                : "Creating Skill..."
+              : skillId
+                ? "Update Skill"
+                : "Create Skill"}
           </Button>
           <Button
             type="button"
@@ -471,7 +540,7 @@ const CreateSkillForm = () => {
             Reset Form
           </Button>
         </div>
-      </div>
+      </form>
     </Form>
   );
 };

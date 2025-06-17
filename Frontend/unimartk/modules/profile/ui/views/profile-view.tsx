@@ -6,6 +6,11 @@ import ProfileDetailsCard from "../components/profile-details-card";
 import { useUser } from "../../hooks/useUser";
 import { redirect } from "next/navigation";
 import { useAuth } from "@/modules/auth/contexts/authContext";
+import { skills } from "@/constants/skills";
+import { ProfileServiceGrid } from "../components/profile-skill-grid";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { ProfileProductGrid } from "../components/profile-product-grid";
+import { products } from "@/constants/products";
 
 const ProfileView = () => {
   const { isAuthenticated, user, isInitialized } = useAuth();
@@ -16,6 +21,18 @@ const ProfileView = () => {
   const { deleteUser, updateUser, isLoading } = useUser("1");
 
   const [isEditing, setIsEditing] = React.useState(false);
+
+  // const { data, isLoading, error } = useQuery({
+  //   queryKey: ["profileProducts"],
+  //   queryFn: fetchUserProducts(user?.id),
+  //   enabled:user!==null
+  // });
+
+  // const { data, isLoading, error } = useQuery({
+  //   queryKey: ["profileSkills"],
+  //   queryFn: fetchUserSkills(user?.id),
+  //   enabled:user!==null
+  // });
 
   const handleEdit = () => setIsEditing(true);
   const handleCancel = () => setIsEditing(false);
@@ -62,7 +79,7 @@ const ProfileView = () => {
           loading={isLoading}
         />
       )}
-      <div className="">
+      <div className="flex flex-col gap-4">
         <div className="flex justify-between gap-3">
           <p className="text-2xl">Your Listings</p>
           <div className="flex flex-row gap-3">
@@ -74,6 +91,26 @@ const ProfileView = () => {
             </Button>
           </div>
         </div>
+        <Tabs defaultValue="services" className="">
+          <TabsList>
+            <TabsTrigger value="products">Products</TabsTrigger>
+            <TabsTrigger value="services">Services</TabsTrigger>
+          </TabsList>
+          <TabsContent value="products">
+            <ProfileProductGrid
+              products={products}
+              error={""}
+              isLoading={false}
+            />
+          </TabsContent>
+          <TabsContent value="services">
+            <ProfileServiceGrid
+              services={skills}
+              error={null}
+              isLoading={false}
+            />
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );
