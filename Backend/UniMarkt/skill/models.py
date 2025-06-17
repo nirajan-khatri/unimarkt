@@ -36,6 +36,7 @@ class Skill(models.Model):
     department = models.ForeignKey(Department, on_delete=models.PROTECT, related_name='skills')
     degree = models.ForeignKey(Degree, on_delete=models.PROTECT, related_name='skills')
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='skills')
+    isArchived = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True, null=True, blank=True)
 
 
