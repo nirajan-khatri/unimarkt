@@ -39,11 +39,6 @@ class ProductSerializer(serializers.ModelSerializer):
     category = CategorySerializer(read_only=True)
     sub_category = SubCategorySerializer(read_only=True)
     user = UserSerializer(read_only=True)
-    
-    # Add archive-related fields
-    can_archive = serializers.SerializerMethodField()
-    is_archived = serializers.SerializerMethodField()
-    status_display = serializers.CharField(source='get_status_display', read_only=True)
 
     class Meta:
         model = Product
@@ -51,20 +46,8 @@ class ProductSerializer(serializers.ModelSerializer):
             'product_id', 'name', 'category', 'category_id',
             'sub_category', 'sub_category_id',
             'description', 'price', 'images',
-            'user', 'user_id', 'status', 'status_display',
-            'created_at', 'updated_at', 'pickup_location',
-            'can_archive', 'is_archived'
+            'user', 'user_id', 'status', 'created_at', 'pickup_location'
         ]
-        read_only_fields = ['product_id', 'created_at', 'updated_at', 'status_display']
-    
-    def get_can_archive(self, obj):
-        request = self.context.get('request')
-        if request and request.user.is_authenticated:
-            return obj.user == request.user or request.user.is_staff
-        return False
-    
-    def get_is_archived(self, obj):
-        return obj.status == 'archived'
 
 class ProductCreateSerializer(serializers.ModelSerializer):
     category_id = serializers.PrimaryKeyRelatedField(
@@ -96,3 +79,4 @@ class ProductUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
         fields = ['name', 'description', 'price', 'category_id', 'sub_category_id', 'user_id', 'images', 'pickup_location', 'status']
+
