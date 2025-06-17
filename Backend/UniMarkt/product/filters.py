@@ -10,7 +10,12 @@ class ProductFilter(django_filters.FilterSet):
     category__name = django_filters.CharFilter(field_name="category__name", lookup_expr='icontains')
     sub_category__name = django_filters.CharFilter(field_name="sub_category__name", lookup_expr='icontains')
     pickup_location = django_filters.CharFilter(field_name="pickup_location", lookup_expr='icontains')
-
+    status = django_filters.ChoiceFilter(
+            field_name="status",
+            choices=[("pending", "pending"), ("approved", "approved"), ("rejected", "rejected")]
+        )
+    user_id = django_filters.NumberFilter(field_name="user_id")
+    
     class Meta:
         model = Product
         fields = ['price', 'name', 'description', 'category__name', 'sub_category__name', 'pickup_location']

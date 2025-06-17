@@ -44,7 +44,14 @@ class ProductViewSet(viewsets.ModelViewSet):
                              openapi.Parameter("pickup_location", openapi.IN_QUERY, type=openapi.TYPE_STRING,
                                                description="Search product pickup location"),
                              openapi.Parameter("status", openapi.IN_QUERY, type=openapi.TYPE_STRING,
-                                               description="product status - pending, approved, sold-out, rejected"),
+                                               description="product status - pending, approved,  rejected"), 
+                             openapi.Parameter(
+                                                        "user_id",
+                                                        openapi.IN_QUERY,
+                                                        type=openapi.TYPE_INTEGER,
+                                                        description="Filter by user ID"
+                                                    )
+
 
                          ],
                          )
