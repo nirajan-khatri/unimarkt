@@ -46,7 +46,7 @@ class SkillSerializer(serializers.ModelSerializer):
         fields = [
             'skill_id', 'status', 'module', 'description', 'charge_per_hour',
             'department_id', 'degree_id', 'user_id', 'department', 'degree', 'user', 'available_time_week',
-            'skill_category_id', 'skill_category', 'created_at'
+            'skill_category_id', 'skill_category', 'created_at','isArchived'
         ]
 
     def create(self, validated_data):

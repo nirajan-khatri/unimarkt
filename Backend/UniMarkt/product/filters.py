@@ -15,6 +15,8 @@ class ProductFilter(django_filters.FilterSet):
             choices=[("pending", "pending"), ("approved", "approved"), ("rejected", "rejected")]
         )
     user_id = django_filters.NumberFilter(field_name="user_id")
+    isArchived = django_filters.BooleanFilter(field_name="isArchived")
+
     
     class Meta:
         model = Product
