@@ -1,12 +1,13 @@
 from django_filters.rest_framework import DjangoFilterBackend
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
-from rest_framework import viewsets, filters
+from rest_framework import viewsets, filters, mixins, status
 from rest_framework.parsers import JSONParser
+from rest_framework.response import Response
 
 from .filters import SkillFilter
-from .models import Skill
-from .serializers import SkillSerializer, SkillCreateSerializer
+from .models import Skill, SkillCategory, Department, Degree
+from .serializers import SkillSerializer, SkillCreateSerializer, SkillCategorySerializer, DepartmentSerializer, DegreeSerializer
 
 
 class SkillViewSet(viewsets.ModelViewSet):
@@ -43,11 +44,11 @@ class SkillViewSet(viewsets.ModelViewSet):
                              openapi.Parameter("skill_category__name", openapi.IN_QUERY, type=openapi.TYPE_STRING,
                                                description="Filter by category name"),
                              openapi.Parameter("module", openapi.IN_QUERY, type=openapi.TYPE_STRING,
-                                               description="Filter by sub category name"),
+                                               description="Filter by module name"),
                              openapi.Parameter("description", openapi.IN_QUERY, type=openapi.TYPE_STRING,
-                                               description="Search product description"),
+                                               description="Search skill description"),
                              openapi.Parameter("status", openapi.IN_QUERY, type=openapi.TYPE_STRING,
-                                               description="product status - pending, approved, sold-out, rejected"),
+                                               description="skill status - pending, approved, rejected"),
 
                          ],
                          )
@@ -61,3 +62,78 @@ class SkillViewSet(viewsets.ModelViewSet):
     @swagger_auto_schema(tags=["Skills"])
     def destroy(self, request, *args, **kwargs):
         return super().destroy(request, *args, **kwargs)
+
+
+class SkillCategoryViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+    """
+    List all skill categories or retrieve a specific skill category.
+    """
+    queryset = SkillCategory.objects.all()
+    serializer_class = SkillCategorySerializer
+
+    @swagger_auto_schema(
+        tags=["Skill Categories"],
+        manual_parameters=[
+            openapi.Parameter("name", openapi.IN_QUERY, type=openapi.TYPE_STRING,
+                            required=False, description="Optional skill category name to filter by")
+        ]
+    )
+    def list(self, request, *args, **kwargs):
+        name = request.query_params.get('name')
+        if name:
+            queryset = self.queryset.filter(name__icontains=name)
+            if not queryset.exists():
+                return Response({'detail': f'Skill category with name={name} not found.'}, status=status.HTTP_404_NOT_FOUND)
+        else:
+            queryset = self.queryset
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
+
+class DepartmentViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+    """
+    List all departments.
+    """
+    queryset = Department.objects.all()
+    serializer_class = DepartmentSerializer
+
+    @swagger_auto_schema(
+        tags=["Departments"],
+        manual_parameters=[
+            openapi.Parameter("name", openapi.IN_QUERY, type=openapi.TYPE_STRING,
+                            required=False, description="Optional department name to filter by")
+        ]
+    )
+    def list(self, request, *args, **kwargs):
+        name = request.query_params.get('name')
+        if name:
+            queryset = self.queryset.filter(name__icontains=name)
+        else:
+            queryset = self.queryset
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
+
+
+class DegreeViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
+    """
+    List all degrees.
+    """
+    queryset = Degree.objects.all()
+    serializer_class = DegreeSerializer
+
+    @swagger_auto_schema(
+        tags=["Degrees"],
+        manual_parameters=[
+            openapi.Parameter("department_id", openapi.IN_QUERY, type=openapi.TYPE_INTEGER,
+                            required=False, description="Filter degrees by department ID")
+        ]
+    )
+    def list(self, request, *args, **kwargs):
+        department_id = request.query_params.get("department_id")
+        queryset = self.queryset
+
+        if department_id:
+            queryset = queryset.filter(department__id=department_id)
+
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data)
