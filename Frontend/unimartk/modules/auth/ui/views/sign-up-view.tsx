@@ -29,9 +29,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-import { RegisterData } from '../../types/auth';
-import { registerSchema } from '../../schemas';
-import { fetchSecurityQuestions, fetchRoles, registerUser } from '../../services/api';
+import { RegisterData } from "../../types/auth";
+import { registerSchema } from "../../schemas";
+import {
+  fetchSecurityQuestions,
+  fetchRoles,
+  registerUser,
+} from "../../services/api";
 
 const SignInLink = dynamic(
   () =>
@@ -57,7 +61,7 @@ export const SignUpView = () => {
     isLoading: isLoadingQuestions,
     error: questionsError,
   } = useQuery({
-    queryKey: ['security-questions'],
+    queryKey: ["security-questions"],
     queryFn: fetchSecurityQuestions,
   });
 
@@ -67,7 +71,7 @@ export const SignUpView = () => {
     isLoading: isLoadingRoles,
     error: rolesError,
   } = useQuery({
-    queryKey: ['roles'],
+    queryKey: ["roles"],
     queryFn: fetchRoles,
   });
 
@@ -75,20 +79,20 @@ export const SignUpView = () => {
   const registerMutation = useMutation({
     mutationFn: registerUser,
     onSuccess: (data) => {
-      console.log('Registration successful:', data);
+      console.log("Registration successful:", data);
       // Show success alert
-      alert('Registration successful! Welcome to UniMarkt!');
-      
+      alert("Registration successful! Welcome to UniMarkt!");
+
       // Construct sign-in URL with redirect parameter if it exists
       const urlParams = new URLSearchParams(window.location.search);
       const redirect = urlParams.get("redirect");
       const signInUrl = redirect ? `/sign-in?redirect=${redirect}` : "/sign-in";
-      
+
       // Redirect to sign-in page
       router.push(signInUrl);
     },
     onError: (error: Error) => {
-      console.error('Registration failed:', error.message);
+      console.error("Registration failed:", error.message);
       // Show error alert
       alert(`Registration failed: ${error.message}`);
     },
@@ -132,7 +136,7 @@ export const SignUpView = () => {
       security_question3: values.securityQuestion,
       answer3: values.answer,
     };
-  
+
     registerMutation.mutate(registerData);
   };
 
@@ -158,7 +162,7 @@ export const SignUpView = () => {
               </SignInLink>
             </div>
             <h1 className="text-4xl font-medium">Join the Community.</h1>
-            
+
             <FormField
               name="name"
               render={({ field }) => (
@@ -171,7 +175,7 @@ export const SignUpView = () => {
                 </FormItem>
               )}
             />
-            
+
             <FormField
               name="email"
               render={({ field }) => (
@@ -184,7 +188,7 @@ export const SignUpView = () => {
                 </FormItem>
               )}
             />
-            
+
             <FormField
               name="contact_number"
               render={({ field }) => (
@@ -197,7 +201,7 @@ export const SignUpView = () => {
                 </FormItem>
               )}
             />
-            
+
             <FormField
               name="password"
               render={({ field }) => (
@@ -210,12 +214,14 @@ export const SignUpView = () => {
                 </FormItem>
               )}
             />
-            
+
             <FormField
               name="confirmPassword"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-base">Confirm Password *</FormLabel>
+                  <FormLabel className="text-base">
+                    Confirm Password *
+                  </FormLabel>
                   <FormControl>
                     <Input {...field} type="password" />
                   </FormControl>
@@ -223,7 +229,7 @@ export const SignUpView = () => {
                 </FormItem>
               )}
             />
-            
+
             <FormField
               control={form.control}
               name="role"
@@ -231,9 +237,13 @@ export const SignUpView = () => {
                 <FormItem className="space-y-3">
                   <FormLabel className="text-base">Role</FormLabel>
                   {isLoadingRoles ? (
-                    <div className="text-sm text-muted-foreground">Loading roles...</div>
+                    <div className="text-sm text-muted-foreground">
+                      Loading roles...
+                    </div>
                   ) : rolesError ? (
-                    <div className="text-sm text-red-500">Error loading roles. Please try again.</div>
+                    <div className="text-sm text-red-500">
+                      Error loading roles. Please try again.
+                    </div>
                   ) : (
                     <FormControl>
                       <RadioGroup
@@ -242,21 +252,23 @@ export const SignUpView = () => {
                         className="flex flex-col space-y-2"
                       >
                         {roles?.map((role) => (
-                          <FormItem key={role.id} className="flex items-center space-x-3 space-y-0">
+                          <FormItem
+                            key={role.id}
+                            className="flex items-center space-x-3 space-y-0"
+                          >
                             <FormControl>
                               <RadioGroupItem value={role.id.toString()} />
                             </FormControl>
                             <FormLabel className="font-normal cursor-pointer">
-                              {role.name.charAt(0).toUpperCase() + role.name.slice(1)}
+                              {role.name.charAt(0).toUpperCase() +
+                                role.name.slice(1)}
                             </FormLabel>
                           </FormItem>
                         ))}
                       </RadioGroup>
                     </FormControl>
                   )}
-                  <FormDescription>
-                    Select your role (optional)
-                  </FormDescription>
+                  <FormDescription>Select your role (optional)</FormDescription>
                   <FormMessage />
                 </FormItem>
               )}
@@ -265,15 +277,18 @@ export const SignUpView = () => {
             <div className="space-y-4">
               <h2 className="text-xl font-medium">Security Question</h2>
               <p className="text-sm text-muted-foreground">
-                Please select and answer a security question for account recovery.
+                Please select and answer a security question for account
+                recovery.
               </p>
-              
+
               <FormField
                 control={form.control}
                 name="securityQuestion"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-base">Security Question *</FormLabel>
+                    <FormLabel className="text-base">
+                      Security Question *
+                    </FormLabel>
                     <Select
                       onValueChange={field.onChange}
                       defaultValue={field.value}
@@ -281,14 +296,14 @@ export const SignUpView = () => {
                     >
                       <FormControl>
                         <SelectTrigger>
-                          <SelectValue 
+                          <SelectValue
                             placeholder={
-                              isLoadingQuestions 
-                                ? "Loading questions..." 
-                                : questionsError 
-                                ? "Error loading questions" 
-                                : "Choose a security question"
-                            } 
+                              isLoadingQuestions
+                                ? "Loading questions..."
+                                : questionsError
+                                  ? "Error loading questions"
+                                  : "Choose a security question"
+                            }
                           />
                         </SelectTrigger>
                       </FormControl>
@@ -304,7 +319,7 @@ export const SignUpView = () => {
                   </FormItem>
                 )}
               />
-              
+
               <FormField
                 control={form.control}
                 name="answer"
@@ -333,7 +348,9 @@ export const SignUpView = () => {
               variant={"default"}
               className="bg-black text-white hover:bg-pink-400 hover:text-primary"
             >
-              {registerMutation.isPending ? "Creating account..." : "Create account"}
+              {registerMutation.isPending
+                ? "Creating account..."
+                : "Create account"}
             </Button>
 
             {registerMutation.isError && (

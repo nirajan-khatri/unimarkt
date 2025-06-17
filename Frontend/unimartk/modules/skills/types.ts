@@ -24,14 +24,14 @@ export interface AvailableTimeWeekEntity {
     | "Sunday";
   start_time: string;
   end_time: string;
-  status: string;
+  status: "open" | "booked" | undefined;
 }
 export interface DepartmentOrRoleOrSkillCategory {
-  id: number;
+  id: string;
   name: string;
 }
 export interface Degree {
-  id: number;
+  id: string;
   department: DepartmentOrRoleOrSkillCategory;
   name: string;
 }
