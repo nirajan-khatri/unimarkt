@@ -27,6 +27,13 @@ class ProductViewSet(viewsets.ModelViewSet):
     ordering = ['-created_at']
 
     parser_classes = [JSONParser]
+    
+    def get_serializer_class(self):
+        if self.action in ['update']:
+            return ProductUpdateSerializer
+        elif self.action == 'create':
+            return ProductCreateSerializer
+        return ProductSerializer
 
     @swagger_auto_schema(tags=["Products"],
                          operation_description="Filter products by min-price, max-price, category name, sub category name, name, description, status and order by created_at or price",
