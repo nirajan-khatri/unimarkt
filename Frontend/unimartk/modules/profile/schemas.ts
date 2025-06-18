@@ -55,7 +55,6 @@ export const skillSchema = z.object({
   skill_category_id: z.string().min(1, "Please select a category"),
   department_id: z.string().min(1, "Department is required"),
   degree_id: z.string().min(1, "Degree is required"),
-  skill_cover: z.string().min(1, "Image is required"),
   available_time_week: z
     .array(
       z.object({

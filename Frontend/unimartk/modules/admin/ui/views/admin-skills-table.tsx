@@ -54,6 +54,7 @@ import {
   Skill,
 } from "@/modules/skills/types";
 import CommentDialog from "../components/comment-dialog";
+import Link from "next/link";
 
 const SkillsTable = () => {
   const router = useRouter();
@@ -124,28 +125,28 @@ const SkillsTable = () => {
   });
 
   const columns: ColumnDef<Skill>[] = [
-    {
-      id: "select",
-      header: ({ table }) => (
-        <Checkbox
-          checked={
-            table.getIsAllPageRowsSelected() ||
-            (table.getIsSomePageRowsSelected() && "indeterminate")
-          }
-          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-          aria-label="Select all"
-        />
-      ),
-      cell: ({ row }) => (
-        <Checkbox
-          checked={row.getIsSelected()}
-          onCheckedChange={(value) => row.toggleSelected(!!value)}
-          aria-label="Select row"
-        />
-      ),
-      enableSorting: false,
-      enableHiding: false,
-    },
+    // {
+    //   id: "select",
+    //   header: ({ table }) => (
+    //     <Checkbox
+    //       checked={
+    //         table.getIsAllPageRowsSelected() ||
+    //         (table.getIsSomePageRowsSelected() && "indeterminate")
+    //       }
+    //       onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+    //       aria-label="Select all"
+    //     />
+    //   ),
+    //   cell: ({ row }) => (
+    //     <Checkbox
+    //       checked={row.getIsSelected()}
+    //       onCheckedChange={(value) => row.toggleSelected(!!value)}
+    //       aria-label="Select row"
+    //     />
+    //   ),
+    //   enableSorting: false,
+    //   enableHiding: false,
+    // },
     {
       accessorKey: "module",
       header: ({ column }) => (
@@ -155,6 +156,11 @@ const SkillsTable = () => {
         >
           Module <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
+      ),
+      cell: ({ row }) => (
+        <Link href={`/admin/skills/${row.original.skill_id}`}>
+          <span className="font-medium">{row.getValue("module")}</span>
+        </Link>
       ),
     },
     {
@@ -206,11 +212,11 @@ const SkillsTable = () => {
         <Badge
           className={cn(
             "px-2 uppercase",
-            row.getValue("status") === "pending" &&
+            (row.getValue("status") as string).toLowerCase() === "pending" &&
               "bg-orange-200 border-orange-500 text-orange-600",
-            row.getValue("status") === "rejected" &&
+            (row.getValue("status") as string).toLowerCase() === "rejected" &&
               "bg-red-200 border-red-500 text-red-600",
-            row.getValue("status") === "approved" &&
+            (row.getValue("status") as string).toLowerCase() === "approved" &&
               "bg-green-200 border-green-500 text-green-600"
           )}
         >
@@ -330,7 +336,7 @@ const SkillsTable = () => {
           className="max-w-sm"
         />
         <div className="flex flex-row gap-4">
-          {table.getSelectedRowModel().rows.length > 0 && (
+          {/* {table.getSelectedRowModel().rows.length > 0 && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" className="">
@@ -373,7 +379,7 @@ const SkillsTable = () => {
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-          )}
+          )} */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" className="ml-auto">
@@ -474,49 +480,7 @@ const SkillsTable = () => {
           </Button>
         </div>
       </div>
-      {/* <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>
-              {dialogType === "reject" ? "Reject Product" : "Delete Product"}
-            </DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <label htmlFor="comment" className="text-sm font-medium">
-              Comment
-            </label>
-            <Textarea
-              id="comment"
-              placeholder="Enter a reason..."
-              value={comment}
-              onChange={(e) => setComment(e.target.value)}
-            />
-          </div>
-          <DialogFooter>
-            <Button
-              onClick={() => {
-                if (!selectedSkillId) return;
-                if (dialogType === "reject") {
-                  rejectProductMutation.mutate({
-                    skillId: selectedSkillId,
-                    comment,
-                  });
-                } else if (dialogType === "delete") {
-                  deleteSkillMutation.mutate({
-                    skillId: selectedSkillId,
-                    comment,
-                  });
-                }
-              }}
-              disabled={
-                rejectProductMutation.isPending || deleteSkillMutation.isPending
-              }
-            >
-              {dialogType === "reject" ? "Reject" : "Delete"}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog> */}
+
       <CommentDialog
         listingType="skill"
         dialogOpen={dialogOpen}

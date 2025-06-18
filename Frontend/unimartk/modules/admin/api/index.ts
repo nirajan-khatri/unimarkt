@@ -90,11 +90,12 @@ export const approveSkill = async ({
   skillId: string;
   data: Partial<Skill>;
 }) => {
+  console.log("data", data);
   const response = await axios.put(`/admin_dashboard/skills/${skillId}/`, data);
   return response.data;
 };
 
-// Delete product
+// Delete skill
 export const deleteSkill = async (skillId: string) => {
   const response = await axios.delete(`/admin_dashboard/skills/${skillId}/`);
   return response.data;
@@ -215,33 +216,4 @@ export const fetchDashboardStats = async (): Promise<DashboardStats> => {
     console.error("Error fetching dashboard stats:", error);
     throw error;
   }
-};
-
-// Bulk operations
-export const bulkApproveProducts = async (productIds: string[]) => {
-  const response = await axios.post(`/admin_dashboard/products/bulk-approve/`, {
-    product_ids: productIds,
-  });
-  return response.data;
-};
-
-export const bulkRejectProducts = async (productIds: string[]) => {
-  const response = await axios.post(`/admin_dashboard/products/bulk-reject/`, {
-    product_ids: productIds,
-  });
-  return response.data;
-};
-
-export const bulkApproveSkills = async (skillIds: string[]) => {
-  const response = await axios.post(`/admin_dashboard/skills/bulk-approve/`, {
-    skill_ids: skillIds,
-  });
-  return response.data;
-};
-
-export const bulkRejectSkills = async (skillIds: string[]) => {
-  const response = await axios.post(`/admin_dashboard/skills/bulk-reject/`, {
-    skill_ids: skillIds,
-  });
-  return response.data;
 };

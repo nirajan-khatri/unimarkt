@@ -1,6 +1,5 @@
 import { Footer } from "@/components/footer";
 import { Navbar } from "@/components/navbar";
-import { fetchCategories } from "@/modules/home/api";
 
 import {
   SearchFilters,

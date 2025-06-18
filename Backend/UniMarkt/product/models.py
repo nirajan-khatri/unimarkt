@@ -40,6 +40,7 @@ class Product(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='products')
     status = models.TextField(default='Pending')
     pickup_location = models.CharField(max_length=255, blank=True, null=True)
+    isArchived = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
 

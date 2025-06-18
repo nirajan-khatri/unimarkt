@@ -97,6 +97,7 @@ class SkillViewSet(viewsets.ModelViewSet):
         skill.save()
         status_str = "archived" if skill.isArchived else "unarchived"
         return Response({"detail": f"Skill successfully {status_str}"}, status=status.HTTP_200_OK)
+<<<<<<< HEAD
 
 
 class SkillCategoryViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
@@ -172,3 +173,5 @@ class DegreeViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
 
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
+=======
+>>>>>>> 1880843b7b3982bb36449b712697044e08f56c7b

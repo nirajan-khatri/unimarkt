@@ -8,7 +8,6 @@ import {
   dehydrate,
 } from "@tanstack/react-query";
 import React, { Suspense } from "react";
-import { fetchCategories } from "@/modules/home/api";
 import { CategoryService } from "@/services/categories";
 
 interface Props {
