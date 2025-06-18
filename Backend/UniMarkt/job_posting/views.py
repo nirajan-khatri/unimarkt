@@ -1,93 +1,73 @@
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import viewsets, filters, status
-from rest_framework.decorators import action
+from rest_framework.parsers import JSONParser
 from rest_framework.response import Response
-from rest_framework.parsers import JSONParser, MultiPartParser
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.decorators import action
 from django.db.models import Q
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
+from rest_framework_simplejwt.authentication import JWTAuthentication
 
 from .filters import JobPostingFilter
-from .models import JobPosting, JobApplication
-from .serializers import (
-    JobPostingSerializer, 
-    JobPostingCreateSerializer, 
-    JobPostingListSerializer,
-    JobApplicationSerializer
-)
+from .models import JobPosting
+from .serializers import JobPostingSerializer, JobPostingCreateSerializer
 
 
 class JobPostingViewSet(viewsets.ModelViewSet):
+    http_method_names = ['get', 'post', 'put', 'delete']
     queryset = JobPosting.objects.all()
     serializer_class = JobPostingSerializer
-    filter_backends = [filters.SearchFilter, filters.OrderingFilter]
+    authentication_classes = [JWTAuthentication]
+    permission_classes = [IsAuthenticatedOrReadOnly]
+    
+    filter_backends = [
+        filters.SearchFilter,
+        filters.OrderingFilter
+    ]
+    
     filterset_class = JobPostingFilter
-    search_fields = ['title', 'description', 'qualifications']
-    ordering_fields = ['created_at', 'title']
+    ordering_fields = ['created_at', 'remuneration']
     ordering = ['-created_at']
+    
     parser_classes = [JSONParser]
     
-    def get_serializer_class(self):
-        if self.action == 'list':
-            return JobPostingListSerializer
-        elif self.action == 'create':
-            return JobPostingCreateSerializer
-        return JobPostingSerializer
-    
     def get_queryset(self):
+        """
+        Override get_queryset to filter out archived jobs from public view
+        """
         queryset = super().get_queryset()
         
-        # Filter out deleted jobs for normal users
-        if not self.request.user.is_staff:
-            queryset = queryset.exclude(status='deleted')
-        
-        # Faculty can see their own jobs regardless of status
-        if self.action in ['update', 'destroy', 'archive', 'unarchive']:
-            queryset = queryset.filter(posted_by=self.request.user)
-        
-        # Public can only see approved jobs
-        elif not self.request.user.is_authenticated:
-            queryset = queryset.filter(status='approved')
+        # For list and retrieve actions
+        if self.action in ['list', 'retrieve']:
+            # If user is not authenticated, only show approved jobs
+            if not self.request.user.is_authenticated:
+                queryset = queryset.filter(status='approved')
+            else:
+                # Authenticated users see their own jobs (all statuses) and others' approved jobs
+                queryset = queryset.filter(
+                    Q(posted_by=self.request.user) | 
+                    Q(status='approved')
+                )
         
         return queryset
     
     @swagger_auto_schema(
         tags=["Job Postings"],
-        operation_description="Create a new job posting (Faculty only)",
-        request_body=JobPostingCreateSerializer,
-        responses={201: JobPostingSerializer}
-    )
-    def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-        
-        # Return full serializer for response
-        response_serializer = JobPostingSerializer(serializer.instance)
-        return Response(response_serializer.data, status=status.HTTP_201_CREATED)
-    
-    @swagger_auto_schema(
-        tags=["Job Postings"],
-        operation_description="Update job posting (sets status to pending)",
-        request_body=JobPostingCreateSerializer,
-        responses={200: JobPostingSerializer}
-    )
-    def update(self, request, *args, **kwargs):
-        partial = kwargs.pop('partial', False)
-        instance = self.get_object()
-        
-        # Set status to pending when editing
-        request.data['status'] = 'pending'
-        
-        serializer = self.get_serializer(instance, data=request.data, partial=partial)
-        serializer.is_valid(raise_exception=True)
-        self.perform_update(serializer)
-        
-        return Response(serializer.data)
-    
-    @swagger_auto_schema(
-        tags=["Job Postings"],
-        operation_description="Filter jobs by department, search by title/description/qualifications"
+        operation_description="Filter job postings by department, job type, search in title/description",
+        manual_parameters=[
+            openapi.Parameter("department", openapi.IN_QUERY, type=openapi.TYPE_INTEGER,
+                            description="Filter by department ID"),
+            openapi.Parameter("department__name", openapi.IN_QUERY, type=openapi.TYPE_STRING,
+                            description="Filter by department name"),
+            openapi.Parameter("job_type", openapi.IN_QUERY, type=openapi.TYPE_STRING,
+                            description="Filter by job type (research, hiwi, tutoring, administrative, other)"),
+            openapi.Parameter("title", openapi.IN_QUERY, type=openapi.TYPE_STRING,
+                            description="Search in job title"),
+            openapi.Parameter("description", openapi.IN_QUERY, type=openapi.TYPE_STRING,
+                            description="Search in job description"),
+            openapi.Parameter("status", openapi.IN_QUERY, type=openapi.TYPE_STRING,
+                            description="Job status - pending, approved, archived, rejected"),
+        ],
     )
     def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
@@ -96,135 +76,132 @@ class JobPostingViewSet(viewsets.ModelViewSet):
     def retrieve(self, request, *args, **kwargs):
         return super().retrieve(request, *args, **kwargs)
     
-    @swagger_auto_schema(
-        tags=["Job Postings"],
-        operation_description="Delete job posting (marks as deleted, not visible to public)"
-    )
-    def destroy(self, request, *args, **kwargs):
+    @swagger_auto_schema(tags=["Job Postings"], request_body=JobPostingCreateSerializer)
+    def create(self, request, *args, **kwargs):
+        # Set the posted_by to current user
+        serializer = JobPostingCreateSerializer(data=request.data, context={'request': request})
+        serializer.is_valid(raise_exception=True)
+        serializer.save(posted_by=request.user)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    
+    @swagger_auto_schema(tags=["Job Postings"], request_body=JobPostingCreateSerializer)
+    def update(self, request, *args, **kwargs):
+        # When updating, set status back to pending for re-approval
         instance = self.get_object()
+        if instance.posted_by == request.user and instance.status == 'approved':
+            request.data['status'] = 'pending'
+        return super().update(request, *args, **kwargs)
+    
+    @swagger_auto_schema(tags=["Job Postings"])
+    def destroy(self, request, *args, **kwargs):
+        # Soft delete - mark as deleted instead of actually deleting
+        instance = self.get_object()
+        if instance.posted_by != request.user and not request.user.is_staff:
+            return Response(
+                {'error': 'You do not have permission to delete this job posting'},
+                status=status.HTTP_403_FORBIDDEN
+            )
         instance.status = 'deleted'
         instance.save()
         return Response(status=status.HTTP_204_NO_CONTENT)
     
-    @action(detail=True, methods=['post'])
+    @action(detail=True, methods=['post'], url_path='archive')
     @swagger_auto_schema(
         tags=["Job Postings"],
-        operation_description="Archive a job posting (Faculty only)"
+        operation_description="Archive a job posting (makes it invisible to other users)"
     )
     def archive(self, request, pk=None):
-        job_posting = self.get_object()
-        job_posting.status = 'archived'
-        job_posting.save()
-        return Response({'status': 'Job posting archived'})
-    
-    @action(detail=True, methods=['post'])
-    @swagger_auto_schema(
-        tags=["Job Postings"],
-        operation_description="Unarchive a job posting (Faculty only)"
-    )
-    def unarchive(self, request, pk=None):
-        job_posting = self.get_object()
-        job_posting.status = 'pending'  # Goes back to pending for approval
-        job_posting.save()
-        return Response({'status': 'Job posting unarchived and set to pending'})
-    
-    @action(detail=False, methods=['get'])
-    @swagger_auto_schema(
-        tags=["Job Postings"],
-        operation_description="Get all active job postings"
-    )
-    def active(self, request):
-        active_jobs = self.get_queryset().filter(status='approved')
-        serializer = self.get_serializer(active_jobs, many=True)
-        return Response(serializer.data)
-    
-    @action(detail=True, methods=['post'], parser_classes=[MultiPartParser])
-    @swagger_auto_schema(
-        tags=["Job Applications"],
-        operation_description="Apply for a job posting",
-        request_body=JobApplicationSerializer,
-        responses={201: JobApplicationSerializer}
-    )
-    def apply(self, request, pk=None):
+        """
+        Archive a job posting.
+        Only the job poster can archive their own jobs.
+        """
         job_posting = self.get_object()
         
-        # Check if user already applied
-        if JobApplication.objects.filter(
-            job_posting=job_posting,
-            applicant=request.user
-        ).exists():
-            return Response(
-                {'error': 'You have already applied for this job'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        
-        serializer = JobApplicationSerializer(
-            data={
-                'job_posting_id': job_posting.job_id,
-                'resume_file': request.FILES.get('resume_file'),
-                'cover_letter': request.data.get('cover_letter')
-            },
-            context={'request': request}
-        )
-        
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-    
-    @action(detail=True, methods=['get'])
-    @swagger_auto_schema(
-        tags=["Job Applications"],
-        operation_description="Get all applications for a job posting (Faculty only)"
-    )
-    def applications(self, request, pk=None):
-        job_posting = self.get_object()
-        
-        # Only the poster can see applications
+        # Check if the user owns this job posting
         if job_posting.posted_by != request.user and not request.user.is_staff:
             return Response(
-                {'error': 'You do not have permission to view these applications'},
+                {'error': 'You do not have permission to archive this job posting'},
                 status=status.HTTP_403_FORBIDDEN
             )
         
-        applications = job_posting.applications.all()
-        serializer = JobApplicationSerializer(applications, many=True)
+        # Check if job is already archived
+        if job_posting.status == 'archived':
+            return Response(
+                {'error': 'Job posting is already archived'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Archive the job
+        job_posting.status = 'archived'
+        job_posting.save()
+        
+        serializer = self.get_serializer(job_posting)
+        
+        return Response({
+            'status': 'Job posting archived successfully',
+            'job_id': job_posting.job_id,
+            'message': 'Job posting is no longer visible in public listings',
+            'job_posting': serializer.data
+        }, status=status.HTTP_200_OK)
+    
+    @action(detail=True, methods=['post'], url_path='unarchive')
+    @swagger_auto_schema(
+        tags=["Job Postings"],
+        operation_description="Unarchive a job posting (sets it to pending for re-approval)"
+    )
+    def unarchive(self, request, pk=None):
+        """
+        Unarchive a job posting.
+        Only the job poster can unarchive their own jobs.
+        """
+        job_posting = self.get_object()
+        
+        # Check if the user owns this job posting
+        if job_posting.posted_by != request.user and not request.user.is_staff:
+            return Response(
+                {'error': 'You do not have permission to unarchive this job posting'},
+                status=status.HTTP_403_FORBIDDEN
+            )
+        
+        # Check if job is actually archived
+        if job_posting.status != 'archived':
+            return Response(
+                {'error': 'Job posting is not archived'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Unarchive the job - set to pending for re-approval
+        job_posting.status = 'pending'
+        job_posting.save()
+        
+        serializer = self.get_serializer(job_posting)
+        
+        return Response({
+            'status': 'Job posting unarchived successfully',
+            'job_id': job_posting.job_id,
+            'message': 'Job posting is now pending approval',
+            'job_posting': serializer.data
+        }, status=status.HTTP_200_OK)
+    
+    @action(detail=False, methods=['get'], url_path='my-archived')
+    @swagger_auto_schema(
+        tags=["Job Postings"],
+        operation_description="Get all archived job postings for the current user"
+    )
+    def my_archived(self, request):
+        """
+        Get all archived job postings for the authenticated user.
+        """
+        if not request.user.is_authenticated:
+            return Response(
+                {'error': 'Authentication required'},
+                status=status.HTTP_401_UNAUTHORIZED
+            )
+        
+        archived_jobs = JobPosting.objects.filter(
+            posted_by=request.user,
+            status='archived'
+        ).order_by('-created_at')
+        
+        serializer = self.get_serializer(archived_jobs, many=True)
         return Response(serializer.data)
-
-
-class AdminJobPostingViewSet(viewsets.ModelViewSet):
-    """Admin-only viewset for job posting management"""
-    queryset = JobPosting.objects.all()
-    serializer_class = JobPostingSerializer
-    
-    @action(detail=True, methods=['post'])
-    @swagger_auto_schema(
-        tags=["Admin Job Management"],
-        operation_description="Approve a job posting",
-        responses={200: JobPostingSerializer}
-    )
-    def approve(self, request, pk=None):
-        job_posting = self.get_object()
-        job_posting.status = 'approved'
-        job_posting.rejection_reason = None
-        job_posting.save()
-        return Response({'status': 'Job posting approved'})
-    
-    @action(detail=True, methods=['post'])
-    @swagger_auto_schema(
-        tags=["Admin Job Management"],
-        operation_description="Reject a job posting",
-        request_body=openapi.Schema(
-            type=openapi.TYPE_OBJECT,
-            properties={
-                'reason': openapi.Schema(type=openapi.TYPE_STRING, description='Rejection reason')
-            }
-        ),
-        responses={200: JobPostingSerializer}
-    )
-    def reject(self, request, pk=None):
-        job_posting = self.get_object()
-        job_posting.status = 'rejected'
-        job_posting.rejection_reason = request.data.get('reason', '')
-        job_posting.save()
-        return Response({'status': 'Job posting rejected', 'reason': job_posting.rejection_reason})
