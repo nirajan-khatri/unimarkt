@@ -7,6 +7,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework import status
 
+
 from .filters import SkillFilter
 from .models import Skill, SkillCategory, Department, Degree
 from .serializers import SkillSerializer, SkillCreateSerializer, SkillCategorySerializer, DepartmentSerializer, DegreeSerializer
@@ -50,7 +51,7 @@ class SkillViewSet(viewsets.ModelViewSet):
                              openapi.Parameter("description", openapi.IN_QUERY, type=openapi.TYPE_STRING,
                                                description="Search skill description"),
                              openapi.Parameter("status", openapi.IN_QUERY, type=openapi.TYPE_STRING,
-                                               description="product status - pending, approved, rejected"),
+                                               description="product status - pending, approved,  rejected"),
                              openapi.Parameter(
                                                 "isArchived",
                                                 openapi.IN_QUERY,
