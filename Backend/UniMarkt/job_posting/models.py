@@ -2,6 +2,7 @@ from django.db import models
 from django.conf import settings
 from skill.models import Department
 
+
 class JobPosting(models.Model):
     STATUS_CHOICES = [
         ('pending', 'Pending'),
@@ -37,25 +38,3 @@ class JobPosting(models.Model):
     
     def __str__(self):
         return f"{self.job_id} - {self.title} ({self.department.name})"
-
-class JobApplication(models.Model):
-    APPLICATION_STATUS = [
-        ('submitted', 'Submitted'),
-        ('under_review', 'Under Review'),
-        ('accepted', 'Accepted'),
-        ('rejected', 'Rejected'),
-    ]
-    
-    application_id = models.AutoField(primary_key=True)
-    job_posting = models.ForeignKey(JobPosting, on_delete=models.CASCADE, related_name='applications')
-    applicant = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='job_applications')
-    resume_file = models.FileField(upload_to='resumes/', max_length=255)
-    cover_letter = models.TextField()
-    status = models.CharField(max_length=20, choices=APPLICATION_STATUS, default='submitted')
-    applied_at = models.DateTimeField(auto_now_add=True)
-    
-    class Meta:
-        unique_together = ['job_posting', 'applicant']
-    
-    def __str__(self):
-        return f"Application for {self.job_posting.title} by {self.applicant.email}"
