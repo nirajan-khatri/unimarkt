@@ -1,13 +1,7 @@
-import { useQuery } from "@tanstack/react-query";
+import { ServiceFilters } from "@/hooks/useServices";
 import { PaginatedSkillsResponse } from "@/modules/skills/types";
 
-export interface ServiceFilters {
-  minPrice: string;
-  maxPrice: string;
-  module: string;
-}
-
-async function fetchServices(
+export async function fetchFilteredSkills(
   page: number,
   searchTerm: string,
   category?: string,
@@ -15,8 +9,7 @@ async function fetchServices(
   filters?: ServiceFilters,
   pageSize: number = 9
 ): Promise<PaginatedSkillsResponse> {
-  const baseUrl =
-    process.env.NEXT_PUBLIC_BASE_API_URL || "http://localhost:8000/api/";
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_API_URL || "http://localhost:8000/api/";
   const url = new URL(`${baseUrl}skills/?status=approved&isArchived=false`);
 
   // Add pagination
@@ -34,6 +27,9 @@ async function fetchServices(
   if (category) {
     url.searchParams.append("skill_category__name", category);
   }
+  if (subcategory) {
+    url.searchParams.append("sub_category__name", subcategory);
+  }
 
   // Add price filters
   if (filters?.minPrice) {
@@ -48,31 +44,11 @@ async function fetchServices(
     url.searchParams.append("module", filters.module);
   }
 
-  try {
-    const response = await fetch(url.toString());
+  const response = await fetch(url.toString());
 
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    return response.json();
-  } catch (error) {
-    console.error("Error fetching services:", error);
-    throw error;
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
   }
-}
 
-export function useServices(
-  page: number,
-  searchTerm: string,
-  category?: string,
-  subcategory?: string,
-  filters?: ServiceFilters,
-  pageSize: number = 9
-) {
-  return useQuery({
-    queryKey: ["services", page, searchTerm, category, subcategory, filters, pageSize],
-    queryFn: () =>
-      fetchServices(page, searchTerm, category, subcategory, filters, pageSize),
-  });
-}
+  return response.json();
+} 

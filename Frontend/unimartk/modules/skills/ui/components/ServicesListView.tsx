@@ -7,6 +7,9 @@ import { ServiceFilters } from "@/modules/skills/ui/components/ServiceFilters";
 import { ProductGridSkeleton } from "@/components/skeletons/ProductSkeleton";
 import { useState } from "react";
 import { useSearchParams } from "next/navigation";
+import { Pagination } from "@/components/ui/pagination";
+import { PaginatedSkillsResponse } from "@/modules/skills/types";
+import { ServiceFilters as ServiceFiltersType } from "@/hooks/useServices";
 
 interface ServiceListViewProps {
   category?: string;
@@ -15,9 +18,14 @@ interface ServiceListViewProps {
   narrowView?: boolean;
   title?: string;
   showSort?: boolean;
-  services: any[];
+  skills: PaginatedSkillsResponse;
   isLoading: boolean;
   error: Error | null;
+  onPageChange: (page: number) => void;
+  onPageSizeChange: (size: number) => void;
+  pageSize: number;
+  filters: ServiceFiltersType;
+  onFiltersChange: (filters: ServiceFiltersType) => void;
 }
 
 export const ServiceListView = ({
@@ -27,43 +35,44 @@ export const ServiceListView = ({
   narrowView = false,
   title,
   showSort = false,
-  services,
+  skills,
   isLoading,
-  error
+  error,
+  onPageChange,
+  onPageSizeChange,
+  pageSize,
+  filters,
+  onFiltersChange
 }: ServiceListViewProps) => {
-  const [filters, setFilters] = useState({
-    minPrice: "",
-    maxPrice: "",
-    module: ""
-  });
-  
   const searchParams = useSearchParams();
   const search = searchParams.get("search") || "";
 
   const hasAnyFilters = !!(filters.minPrice || filters.maxPrice || filters.module || search);
 
   const clearPriceFilters = () => {
-    setFilters(prev => ({
-      ...prev,
+    onFiltersChange({
+      ...filters,
       minPrice: "",
       maxPrice: ""
-    }));
+    });
   };
 
   const clearModule = () => {
-    setFilters(prev => ({
-      ...prev,
+    onFiltersChange({
+      ...filters,
       module: ""
-    }));
+    });
   };
 
   const clearAllFilters = () => {
-    setFilters({
+    onFiltersChange({
       minPrice: "",
       maxPrice: "",
       module: ""
     });
   };
+
+  const showPagination = !isLoading && !error && skills && skills.count > 0;
 
   return (
     <div className="px-4 lg:px-12 py-8 flex flex-col gap-4">
@@ -94,19 +103,31 @@ export const ServiceListView = ({
         <div className="lg:col-span-2">
           <ServiceFilters
             filters={filters}
-            onFiltersChange={setFilters}
+            onFiltersChange={onFiltersChange}
           />
         </div>
 
-        {/* Services Grid */}
-        <div className="lg:col-span-4 xl:col-span-6">
+        {/* Services Grid and Pagination */}
+        <div className="lg:col-span-4 xl:col-span-6 flex flex-col gap-4">
           <Suspense fallback={<ProductGridSkeleton />}>
             <ServiceGrid
-              services={services}
+              services={skills?.results || []}
               isLoading={isLoading}
               error={error}
             />
           </Suspense>
+          
+          {showPagination && (
+            <Pagination
+              currentPage={skills.currentPage}
+              totalItems={skills.count}
+              pageSize={pageSize}
+              hasNext={skills.hasNext}
+              hasPrevious={skills.hasPrevious}
+              onPageChange={onPageChange}
+              onPageSizeChange={onPageSizeChange}
+            />
+          )}
         </div>
       </div>
     </div>

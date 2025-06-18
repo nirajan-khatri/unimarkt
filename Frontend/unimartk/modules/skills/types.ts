@@ -1,18 +1,28 @@
 import { User } from "../admin/types";
+import { Category } from "../home/types";
 
-export interface Skill {
-  skill_id: string;
-  available_time_week: AvailableTimeWeekEntity[];
-  skill_category: DepartmentOrRoleOrSkillCategory;
-  department: DepartmentOrRoleOrSkillCategory;
-  degree: Degree;
-  user: User;
-  status: "approved" | "pending" | "rejected";
-  module: string;
+export type Skill = {
+  id: number;
   description: string;
-  charge_per_hour: string;
+  price: number;
+  module: string;
+  skill_category: Category;
+  sub_category: Category;
+  user: User;
+  status: "pending" | "approved" | "rejected";
+  isArchived: boolean;
   created_at: string;
+  updated_at: string;
+};
+
+export interface PaginatedSkillsResponse {
+  count: number;
+  hasNext: boolean;
+  hasPrevious: boolean;
+  currentPage: number;
+  results: Skill[];
 }
+
 export interface AvailableTimeWeekEntity {
   day:
     | "Monday"
@@ -26,10 +36,12 @@ export interface AvailableTimeWeekEntity {
   end_time: string;
   status: "open" | "booked" | undefined;
 }
+
 export interface DepartmentOrRoleOrSkillCategory {
   id: string;
   name: string;
 }
+
 export interface Degree {
   id: string;
   department: DepartmentOrRoleOrSkillCategory;

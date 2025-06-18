@@ -7,38 +7,38 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework import status
 
-
 from .filters import SkillFilter
 from .models import Skill
-from .serializers import SkillSerializer, SkillCreateSerializer
+from .serializers import SkillSerializer, SkillCreateSerializer, SkillUpdateSerializer
+from product.views import StandardResultsSetPagination
 
 
 class SkillViewSet(viewsets.ModelViewSet):
-    http_method_names = ['post', 'get', 'delete', 'put']
-    queryset = Skill.objects.all()
+    http_method_names = ['get', 'post', 'put', 'delete']
+    queryset = Skill.objects.filter()
     serializer_class = SkillSerializer
+    pagination_class = StandardResultsSetPagination
 
     filter_backends = [
         DjangoFilterBackend,
-        filters.OrderingFilter
+        filters.OrderingFilter,
     ]
 
     filterset_class = SkillFilter
-    ordering_fields = ['charge_per_hour', 'created_at']
+    ordering_fields = ['created_at', 'price']
     ordering = ['-created_at']
 
     parser_classes = [JSONParser]
 
-    @swagger_auto_schema(tags=["Skills"], request_body=SkillCreateSerializer, responses={201: SkillSerializer})
-    def create(self, request, *args, **kwargs):
-        return super().create(request, *args, **kwargs)
-
-    @swagger_auto_schema(tags=["Skills"], request_body=SkillCreateSerializer, responses={201: SkillSerializer})
-    def update(self, request, *args, **kwargs):
-        return super().update(request, *args, **kwargs)
+    def get_serializer_class(self):
+        if self.action in ['update']:
+            return SkillUpdateSerializer
+        elif self.action == 'create':
+            return SkillCreateSerializer
+        return SkillSerializer
 
     @swagger_auto_schema(tags=["Skills"],
-                         operation_description="Filter Skills by min-charge, max-charge, skill category name, module name, description, status and order by created_at or charge per hour",
+                         operation_description="Filter skills by min-price, max-price, category name, sub category name, description, status and order by created_at or price",
                          manual_parameters=[
                              openapi.Parameter("price_min", openapi.IN_QUERY, type=openapi.TYPE_NUMBER,
                                                description="Filter by min price"),
@@ -46,21 +46,69 @@ class SkillViewSet(viewsets.ModelViewSet):
                                                description="Filter by max price"),
                              openapi.Parameter("skill_category__name", openapi.IN_QUERY, type=openapi.TYPE_STRING,
                                                description="Filter by category name"),
-                             openapi.Parameter("module", openapi.IN_QUERY, type=openapi.TYPE_STRING,
+                             openapi.Parameter("sub_category__name", openapi.IN_QUERY, type=openapi.TYPE_STRING,
                                                description="Filter by sub category name"),
                              openapi.Parameter("description", openapi.IN_QUERY, type=openapi.TYPE_STRING,
-                                               description="Search product description"),
+                                               description="Search skill description"),
+                             openapi.Parameter("module", openapi.IN_QUERY, type=openapi.TYPE_STRING,
+                                               description="Search by module name"),
                              openapi.Parameter("status", openapi.IN_QUERY, type=openapi.TYPE_STRING,
-                                               description="product status - pending, approved,  rejected"),
+                                               description="skill status - pending, approved, rejected"), 
                              openapi.Parameter(
-                                                "isArchived",
-                                                openapi.IN_QUERY,
-                                                type=openapi.TYPE_BOOLEAN,
-                                                description="Filter archived products (true or false)"
-                                            )
-
+                                "user_id",
+                                openapi.IN_QUERY,
+                                type=openapi.TYPE_INTEGER,
+                                description="Filter by user ID"
+                            ),
+                            openapi.Parameter(
+                                "isArchived",
+                                openapi.IN_QUERY,
+                                type=openapi.TYPE_BOOLEAN,
+                                description="Filter archived skills (true or false)"
+                            ),
+                            openapi.Parameter(
+                                "page",
+                                openapi.IN_QUERY,
+                                type=openapi.TYPE_INTEGER,
+                                description="Page number for pagination"
+                            ),
+                            openapi.Parameter(
+                                "page_size",
+                                openapi.IN_QUERY,
+                                type=openapi.TYPE_INTEGER,
+                                description="Number of items per page (default: 9, max: 100)"
+                            )
                          ],
-                         )
+                         responses={
+                             200: openapi.Response('Success', openapi.Schema(
+                                 type=openapi.TYPE_OBJECT,
+                                 properties={
+                                     'count': openapi.Schema(type=openapi.TYPE_INTEGER, description='Total number of items'),
+                                     'hasNext': openapi.Schema(type=openapi.TYPE_BOOLEAN, description='Whether there is a next page'),
+                                     'hasPrevious': openapi.Schema(type=openapi.TYPE_BOOLEAN, description='Whether there is a previous page'),
+                                     'currentPage': openapi.Schema(type=openapi.TYPE_INTEGER, description='Current page number'),
+                                     'results': openapi.Schema(
+                                         type=openapi.TYPE_ARRAY,
+                                         items=openapi.Schema(
+                                             type=openapi.TYPE_OBJECT,
+                                             properties={
+                                                 'id': openapi.Schema(type=openapi.TYPE_INTEGER),
+                                                 'description': openapi.Schema(type=openapi.TYPE_STRING),
+                                                 'price': openapi.Schema(type=openapi.TYPE_NUMBER),
+                                                 'module': openapi.Schema(type=openapi.TYPE_STRING),
+                                                 'skill_category': openapi.Schema(type=openapi.TYPE_OBJECT),
+                                                 'sub_category': openapi.Schema(type=openapi.TYPE_OBJECT),
+                                                 'user': openapi.Schema(type=openapi.TYPE_OBJECT),
+                                                 'status': openapi.Schema(type=openapi.TYPE_STRING, enum=['pending', 'approved', 'rejected']),
+                                                 'isArchived': openapi.Schema(type=openapi.TYPE_BOOLEAN),
+                                                 'created_at': openapi.Schema(type=openapi.TYPE_STRING, format='date-time'),
+                                                 'updated_at': openapi.Schema(type=openapi.TYPE_STRING, format='date-time')
+                                             }
+                                         )
+                                     )
+                                 }
+                             ))
+                         })
     def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
 
