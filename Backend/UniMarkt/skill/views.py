@@ -11,7 +11,6 @@ from .models import Skill, SkillCategory, Department, Degree
 from .serializers import (
     SkillSerializer,
     SkillCreateSerializer,
-    SkillUpdateSerializer,
     SkillCategorySerializer,
     DepartmentSerializer,
     DegreeSerializer,
@@ -36,7 +35,7 @@ class SkillViewSet(viewsets.ModelViewSet):
         if self.action == 'create':
             return SkillCreateSerializer
         if self.action == 'update':
-            return SkillUpdateSerializer
+            return SkillCreateSerializer
         return SkillSerializer
 
     @swagger_auto_schema(
@@ -49,7 +48,7 @@ class SkillViewSet(viewsets.ModelViewSet):
 
     @swagger_auto_schema(
         tags=["Skills"],
-        request_body=SkillUpdateSerializer,
+        request_body=SkillCreateSerializer,
         responses={200: SkillSerializer}
     )
     def update(self, request, *args, **kwargs):
