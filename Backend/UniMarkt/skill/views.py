@@ -5,6 +5,7 @@ from rest_framework import viewsets, filters, mixins, status
 from rest_framework.parsers import JSONParser
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from rest_framework import status
 
 from .filters import SkillFilter
 from .models import Skill, SkillCategory, Department, Degree
@@ -49,12 +50,12 @@ class SkillViewSet(viewsets.ModelViewSet):
                              openapi.Parameter("description", openapi.IN_QUERY, type=openapi.TYPE_STRING,
                                                description="Search skill description"),
                              openapi.Parameter("status", openapi.IN_QUERY, type=openapi.TYPE_STRING,
-                                               description="skill status - pending, approved, rejected"),
+                                               description="product status - pending, approved, rejected"),
                              openapi.Parameter(
                                                 "isArchived",
                                                 openapi.IN_QUERY,
                                                 type=openapi.TYPE_BOOLEAN,
-                                                description="Filter archived skills (true or false)"
+                                                description="Filter archived products (true or false)"
                                             )
 
                          ],
