@@ -1,60 +1,51 @@
 // hooks/useCategoryState.ts
-import { useState, useCallback } from "react";
+import { useState } from "react";
 
-export function useCategoryState() {
-  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [selectedSubcategory, setSelectedSubcategory] = useState<string | null>(null);
+interface UseCategoryStateProps {
+  initialCategory?: string | null;
+  initialSubcategory?: string | null;
+}
 
-  const handleCategorySelect = useCallback((category: string) => {
+interface UseCategoryStateReturn {
+  selectedCategory: string | null;
+  selectedSubcategory: string | null;
+  handleCategorySelect: (category: string) => void;
+  handleSubcategorySelect: (subcategory: string) => void;
+  clearCategory: () => void;
+  clearSubcategory: () => void;
+}
+
+export function useCategoryState({ 
+  initialCategory = null, 
+  initialSubcategory = null 
+}: UseCategoryStateProps = {}): UseCategoryStateReturn {
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(initialCategory);
+  const [selectedSubcategory, setSelectedSubcategory] = useState<string | null>(initialSubcategory);
+
+  const handleCategorySelect = (category: string) => {
     setSelectedCategory(category);
-    setSelectedSubcategory(null); // Clear subcategory when selecting category
-  }, []);
+    setSelectedSubcategory(null); // Clear subcategory when category changes
+  };
 
-  // Fixed: Don't clear category when selecting subcategory
-  const handleSubcategorySelect = useCallback((subcategory: string, category?: string) => {
+  const handleSubcategorySelect = (subcategory: string) => {
     setSelectedSubcategory(subcategory);
-    // Keep the category if provided, or keep existing category
-    if (category) {
-      setSelectedCategory(category);
-    }
-    // Don't clear category - we need both for subcategory pages
-  }, []);
+  };
 
-  // Set both category and subcategory (for URL-based navigation)
-  const setBothCategoryAndSubcategory = useCallback((category: string, subcategory: string) => {
-    setSelectedCategory(category);
-    setSelectedSubcategory(subcategory);
-  }, []);
-
-  const clearCategory = useCallback(() => {
+  const clearCategory = () => {
     setSelectedCategory(null);
-  }, []);
+    setSelectedSubcategory(null); // Clear subcategory when clearing category
+  };
 
-  const clearSubcategory = useCallback(() => {
+  const clearSubcategory = () => {
     setSelectedSubcategory(null);
-  }, []);
-
-  const clearAllCategories = useCallback(() => {
-    setSelectedCategory(null);
-    setSelectedSubcategory(null);
-  }, []);
+  };
 
   return {
-    // State
     selectedCategory,
     selectedSubcategory,
-    
-    // Actions
     handleCategorySelect,
     handleSubcategorySelect,
-    setBothCategoryAndSubcategory,
     clearCategory,
     clearSubcategory,
-    clearAllCategories,
-    
-    // Computed
-    hasCategory: !!selectedCategory,
-    hasSubcategory: !!selectedSubcategory,
-    hasAnyCategory: !!(selectedCategory || selectedSubcategory),
   };
 }

@@ -5,9 +5,10 @@ import { PriceFilters } from "@/types/filters";
 export function useProducts(
   page: number,
   searchTerm: string,
-  category?: string | null,
-  subcategory?: string | null,
-  priceFilters?: PriceFilters
+  category: string | null,
+  subcategory: string | null,
+  priceFilters?: PriceFilters,
+  pageSize: number = 9
 ) {
   return useQuery({
     queryKey: [
@@ -17,6 +18,7 @@ export function useProducts(
       category,
       subcategory,
       priceFilters,
+      pageSize
     ],
     queryFn: () =>
       fetchFilteredProducts(
@@ -24,7 +26,8 @@ export function useProducts(
         searchTerm,
         category || undefined,
         subcategory || undefined,
-        priceFilters
+        priceFilters,
+        pageSize
       ),
   });
 }

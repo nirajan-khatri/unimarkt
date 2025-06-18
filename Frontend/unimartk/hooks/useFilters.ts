@@ -1,10 +1,11 @@
 import { useQueryState, parseAsString } from "nuqs";
-import { useMemo, useEffect } from "react";
+import { useMemo, useEffect, useState } from "react";
 import { PriceFilters, AllFilters, FilterActions, FilterState } from "@/types/filters";
 import { useProducts } from "./useProducts";
 import { useCategoryState } from "./useCategoryState";
 import { useSearchState } from "./useSearchState";
 import { usePagination } from "./usePagination";
+import { PaginatedProductsResponse } from "@/modules/products/types";
 
 // URL parsers for filters
 const filterParamsParsers = {
@@ -29,38 +30,56 @@ const filterParamsParsers = {
 };
 
 interface UseFiltersProps {
-  initialCategory?: string;
-  initialSubcategory?: string;
+  initialCategory?: string | null;
+  initialSubcategory?: string | null;
 }
 
-interface UseFiltersReturn extends FilterState, FilterActions {
-  // Products data
-  products: any[];
+interface UseFiltersReturn {
+  // State
+  filters: PriceFilters;
+  search: string;
+  category: string | null;
+  subcategory: string | null;
+  products: PaginatedProductsResponse | null;
   isLoading: boolean;
   isError: boolean;
-  error: unknown;
-  
-  // Pagination
+  error: Error | null;
   currentPage: number;
-  setCurrentPage: (page: number) => void;
+  pageSize: number;
   
+  // Actions
+  setFilters: (filters: PriceFilters) => void;
+  setSearch: (search: string) => void;
+  setCategory: (category: string) => void;
+  setSubcategory: (subcategory: string) => void;
+  onPageChange: (page: number) => void;
+  onPageSizeChange: (size: number) => void;
+  
+  // Clear actions
+  clearPriceFilters: () => void;
+  clearPickupLocation: () => void;
+  clearCategory: () => void;
+  clearSubcategory: () => void;
+  clearAllFilters: () => void;
+  
+  // Computed
+  hasAnyFilters: boolean;
+
   // Additional state
   isSearching: boolean;
   
   // Debug info
   debug: {
-    initialCategory: string | undefined;
-    initialSubcategory: string | undefined;
-    activeCategory: string;
-    activeSubcategory: string;
-    displayCategory: string;
-    displaySubcategory: string;
+    initialCategory: string | null;
+    initialSubcategory: string | null;
+    activeCategory: string | null;
+    activeSubcategory: string | null;
+    displayCategory: string | null;
+    displaySubcategory: string | null;
   };
 }
 
-export function useFilters(props?: UseFiltersProps): UseFiltersReturn {
-  const { initialCategory = "", initialSubcategory = "" } = props || {};
-  
+export function useFilters({ initialCategory = null, initialSubcategory = null }: UseFiltersProps = {}): UseFiltersReturn {
   // URL state management
   const [minPrice, setMinPrice] = useQueryState(
     "minPrice",
@@ -88,21 +107,21 @@ export function useFilters(props?: UseFiltersProps): UseFiltersReturn {
   );
 
   // Category state management
-  const categoryState = useCategoryState();
+  const categoryState = useCategoryState({ initialCategory, initialSubcategory });
   
   // Search state with debouncing
   const { debouncedSearchTerm, isSearching } = useSearchState(search);
   
-  // Set initial values when component mounts or props change
-  useEffect(() => {
-    if (initialCategory && initialSubcategory) {
-      categoryState.setBothCategoryAndSubcategory(initialCategory, initialSubcategory);
-    } else if (initialCategory && !initialSubcategory) {
-      categoryState.handleCategorySelect(initialCategory);
-    } else if (!initialCategory && !initialSubcategory) {
-      categoryState.clearAllCategories();
-    }
-  }, [initialCategory, initialSubcategory]);
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(9);
+
+  // Memoized filters
+  const filters = useMemo((): PriceFilters => ({
+    minPrice: minPrice || "",
+    maxPrice: maxPrice || "",
+    pickupLocation: pickupLocation || "",
+  }), [minPrice, maxPrice, pickupLocation]);
 
   // Determine active and display categories
   const activeCategory = urlCategory || categoryState.selectedCategory || initialCategory;
@@ -110,35 +129,20 @@ export function useFilters(props?: UseFiltersProps): UseFiltersReturn {
   const displayCategory = categoryState.selectedCategory || initialCategory;
   const displaySubcategory = categoryState.selectedSubcategory || initialSubcategory;
 
-  // Memoized filters
-  const priceFilters = useMemo((): PriceFilters => ({
-    minPrice,
-    maxPrice,
-    pickupLocation,
-  }), [minPrice, maxPrice, pickupLocation]);
-
-  const allFilters = useMemo((): AllFilters => ({
-    ...priceFilters,
-    category: activeCategory,
-    subcategory: activeSubcategory,
-  }), [priceFilters, activeCategory, activeSubcategory]);
-
-  // Pagination that resets when filters change
-  const pagination = usePagination([
-    debouncedSearchTerm,
-    priceFilters,
-    activeCategory,
-    activeSubcategory,
-  ]);
-
   // Products query
-  const productsQuery = useProducts(
-    pagination.currentPage,
+  const { data: products, isLoading, isError, error } = useProducts(
+    currentPage,
     debouncedSearchTerm,
-    activeCategory,
-    activeSubcategory,
-    priceFilters
+    categoryState.selectedCategory,
+    categoryState.selectedSubcategory,
+    filters,
+    pageSize
   );
+
+  // Reset page when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [debouncedSearchTerm, categoryState.selectedCategory, categoryState.selectedSubcategory, filters]);
 
   // Filter actions
   const actions: FilterActions = {
@@ -146,37 +150,37 @@ export function useFilters(props?: UseFiltersProps): UseFiltersReturn {
       setMinPrice(newFilters.minPrice);
       setMaxPrice(newFilters.maxPrice);
       setPickupLocation(newFilters.pickupLocation);
-      pagination.resetPage();
+      setCurrentPage(1);
     },
     setCategory: (category: string) => {
       setUrlCategory(category);
       setUrlSubcategory(""); // Clear subcategory when setting category
       categoryState.handleCategorySelect(category);
-      pagination.resetPage();
+      setCurrentPage(1);
     },
     setSubcategory: (subcategory: string) => {
       setUrlSubcategory(subcategory);
-      categoryState.handleSubcategorySelect(subcategory, activeCategory || undefined);
-      pagination.resetPage();
+      categoryState.handleSubcategorySelect(subcategory);
+      setCurrentPage(1);
     },
     clearPriceFilters: () => {
       setMinPrice("");
       setMaxPrice("");
-      pagination.resetPage();
+      setCurrentPage(1);
     },
     clearPickupLocation: () => {
       setPickupLocation("");
-      pagination.resetPage();
+      setCurrentPage(1);
     },
     clearCategory: () => {
       setUrlCategory("");
       categoryState.clearCategory();
-      pagination.resetPage();
+      setCurrentPage(1);
     },
     clearSubcategory: () => {
       setUrlSubcategory("");
       categoryState.clearSubcategory();
-      pagination.resetPage();
+      setCurrentPage(1);
     },
     clearAllFilters: () => {
       setMinPrice("");
@@ -185,17 +189,28 @@ export function useFilters(props?: UseFiltersProps): UseFiltersReturn {
       setUrlCategory("");
       setUrlSubcategory("");
       setSearch("");
-      categoryState.clearAllCategories();
-      pagination.resetPage();
+      categoryState.clearCategory();
+      categoryState.clearSubcategory();
+      setCurrentPage(1);
     },
     setSearch: (newSearch: string) => {
       setSearch(newSearch);
-      pagination.resetPage();
+      setCurrentPage(1);
     },
     clearSearch: () => {
       setSearch("");
-      pagination.resetPage();
+      setCurrentPage(1);
     },
+  };
+
+  // Pagination handlers
+  const onPageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
+  const onPageSizeChange = (size: number) => {
+    setPageSize(size);
+    setCurrentPage(1); // Reset to first page when changing page size
   };
 
   // Computed properties
@@ -210,24 +225,23 @@ export function useFilters(props?: UseFiltersProps): UseFiltersReturn {
 
   return {
     // State
-    filters: priceFilters,
-    allFilters,
+    filters,
     search,
     category: activeCategory,
     subcategory: activeSubcategory,
-    
-    // Products data
-    products: productsQuery.data || [],
-    isLoading: productsQuery.isLoading,
-    isError: productsQuery.isError,
-    error: productsQuery.error,
-    
-    // Pagination
-    currentPage: pagination.currentPage,
-    setCurrentPage: pagination.setCurrentPage,
+    products: products || null,
+    isLoading,
+    isError,
+    error: error as Error | null,
+    currentPage,
+    pageSize,
     
     // Actions
     ...actions,
+    
+    // Pagination handlers
+    onPageChange,
+    onPageSizeChange,
     
     // Computed
     ...computed,
