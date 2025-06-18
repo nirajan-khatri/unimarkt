@@ -2,26 +2,36 @@ import { User } from "../admin/types";
 import { Category } from "../home/types";
 
 export type Product = {
-  product_id: string;
+  id: number;
   name: string;
+  description: string;
+  price: number;
+  images: string[];
   category: Category;
   sub_category: Category;
-  description: string;
-  price: string;
-  images: string[];
-  user: User;
-  status: "approved" | "pending" | "rejected";
-  created_at: string;
   pickup_location: string;
+  user: User;
+  status: "pending" | "approved" | "rejected";
+  isArchived: boolean;
+  created_at: string;
+  updated_at: string;
 };
 
+export interface PaginatedProductsResponse {
+  count: number;
+  hasNext: boolean;
+  hasPrevious: boolean;
+  currentPage: number;
+  results: Product[];
+}
+
 export interface Message {
-  id: string | number;
-  message: string;
-  sender_id: string;
-  receiver_id: string;
+  id: number;
+  content: string;
   timestamp: string;
-  created_at?: string;
+  sender: User;
+  receiver: User;
+  product: Product;
 }
 
 export interface WebSocketMessage {

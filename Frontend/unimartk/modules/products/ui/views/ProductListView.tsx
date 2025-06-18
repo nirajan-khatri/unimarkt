@@ -6,6 +6,7 @@ import { ProductGrid } from "@/modules/home/ui/components/ProductGrid";
 import { Filters } from "@/modules/home/ui/components/Filters";
 import { useFilters } from "@/hooks";
 import { ProductGridSkeleton } from "@/components/skeletons/ProductSkeleton";
+import { Pagination } from "@/components/ui/pagination";
 
 interface ProductListViewProps {
   category?: string;
@@ -35,12 +36,14 @@ export const ProductListView = ({
     isError,
     error,
     currentPage,
+    pageSize,
     
     // Actions
     setFilters,
     setCategory: handleCategorySelect,
     setSubcategory: handleSubcategorySelect,
-    setCurrentPage,
+    onPageChange,
+    onPageSizeChange,
     
     // Clear actions
     clearPriceFilters,
@@ -55,6 +58,8 @@ export const ProductListView = ({
     initialCategory: category,
     initialSubcategory: subcategory 
   });
+
+  const showPagination = !isLoading && !isError && products && products.count > 0;
 
   return (
     <div className="px-4 lg:px-12 py-8 flex flex-col gap-4">
@@ -89,15 +94,27 @@ export const ProductListView = ({
           />
         </div>
 
-        {/* Products Grid */}
-        <div className="lg:col-span-4 xl:col-span-6">
+        {/* Products Grid and Pagination */}
+        <div className="lg:col-span-4 xl:col-span-6 flex flex-col gap-4">
           <Suspense fallback={<ProductGridSkeleton />}>
             <ProductGrid
-              products={products}
+              products={products?.results || []}
               isLoading={isLoading}
               error={isError ? error : null}
             />
           </Suspense>
+          
+          {showPagination && (
+            <Pagination
+              currentPage={products.currentPage}
+              totalItems={products.count}
+              pageSize={pageSize}
+              hasNext={products.hasNext}
+              hasPrevious={products.hasPrevious}
+              onPageChange={onPageChange}
+              onPageSizeChange={onPageSizeChange}
+            />
+          )}
         </div>
       </div>
     </div>

@@ -5,62 +5,95 @@ from rest_framework import viewsets, filters, mixins, status
 from rest_framework.parsers import JSONParser
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from rest_framework import status
-
 
 from .filters import SkillFilter
 from .models import Skill, SkillCategory, Department, Degree
-from .serializers import SkillSerializer, SkillCreateSerializer, SkillCategorySerializer, DepartmentSerializer, DegreeSerializer
+from .serializers import (
+    SkillSerializer,
+    SkillCreateSerializer,
+    SkillUpdateSerializer,
+    SkillCategorySerializer,
+    DepartmentSerializer,
+    DegreeSerializer,
+)
+from product.views import StandardResultsSetPagination
 
 
 class SkillViewSet(viewsets.ModelViewSet):
-    http_method_names = ['post', 'get', 'delete', 'put']
+    http_method_names = ['get', 'post', 'put', 'delete']
     queryset = Skill.objects.all()
-    serializer_class = SkillSerializer
-
-    filter_backends = [
-        DjangoFilterBackend,
-        filters.OrderingFilter
-    ]
-
+    filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
     filterset_class = SkillFilter
-    ordering_fields = ['charge_per_hour', 'created_at']
+
+    # choose one of these field names:
+    ordering_fields = ['created_at', 'price', 'charge_per_hour']
     ordering = ['-created_at']
 
     parser_classes = [JSONParser]
+    pagination_class = StandardResultsSetPagination
 
-    @swagger_auto_schema(tags=["Skills"], request_body=SkillCreateSerializer, responses={201: SkillSerializer})
+    def get_serializer_class(self):
+        if self.action == 'create':
+            return SkillCreateSerializer
+        if self.action == 'update':
+            return SkillUpdateSerializer
+        return SkillSerializer
+
+    @swagger_auto_schema(
+        tags=["Skills"],
+        request_body=SkillCreateSerializer,
+        responses={201: SkillSerializer}
+    )
     def create(self, request, *args, **kwargs):
         return super().create(request, *args, **kwargs)
 
-    @swagger_auto_schema(tags=["Skills"], request_body=SkillCreateSerializer, responses={201: SkillSerializer})
+    @swagger_auto_schema(
+        tags=["Skills"],
+        request_body=SkillUpdateSerializer,
+        responses={200: SkillSerializer}
+    )
     def update(self, request, *args, **kwargs):
         return super().update(request, *args, **kwargs)
 
-    @swagger_auto_schema(tags=["Skills"],
-                         operation_description="Filter Skills by min-charge, max-charge, skill category name, module name, description, status and order by created_at or charge per hour",
-                         manual_parameters=[
-                             openapi.Parameter("price_min", openapi.IN_QUERY, type=openapi.TYPE_NUMBER,
-                                               description="Filter by min price"),
-                             openapi.Parameter("price_max", openapi.IN_QUERY, type=openapi.TYPE_NUMBER,
-                                               description="Filter by max price"),
-                             openapi.Parameter("skill_category__name", openapi.IN_QUERY, type=openapi.TYPE_STRING,
-                                               description="Filter by category name"),
-                             openapi.Parameter("module", openapi.IN_QUERY, type=openapi.TYPE_STRING,
-                                               description="Filter by module name"),
-                             openapi.Parameter("description", openapi.IN_QUERY, type=openapi.TYPE_STRING,
-                                               description="Search skill description"),
-                             openapi.Parameter("status", openapi.IN_QUERY, type=openapi.TYPE_STRING,
-                                               description="product status - pending, approved,  rejected"),
-                             openapi.Parameter(
-                                                "isArchived",
-                                                openapi.IN_QUERY,
-                                                type=openapi.TYPE_BOOLEAN,
-                                                description="Filter archived products (true or false)"
-                                            )
-
-                         ],
-                         )
+    @swagger_auto_schema(
+        tags=["Skills"],
+        operation_description=(
+            "Filter skills by min-price, max-price, category name, sub-category name, "
+            "module, description, status, user, archived flag; order by created_at or price; "
+            "supports pagination"
+        ),
+        manual_parameters=[
+            openapi.Parameter("price_min", openapi.IN_QUERY, type=openapi.TYPE_NUMBER, description="Min price"),
+            openapi.Parameter("price_max", openapi.IN_QUERY, type=openapi.TYPE_NUMBER, description="Max price"),
+            openapi.Parameter("skill_category__name", openapi.IN_QUERY, type=openapi.TYPE_STRING, description="Category name"),
+            openapi.Parameter("sub_category__name", openapi.IN_QUERY, type=openapi.TYPE_STRING, description="Sub-category name"),
+            openapi.Parameter("description", openapi.IN_QUERY, type=openapi.TYPE_STRING, description="Skill description search"),
+            openapi.Parameter("module", openapi.IN_QUERY, type=openapi.TYPE_STRING, description="Module name"),
+            openapi.Parameter("status", openapi.IN_QUERY, type=openapi.TYPE_STRING, description="Status (pending/approved/rejected)"),
+            openapi.Parameter("user_id", openapi.IN_QUERY, type=openapi.TYPE_INTEGER, description="Filter by user ID"),
+            openapi.Parameter("isArchived", openapi.IN_QUERY, type=openapi.TYPE_BOOLEAN, description="Archived flag"),
+            openapi.Parameter("page", openapi.IN_QUERY, type=openapi.TYPE_INTEGER, description="Page number"),
+            openapi.Parameter("page_size", openapi.IN_QUERY, type=openapi.TYPE_INTEGER, description="Items per page"),
+        ],
+        responses={
+            200: openapi.Response(
+                'Paginated skills list',
+                openapi.Schema(
+                    type=openapi.TYPE_OBJECT,
+                    properties={
+                        'count': openapi.Schema(type=openapi.TYPE_INTEGER),
+                        'hasNext': openapi.Schema(type=openapi.TYPE_BOOLEAN),
+                        'hasPrevious': openapi.Schema(type=openapi.TYPE_BOOLEAN),
+                        'currentPage': openapi.Schema(type=openapi.TYPE_INTEGER),
+                        'results': openapi.Schema(
+                            type=openapi.TYPE_ARRAY,
+                            items=openapi.Schema(type=openapi.TYPE_OBJECT)
+                        )
+                    }
+                )
+            )
+        }
+    )
     def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
 
@@ -71,103 +104,85 @@ class SkillViewSet(viewsets.ModelViewSet):
     @swagger_auto_schema(tags=["Skills"])
     def destroy(self, request, *args, **kwargs):
         return super().destroy(request, *args, **kwargs)
-    
-    @action(detail=True, methods=['post'], permission_classes=[], url_path='archive-toggle', url_name='archive_toggle')
+
+    @action(
+        detail=True,
+        methods=['post'],
+        permission_classes=[],
+        url_path='archive-toggle',
+        url_name='archive_toggle'
+    )
     @swagger_auto_schema(
         tags=["Skills"],
-        operation_description="Archive or unarchive a skill by setting isArchived to true or false",
+        operation_description="Archive/unarchive by setting isArchived flag",
         request_body=openapi.Schema(
             type=openapi.TYPE_OBJECT,
             required=['archive'],
-            properties={'archive': openapi.Schema(type=openapi.TYPE_BOOLEAN, description='True to archive, False to unarchive')}
+            properties={'archive': openapi.Schema(type=openapi.TYPE_BOOLEAN)}
         ),
-        responses={200: openapi.Response('Skill archive status updated')}
+        responses={200: openapi.Response('Archive status updated')}
     )
     def archive_toggle(self, request, pk=None):
         try:
             skill = self.get_queryset().get(pk=pk)
         except Skill.DoesNotExist:
-            return Response({"detail": "Skill not found"}, status=status.HTTP_404_NOT_FOUND)
+            return Response({"detail": "Not found"}, status=status.HTTP_404_NOT_FOUND)
 
-        archive_flag = request.data.get('archive')
-        if archive_flag is None:
-            return Response({"detail": "'archive' field required (true or false)"}, status=status.HTTP_400_BAD_REQUEST)
+        flag = request.data.get('archive')
+        if flag is None:
+            return Response({"detail": "'archive' field required"}, status=status.HTTP_400_BAD_REQUEST)
 
-        skill.isArchived = bool(archive_flag)
+        skill.isArchived = bool(flag)
         skill.save()
         status_str = "archived" if skill.isArchived else "unarchived"
-        return Response({"detail": f"Skill successfully {status_str}"}, status=status.HTTP_200_OK)
+        return Response({"detail": f"Skill {status_str}"}, status=status.HTTP_200_OK)
+
 
 class SkillCategoryViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
-    """
-    List all skill categories or retrieve a specific skill category.
-    """
     queryset = SkillCategory.objects.all()
     serializer_class = SkillCategorySerializer
 
     @swagger_auto_schema(
         tags=["Skill Categories"],
         manual_parameters=[
-            openapi.Parameter("name", openapi.IN_QUERY, type=openapi.TYPE_STRING,
-                            required=False, description="Optional skill category name to filter by")
+            openapi.Parameter("name", openapi.IN_QUERY, type=openapi.TYPE_STRING, description="Filter by name")
         ]
     )
     def list(self, request, *args, **kwargs):
         name = request.query_params.get('name')
-        if name:
-            queryset = self.queryset.filter(name__icontains=name)
-            if not queryset.exists():
-                return Response({'detail': f'Skill category with name={name} not found.'}, status=status.HTTP_404_NOT_FOUND)
-        else:
-            queryset = self.queryset
-        serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data)
+        qs = self.queryset.filter(name__icontains=name) if name else self.queryset
+        if name and not qs.exists():
+            return Response({'detail': f'No category named "{name}"'}, status=status.HTTP_404_NOT_FOUND)
+        return Response(self.get_serializer(qs, many=True).data)
 
 
 class DepartmentViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
-    """
-    List all departments.
-    """
     queryset = Department.objects.all()
     serializer_class = DepartmentSerializer
 
     @swagger_auto_schema(
         tags=["Departments"],
         manual_parameters=[
-            openapi.Parameter("name", openapi.IN_QUERY, type=openapi.TYPE_STRING,
-                            required=False, description="Optional department name to filter by")
+            openapi.Parameter("name", openapi.IN_QUERY, type=openapi.TYPE_STRING, description="Filter by name")
         ]
     )
     def list(self, request, *args, **kwargs):
         name = request.query_params.get('name')
-        if name:
-            queryset = self.queryset.filter(name__icontains=name)
-        else:
-            queryset = self.queryset
-        serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data)
+        qs = self.queryset.filter(name__icontains=name) if name else self.queryset
+        return Response(self.get_serializer(qs, many=True).data)
 
 
 class DegreeViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
-    """
-    List all degrees.
-    """
     queryset = Degree.objects.all()
     serializer_class = DegreeSerializer
 
     @swagger_auto_schema(
         tags=["Degrees"],
         manual_parameters=[
-            openapi.Parameter("department_id", openapi.IN_QUERY, type=openapi.TYPE_INTEGER,
-                            required=False, description="Filter degrees by department ID")
+            openapi.Parameter("department_id", openapi.IN_QUERY, type=openapi.TYPE_INTEGER, description="Filter by department")
         ]
     )
     def list(self, request, *args, **kwargs):
-        department_id = request.query_params.get("department_id")
-        queryset = self.queryset
-
-        if department_id:
-            queryset = queryset.filter(department__id=department_id)
-
-        serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data)
+        dept = request.query_params.get("department_id")
+        qs = self.queryset.filter(department__id=dept) if dept else self.queryset
+        return Response(self.get_serializer(qs, many=True).data)

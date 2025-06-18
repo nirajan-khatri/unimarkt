@@ -1,17 +1,18 @@
 import { ProductCard } from "@/modules/home/ui/components/ProductCard";
 import { ProductGridSkeleton } from "@/components/skeletons/ProductSkeleton";
+import { Product } from "@/modules/products/types";
 
 interface ProductGridProps {
-  products: any[];
+  products: Product[];
   isLoading: boolean;
-  error: unknown | null;
+  error: Error | null;
 }
 
 export function ProductGrid({ products, isLoading, error }: ProductGridProps) {
   if (error) {
     return (
       <div className="text-center py-8">
-        <p className="text-red-500">Error loading products: {String(error)}</p>
+        <p className="text-red-500">Error loading products: {error.message}</p>
       </div>
     );
   }
@@ -20,7 +21,7 @@ export function ProductGrid({ products, isLoading, error }: ProductGridProps) {
     return <ProductGridSkeleton />;
   }
 
-  if (products.length === 0) {
+  if (!products || products.length === 0) {
     return (
       <div className="text-center py-8">
         <p className="text-gray-500">No products found</p>

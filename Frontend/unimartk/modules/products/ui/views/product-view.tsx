@@ -159,7 +159,7 @@ export const ProductView = ({ productId }: Props) => {
 
   const images = useMemo(() => {
     if (data.images?.length > 0) {
-      return data.images;
+      return dummyImages;
     } else {
       return dummyImages;
     }

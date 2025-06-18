@@ -5,6 +5,7 @@ from drf_yasg.utils import swagger_auto_schema
 from rest_framework.parsers import  JSONParser
 from rest_framework.response import Response
 from rest_framework.decorators import action
+from rest_framework.pagination import PageNumberPagination
 
 
 from .filters import ProductFilter
@@ -13,10 +14,26 @@ from .serializers import ProductSerializer, SubCategorySerializer, CategorySeria
     ProductUpdateSerializer
 
 
+class StandardResultsSetPagination(PageNumberPagination):
+    page_size = 9
+    page_size_query_param = 'page_size'
+    max_page_size = 100
+
+    def get_paginated_response(self, data):
+        return Response({
+            'count': self.page.paginator.count,
+            'hasNext': self.page.has_next(),
+            'hasPrevious': self.page.has_previous(),
+            'currentPage': self.page.number,
+            'results': data
+        })
+
+
 class ProductViewSet(viewsets.ModelViewSet):
     http_method_names = ['get', 'post', 'put', 'delete']
     queryset = Product.objects.filter()
     serializer_class = ProductSerializer
+    pagination_class = StandardResultsSetPagination
 
     filter_backends = [
         DjangoFilterBackend,
@@ -65,8 +82,52 @@ class ProductViewSet(viewsets.ModelViewSet):
                                 openapi.IN_QUERY,
                                 type=openapi.TYPE_BOOLEAN,
                                 description="Filter archived products (true or false)"
+                            ),
+                            openapi.Parameter(
+                                "page",
+                                openapi.IN_QUERY,
+                                type=openapi.TYPE_INTEGER,
+                                description="Page number for pagination"
+                            ),
+                            openapi.Parameter(
+                                "page_size",
+                                openapi.IN_QUERY,
+                                type=openapi.TYPE_INTEGER,
+                                description="Number of items per page (default: 9, max: 100)"
                             )
-                         ])
+                         ],
+                         responses={
+                             200: openapi.Response('Success', openapi.Schema(
+                                 type=openapi.TYPE_OBJECT,
+                                 properties={
+                                     'count': openapi.Schema(type=openapi.TYPE_INTEGER, description='Total number of items'),
+                                     'hasNext': openapi.Schema(type=openapi.TYPE_BOOLEAN, description='Whether there is a next page'),
+                                     'hasPrevious': openapi.Schema(type=openapi.TYPE_BOOLEAN, description='Whether there is a previous page'),
+                                     'currentPage': openapi.Schema(type=openapi.TYPE_INTEGER, description='Current page number'),
+                                     'results': openapi.Schema(
+                                         type=openapi.TYPE_ARRAY,
+                                         items=openapi.Schema(
+                                             type=openapi.TYPE_OBJECT,
+                                             properties={
+                                                 'id': openapi.Schema(type=openapi.TYPE_INTEGER),
+                                                 'name': openapi.Schema(type=openapi.TYPE_STRING),
+                                                 'description': openapi.Schema(type=openapi.TYPE_STRING),
+                                                 'price': openapi.Schema(type=openapi.TYPE_NUMBER),
+                                                 'images': openapi.Schema(type=openapi.TYPE_ARRAY, items=openapi.Schema(type=openapi.TYPE_STRING)),
+                                                 'category': openapi.Schema(type=openapi.TYPE_OBJECT),
+                                                 'sub_category': openapi.Schema(type=openapi.TYPE_OBJECT),
+                                                 'pickup_location': openapi.Schema(type=openapi.TYPE_STRING),
+                                                 'user': openapi.Schema(type=openapi.TYPE_OBJECT),
+                                                 'status': openapi.Schema(type=openapi.TYPE_STRING, enum=['pending', 'approved', 'rejected']),
+                                                 'isArchived': openapi.Schema(type=openapi.TYPE_BOOLEAN),
+                                                 'created_at': openapi.Schema(type=openapi.TYPE_STRING, format='date-time'),
+                                                 'updated_at': openapi.Schema(type=openapi.TYPE_STRING, format='date-time')
+                                             }
+                                         )
+                                     )
+                                 }
+                             ))
+                         })
     def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)
 

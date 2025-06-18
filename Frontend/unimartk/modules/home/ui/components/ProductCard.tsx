@@ -1,7 +1,12 @@
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { Product } from "@/modules/products/types";
 
-export const ProductCard = ({ product }: { product: any }) => {
+interface ProductCardProps {
+  product: Product;
+}
+
+export const ProductCard = ({ product }: ProductCardProps) => {
   const router = useRouter();
 
   const handleClick = () => {

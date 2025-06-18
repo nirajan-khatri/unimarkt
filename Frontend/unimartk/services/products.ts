@@ -1,4 +1,4 @@
-import { Product } from "@/modules/products/types";
+import { Product, PaginatedProductsResponse } from "@/modules/products/types";
 import { Skill } from "@/modules/skills/types";
 import { PriceFilters } from "@/types/filters";
 
@@ -7,14 +7,16 @@ export async function fetchFilteredProducts(
   searchTerm: string,
   category?: string,
   subcategory?: string,
-  priceFilters?: PriceFilters
-) {
+  priceFilters?: PriceFilters,
+  pageSize: number = 9
+): Promise<PaginatedProductsResponse> {
   const baseUrl =
     process.env.NEXT_PUBLIC_BASE_API_URL || "http://localhost:8000/api/";
-  const url = new URL(`${baseUrl}products/`);
+  const url = new URL(`${baseUrl}products/?status=approved&isArchived=false`);
 
   // Add pagination
   url.searchParams.append("page", page.toString());
+  url.searchParams.append("page_size", pageSize.toString());
 
   // Add search term
   if (searchTerm) {
@@ -64,7 +66,7 @@ export async function fetchProductById(productId: string): Promise<Product> {
 }
 
 
-export async function fetchSkillById(skillId: string):Promise<Skill> {
+export async function fetchSkillById(skillId: string): Promise<Skill> {
   const baseUrl =
     process.env.NEXT_PUBLIC_BASE_API_URL || "http://localhost:8000/api/";
   const response = await fetch(`${baseUrl}skills/${skillId}/`);
