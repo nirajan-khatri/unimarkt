@@ -17,9 +17,7 @@ class JobPostingViewSet(viewsets.ModelViewSet):
     http_method_names = ['get', 'post', 'put', 'delete']
     queryset = JobPosting.objects.all()
     serializer_class = JobPostingSerializer
-    authentication_classes = [JWTAuthentication]
-    permission_classes = [IsAuthenticatedOrReadOnly]
-    
+
     filter_backends = [
         filters.SearchFilter,
         filters.OrderingFilter
@@ -81,7 +79,7 @@ class JobPostingViewSet(viewsets.ModelViewSet):
         # Set the posted_by to current user
         serializer = JobPostingCreateSerializer(data=request.data, context={'request': request})
         serializer.is_valid(raise_exception=True)
-        serializer.save(posted_by=request.user)
+        serializer.save()
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     
     @swagger_auto_schema(tags=["Job Postings"], request_body=JobPostingCreateSerializer)
@@ -156,13 +154,7 @@ class JobPostingViewSet(viewsets.ModelViewSet):
         """
         job_posting = self.get_object()
         
-        # Check if the user owns this job posting
-        if job_posting.posted_by != request.user and not request.user.is_staff:
-            return Response(
-                {'error': 'You do not have permission to unarchive this job posting'},
-                status=status.HTTP_403_FORBIDDEN
-            )
-        
+
         # Check if job is actually archived
         if job_posting.status != 'archived':
             return Response(
