@@ -55,6 +55,16 @@ class UserSerializer(serializers.ModelSerializer):
 
         ref_name = 'AdminDashboardUserSerializer'  # Unique name to avoid conflict
 
+class UserUpdateSerializer(serializers.ModelSerializer):
+    role_id = serializers.PrimaryKeyRelatedField(queryset=Role.objects.all(), source='role', write_only=True)
+
+
+    class Meta:
+        model = User
+        fields = ['id', 'role_id']
+
+        ref_name = 'AdminDashboardUserUpdateSerializer'  # Unique name to avoid conflict
+
 class SubCategorySerializer(serializers.ModelSerializer):
     
     subcategories = serializers.ListField(child=serializers.CharField(), allow_null=True, required=False, default=list)  # dummy nullable list field

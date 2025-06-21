@@ -15,7 +15,7 @@ from .serializers import (
     ProductStatusUpdateSerializer,
     SkillSerializer,
     SkillStatusUpdateSerializer,
-    UserSerializer
+    UserSerializer, UserUpdateSerializer
 )
 
 
@@ -122,9 +122,11 @@ class UserViewSet(viewsets.ModelViewSet):
         return super().list(request, *args, **kwargs)
 
 
-    @swagger_auto_schema(request_body=UserSerializer, tags=["admin_dashboard"])
+    @swagger_auto_schema(request_body=UserUpdateSerializer, tags=["admin_dashboard"])
     def update(self, request, *args, **kwargs):
+        kwargs['partial'] = True  # <-- Force partial update
         return super().update(request, *args, **kwargs)
+
 
     @swagger_auto_schema(tags=["admin_dashboard"])
     def destroy(self, request, *args, **kwargs):

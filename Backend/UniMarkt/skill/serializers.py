@@ -83,6 +83,31 @@ class SkillCreateSerializer(serializers.ModelSerializer):
             'skill_id', 'status', 'module', 'description', 'charge_per_hour',
             'department_id', 'degree_id', 'user_id', 'skill_category_id', 'available_time_week'
         ]
+        
+    def create(self, validated_data):
+        time_data = validated_data.pop('available_time_week', [])
+        skill = Skill.objects.create(**validated_data)
+        for item in time_data:
+            AvailableTimeSlot.objects.create(skill=skill, **item)
+        return skill
+
+        
+    def update(self, instance, validated_data):
+        # Pop the nested data
+        available_time_data = validated_data.pop('available_time_week', [])
+
+        # Update the Skill fields
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+
+        # Update the nested available_time_week
+        # Strategy: Clear and recreate all
+        instance.available_time_week.all().delete()
+        for time_slot_data in available_time_data:
+            instance.available_time_week.create(**time_slot_data)
+
+        return instance
 
 
 

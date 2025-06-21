@@ -4,9 +4,9 @@ from django.db import models
 class Role(models.Model):
     ROLE_CHOICES = [
         ('user', 'User'),
-        ('superuser', 'Superuser'),
         ('faculty', 'Faculty'),
-        ('admin', 'Admin')
+        ('admin', 'Admin'),
+         ('superuser', 'Superuser')
     ]
     name = models.CharField(max_length=50, unique=True)
 
@@ -70,11 +70,11 @@ class User(AbstractBaseUser, PermissionsMixin):
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
 
     security_question1 = models.CharField(max_length=50, choices=SECURITY_QUESTION_CHOICES, blank=True, null=True)
-    answer1 = models.CharField(max_length=255)
+    answer1 = models.CharField(max_length=255,null=True, blank=True)
     security_question2 = models.CharField(max_length=50, choices=SECURITY_QUESTION_CHOICES, blank=True, null=True)
     answer2 = models.CharField(max_length=255, null=True, blank=True)
     security_question3 = models.CharField(max_length=50, choices=SECURITY_QUESTION_CHOICES, blank=True, null=True)
-    answer3 = models.CharField(max_length=255)
+    answer3 = models.CharField(max_length=255,null=True, blank=True)
 
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)

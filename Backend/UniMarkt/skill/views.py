@@ -52,6 +52,7 @@ class SkillViewSet(viewsets.ModelViewSet):
         responses={200: SkillSerializer}
     )
     def update(self, request, *args, **kwargs):
+        kwargs['partial'] = True  
         return super().update(request, *args, **kwargs)
 
     @swagger_auto_schema(
