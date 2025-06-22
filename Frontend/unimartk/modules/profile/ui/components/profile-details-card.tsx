@@ -16,6 +16,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { Badge } from "@/components/ui/badge";
 
 interface Props {
   avatarUrl?: string;
@@ -61,24 +62,22 @@ const ProfileDetailsCard = ({
   const handleSubmit = (values: z.infer<typeof profileSchema>) => {
     onSave(values);
   };
+
   return (
-    <Card className="flex flex-row items-center p-6 gap-6 w-full mx-auto shadow-md">
+    <Card className="flex flex-row items-start p-6 gap-6 w-full mx-auto shadow-md">
       {/* Left: Avatar + Role */}
-      <div className="flex flex-col items-center gap-4 w-1/4">
-        <Avatar className="w-40 h-40">
+      <div className="flex items-start space-x-8">
+        <Avatar className="h-32 w-32">
           <AvatarImage src={avatarUrl} alt={name} />
           <AvatarFallback className="text-xl">{name.charAt(0)}</AvatarFallback>
         </Avatar>
-        <span className="border px-4 py-1 rounded-full text-muted-foreground text-sm capitalize">
-          {role}
-        </span>
       </div>
 
-      <div className="w-full flex flex-col gap-3">
+      <div className="flex-1 space-y-4">
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(handleSubmit)}
-            className="flex flex-col w-full gap-3"
+            className="grid grid-cols-1 md:grid-cols-2 gap-6"
           >
             <FormField
               name="name"
@@ -118,9 +117,17 @@ const ProfileDetailsCard = ({
                 </FormItem>
               )}
             />
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Role</label>
+              <div className="h-10 flex items-center">
+                <Badge variant="secondary" className="bg-gray-100 text-gray-700 h-10 px-8">
+                  {role}
+                </Badge>
+              </div>
+            </div>
             {/* Only show buttons when editing */}
             {isEditing && (
-              <div className="flex justify-end gap-4 pt-2">
+              <div className="flex justify-end gap-4 pt-2 col-span-1 md:col-span-2">
                 <Button
                   type="button"
                   variant="outline"
