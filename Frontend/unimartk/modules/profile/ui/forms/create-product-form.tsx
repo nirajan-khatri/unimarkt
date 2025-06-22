@@ -27,7 +27,7 @@ import { productSchema } from "../../schemas";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "@/lib/axios";
 import { Button } from "../../../../components/ui/button";
-import { ArrowLeft, Loader2, UploadCloud, Sparkles } from "lucide-react";
+import { ArrowLeft, Loader2, UploadCloud, Sparkles, AlertTriangle, Shield, X, RotateCcw } from "lucide-react";
 import { cn, uploadToS3 } from "@/lib/utils";
 
 import { Category } from "@/modules/home/types";
@@ -41,6 +41,7 @@ import { useAuth } from "@/modules/auth/contexts/authContext";
 import { redirect, useRouter } from "next/navigation";
 import { Product } from "@/modules/products/types";
 import { fetchProductById } from "@/services/products";
+import { useContentModeration } from '@/hooks/useContentModeration';
 
 interface Props {
   productId?: string;
@@ -78,7 +79,7 @@ const useAIDescriptionGeneration = () => {
       subCategoryName: string;
       keyFeatures: string;
     }) => {
-      const prompt = `Start the description with "I am selling". Then, write a product description in simple, clear English, easy for anyone to understand. Maintain a helpful and personal tone. Do not use overly casual or overly friendly language, and avoid any introductory or concluding remarks (except for "I am selling..."). Just provide the description.
+      const prompt = `Start the description with "I am selling". Then, write a product description in simple, clear English, easy for anyone to understand. Maintain a helpful and personal tone. Do not use overly casual or overly friendly language, and avoid any introductory or concluding remarks (except for "I am selling"). Just provide the description.
         Product Name: ${productName || 'A fantastic product'}
         Category: ${categoryName}
         Subcategory: ${subCategoryName}
@@ -87,7 +88,7 @@ const useAIDescriptionGeneration = () => {
 
       const chatHistory = [{ role: 'user', parts: [{ text: prompt }] }];
       const payload = { contents: chatHistory };
-      
+
       const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY || "AIzaSyAkWbT_GM0CdAb13rMdfU_UcSmFharCOCs";
       const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
 
@@ -104,8 +105,8 @@ const useAIDescriptionGeneration = () => {
 
       const result = await response.json();
       if (result.candidates && result.candidates.length > 0 &&
-          result.candidates[0].content && result.candidates[0].content.parts &&
-          result.candidates[0].content.parts.length > 0) {
+        result.candidates[0].content && result.candidates[0].content.parts &&
+        result.candidates[0].content.parts.length > 0) {
         return result.candidates[0].content.parts[0].text;
       } else {
         throw new Error('No description generated. The AI might have encountered an issue.');
@@ -127,6 +128,18 @@ const CreateProductForm = ({ productId }: Props) => {
   const [uploadingImages, setUploadingImages] = useState(false);
   const [previewImages, setPreviewImages] = useState<string[]>([]);
   const [keyFeatures, setKeyFeatures] = useState("");
+
+  // Content Moderation States
+  const {
+    isModeratingText,
+    isModeratingImages,
+    warnings: moderationWarnings,
+    moderateImages,
+    moderateTextContent,
+    clearWarnings,
+    removeImageWarnings,
+    isModeratingAny
+  } = useContentModeration();
 
   if (!isAuthenticated) {
     redirect("/sign-in");
@@ -254,6 +267,37 @@ const CreateProductForm = ({ productId }: Props) => {
     }
   };
 
+  // Reset Form Handler
+  const handleResetForm = () => {
+    // Clear form data
+    form.reset({
+      name: "",
+      category_id: "",
+      sub_category_id: "",
+      description: "",
+      pickup_location: "",
+      price: "",
+      images: [],
+    });
+
+    // Clear preview images and revoke blob URLs
+    previewImages.forEach((url) => {
+      if (url.startsWith("blob:")) {
+        URL.revokeObjectURL(url);
+      }
+    });
+    setPreviewImages([]);
+
+    // Clear key features
+    setKeyFeatures("");
+
+    // Clear moderation warnings
+    clearWarnings();
+
+    // Show success message
+    toast.success("Form has been reset");
+  };
+
   // Loading state for edit mode
   if (productId && isLoading) {
     return <LoadingPage />;
@@ -283,18 +327,33 @@ const CreateProductForm = ({ productId }: Props) => {
       return;
     }
 
-    const newPreviewUrls = filesArray.map((file) => URL.createObjectURL(file));
+    // CHANGED: Use the new hook method
+    removeImageWarnings();
+
+    // CHANGED: Use the hook's moderateImages function
+    const validFiles = await moderateImages(filesArray);
+
+    if (validFiles.length === 0) {
+      toast.error("No images were approved for upload.");
+      return;
+    }
+
+    if (validFiles.length < filesArray.length) {
+      toast.warning(`${filesArray.length - validFiles.length} image(s) were rejected due to inappropriate content.`);
+    }
+
+    const newPreviewUrls = validFiles.map((file) => URL.createObjectURL(file));
     setPreviewImages([...currentPreviews, ...newPreviewUrls]);
 
     try {
       setUploadingImages(true);
-      toast.message("Uploading images...");
+      toast.message("Uploading approved images...");
 
-      const uploadedUrls = await uploadMultipleImages(filesArray);
+      const uploadedUrls = await uploadMultipleImages(validFiles);
       const updatedImages = [...currentImages, ...uploadedUrls];
       form.setValue("images", updatedImages, { shouldValidate: true });
 
-      toast.success(`Successfully uploaded ${filesArray.length} image(s)`);
+      toast.success(`Successfully uploaded ${validFiles.length} image(s)`);
     } catch (error) {
       console.error("Upload error:", error);
       toast.error("Failed to upload images. Please try again.");
@@ -322,6 +381,22 @@ const CreateProductForm = ({ productId }: Props) => {
 
   const onSubmit = async (data: ProductFormData) => {
     try {
+      // CHANGED: Use the new hook method
+      clearWarnings();
+
+      // CHANGED: Use the hook's moderateTextContent function
+      const isContentSafe = await moderateTextContent({
+        name: data.name,
+        description: data.description,
+        keyFeatures: keyFeatures
+      });
+
+      if (!isContentSafe) {
+        toast.error("Your content contains inappropriate material. Please review and modify before submitting.");
+        return;
+      }
+
+      // Rest remains the same
       const payload = {
         ...data,
         price: data.price,
@@ -343,6 +418,7 @@ const CreateProductForm = ({ productId }: Props) => {
       if (!productId) {
         setPreviewImages([]);
         setKeyFeatures("");
+        clearWarnings(); // CHANGED: Use the new hook method
         form.reset();
       }
     } catch (error) {
@@ -550,6 +626,7 @@ const CreateProductForm = ({ productId }: Props) => {
               )}
             />
 
+            {/* Image Upload Section */}
             <FormField
               control={form.control}
               name="images"
@@ -557,160 +634,188 @@ const CreateProductForm = ({ productId }: Props) => {
                 const inputRef = useRef<HTMLInputElement>(null);
                 const [isDragging, setIsDragging] = useState(false);
 
+                const handleDragOver = (e: React.DragEvent) => {
+                  e.preventDefault();
+                  setIsDragging(true);
+                };
+
+                const handleDragLeave = (e: React.DragEvent) => {
+                  e.preventDefault();
+                  setIsDragging(false);
+                };
+
+                const handleDrop = (e: React.DragEvent) => {
+                  e.preventDefault();
+                  setIsDragging(false);
+                  const files = e.dataTransfer.files;
+                  handleFiles(files);
+                };
+
                 return (
                   <FormItem>
                     <FormLabel>Upload Images (up to 6)</FormLabel>
                     <FormControl>
-                      <div>
-                        <input
-                          ref={inputRef}
-                          type="file"
-                          accept="image/*"
-                          multiple
-                          className="hidden"
-                          onChange={(e) => handleFiles(e.target.files)}
-                          disabled={uploadingImages}
-                        />
-
+                      <div className="space-y-4">
+                        {/* Upload Area */}
                         <div
                           className={cn(
-                            "flex flex-col items-center justify-center border-2 border-dashed rounded-xl p-6 cursor-pointer text-center transition",
+                            "border-2 border-dashed rounded-lg p-6 text-center transition-colors cursor-pointer",
                             isDragging
                               ? "border-blue-500 bg-blue-50"
-                              : "border-gray-300 hover:bg-gray-50",
-                            uploadingImages && "opacity-50 cursor-not-allowed"
+                              : "border-gray-300 hover:border-gray-400"
                           )}
-                          onClick={() =>
-                            !uploadingImages && inputRef.current?.click()
-                          }
-                          onDragOver={(e) => {
-                            e.preventDefault();
-                            if (!uploadingImages) setIsDragging(true);
-                          }}
-                          onDragLeave={() => setIsDragging(false)}
-                          onDrop={(e) => {
-                            e.preventDefault();
-                            setIsDragging(false);
-                            if (!uploadingImages) {
-                              handleFiles(e.dataTransfer.files);
-                            }
-                          }}
+                          onDragOver={handleDragOver}
+                          onDragLeave={handleDragLeave}
+                          onDrop={handleDrop}
+                          onClick={() => inputRef.current?.click()}
                         >
-                          {uploadingImages ? (
-                            <>
-                              <Loader2 className="w-8 h-8 text-blue-500 mb-2 animate-spin" />
+                          <input
+                            ref={inputRef}
+                            type="file"
+                            accept="image/*"
+                            multiple
+                            className="hidden"
+                            onChange={(e) => handleFiles(e.target.files)}
+                            disabled={uploadingImages || isModeratingImages}
+                          />
+
+                          {uploadingImages || isModeratingImages ? (
+                            <div className="flex flex-col items-center space-y-2">
+                              <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
                               <p className="text-sm text-gray-600">
-                                Uploading images...
+                                {isModeratingImages ? "Checking images for safety..." : "Uploading images..."}
                               </p>
-                            </>
+                            </div>
                           ) : (
-                            <>
-                              <UploadCloud className="w-8 h-8 text-gray-500 mb-2" />
-                              <p className="text-sm text-gray-600">
-                                Drag and drop files here or{" "}
-                                <span className="text-blue-600 underline">
-                                  choose files
-                                </span>
-                              </p>
-                              <p className="text-xs text-gray-400 mt-1">
-                                Max 6 images
-                              </p>
-                            </>
+                            <div className="flex flex-col items-center space-y-2">
+                              <UploadCloud className="h-8 w-8 text-gray-400" />
+                              <div className="text-sm text-gray-600">
+                                <p>Click to upload or drag and drop</p>
+                                <p className="text-xs text-gray-500">PNG, JPG, GIF up to 10MB each</p>
+                              </div>
+                            </div>
                           )}
                         </div>
+
+                        {/* Image Previews */}
+                        {previewImages.length > 0 && (
+                          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                            {previewImages.map((imageUrl, index) => (
+                              <div key={index} className="relative group">
+                                <img
+                                  src={imageUrl}
+                                  alt={`Preview ${index + 1}`}
+                                  className="w-full h-32 object-cover rounded-lg border"
+                                />
+                                <button
+                                  type="button"
+                                  onClick={() => removeImage(index)}
+                                  className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                                >
+                                  <X className="h-4 w-4" />
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        )}
                       </div>
                     </FormControl>
                     <FormMessage />
-
-                    {/* Image Preview */}
-                    {previewImages.length > 0 && (
-                      <div className="grid grid-cols-3 gap-4 mt-4">
-                        {previewImages.map((previewUrl, index) => {
-                          const formImages = form.getValues("images") || [];
-                          const isUploaded = formImages[index];
-                          const isExistingImage =
-                            !previewUrl.startsWith("blob:");
-
-                          return (
-                            <div
-                              className="relative border rounded-md overflow-hidden group"
-                              key={index}
-                            >
-                              <img
-                                src={previewUrl}
-                                alt={`preview-${index}`}
-                                className={cn(
-                                  "w-full h-32 object-cover transition-opacity",
-                                  !isUploaded &&
-                                    !isExistingImage &&
-                                    uploadingImages &&
-                                    "opacity-50"
-                                )}
-                              />
-
-                              {!isExistingImage &&
-                                !isUploaded &&
-                                uploadingImages && (
-                                  <div className="absolute inset-0 flex items-center justify-center bg-black/20">
-                                    <Loader2 className="w-6 h-6 text-white animate-spin" />
-                                  </div>
-                                )}
-
-                              {(isUploaded || isExistingImage) && (
-                                <div className="absolute top-1 left-1 bg-green-500 text-white text-xs px-2 py-1 rounded">
-                                  ✓
-                                </div>
-                              )}
-
-                              <button
-                                type="button"
-                                onClick={() => removeImage(index)}
-                                disabled={uploadingImages}
-                                className={cn(
-                                  "absolute top-1 right-1 bg-white/80 text-black text-xs px-2 py-1 rounded hover:bg-red-600 hover:text-white transition",
-                                  uploadingImages &&
-                                    "opacity-50 cursor-not-allowed"
-                                )}
-                              >
-                                ✕
-                              </button>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    )}
                   </FormItem>
                 );
               }}
             />
 
-            {/* Submit Button */}
-            <div className="flex gap-4">
+            {/* Moderation Warnings */}
+            {moderationWarnings.length > 0 && (
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                <div className="flex items-start space-x-2">
+                  <AlertTriangle className="h-5 w-5 text-yellow-600 mt-0.5 flex-shrink-0" />
+                  <div className="flex-1">
+                    <h4 className="text-sm font-medium text-yellow-800 mb-2">Content Moderation Warnings</h4>
+                    <ul className="space-y-1">
+                      {moderationWarnings.map((warning, index) => (
+                        <li key={index} className="text-sm text-yellow-700">
+                          • {warning}
+                        </li>
+                      ))}
+                    </ul>
+                    <button
+                      type="button"
+                      onClick={clearWarnings}
+                      className="mt-3 text-xs text-yellow-600 hover:text-yellow-800 underline"
+                    >
+                      Dismiss warnings
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Submit Button */}
+          <div className="flex justify-between pt-6">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => router.back()}
+              className="flex items-center space-x-2"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              <span>Back</span>
+            </Button>
+
+            <div className="flex items-center space-x-4">
+              {/* Content Safety Indicator */}
+              <div className="flex items-center space-x-2 text-sm text-gray-600">
+                <Shield className="h-4 w-4 text-green-500" />
+                <span>AI-powered content safety</span>
+              </div>
+
+              {/* Reset Button - Only show for new products, not editing */}
+              {!productId && (
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleResetForm}
+                  disabled={
+                    mutation.isPending ||
+                    uploadingImages ||
+                    isModeratingAny ||
+                    aiDescriptionMutation.isPending
+                  }
+                  className="flex items-center space-x-2"
+                >
+                  <RotateCcw className="h-4 w-4" />
+                  <span>Reset</span>
+                </Button>
+              )}
+
               <Button
                 type="submit"
-                disabled={form.formState.isSubmitting || uploadingImages}
-                className="flex-1"
+                disabled={
+                  mutation.isPending ||
+                  uploadingImages ||
+                  isModeratingAny ||
+                  aiDescriptionMutation.isPending
+                }
+                className="flex items-center space-x-2"
               >
-                {form.formState.isSubmitting
-                  ? productId
-                    ? "Updating Product..."
-                    : "Creating Product..."
-                  : productId
-                    ? "Update Product"
-                    : "Create Product"}
+                {mutation.isPending || isModeratingText ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <span>
+                      {isModeratingText
+                        ? "Checking content..."
+                        : (productId ? "Updating..." : "Creating...")
+                      }
+                    </span>
+                  </>
+                ) : (
+                  <span>{productId ? "Update Product" : "Create Product"}</span>
+                )}
               </Button>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => {
-                  form.reset();
-                  setPreviewImages([]);
-                  setKeyFeatures("");
-                }}
-                className="flex-1"
-              >
-                Reset Form
-              </Button>
+ 
             </div>
           </div>
         </form>
