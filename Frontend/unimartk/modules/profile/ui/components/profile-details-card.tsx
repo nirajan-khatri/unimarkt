@@ -144,23 +144,21 @@ const ProfileDetailsCard = ({
                 </Button>
               </div>
             )}
+            {!isEditing && (
+              <div className="flex justify-end gap-4 pt-2 col-span-1 md:col-span-2">
+                <Button variant="destructive" onClick={onDelete} disabled={loading}>
+                  Delete Account
+                </Button>
+                <Button
+                  onClick={() => onEdit()} // We can call onCancel to trigger "edit" toggle in parent
+                  className="bg-violet-600 hover:bg-violet-700"
+                >
+                  Edit details
+                </Button>
+              </div>
+            )}
           </form>
         </Form>
-
-        {/* When NOT editing, show Edit/Delete buttons */}
-        {!isEditing && (
-          <div className="flex justify-end gap-4 pt-2">
-            <Button variant="destructive" onClick={onDelete} disabled={loading}>
-              Delete Account
-            </Button>
-            <Button
-              onClick={() => onEdit()} // We can call onCancel to trigger "edit" toggle in parent
-              className="bg-violet-600 hover:bg-violet-700"
-            >
-              Edit details
-            </Button>
-          </div>
-        )}
       </div>
     </Card>
   );

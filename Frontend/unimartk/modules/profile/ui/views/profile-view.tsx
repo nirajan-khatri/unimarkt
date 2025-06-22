@@ -1,16 +1,56 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import React from "react";
+import React, { Suspense } from "react";
 import ProfileDetailsCard from "../components/profile-details-card";
 import { useUser } from "../../hooks/useUser";
 import { redirect } from "next/navigation";
 import { useAuth } from "@/modules/auth/contexts/authContext";
-import { skills } from "@/constants/skills";
 import { ProfileServiceGrid } from "../components/profile-skill-grid";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ProfileProductGrid } from "../components/profile-product-grid";
-import { products } from "@/constants/products";
+import { useSuspenseQuery } from '@tanstack/react-query';
+import { fetchUserProducts } from "../../api";
+import { fetchUserSkills } from "../../api";
+import { ProductGridSkeleton, SkillGridSkeleton } from "../components/skeletons";
+
+// Products Component wrapped in Suspense
+const ProductsSection = ({ userId }: { userId: string }) => {
+  const { data: userProducts } = useSuspenseQuery({
+    queryKey: ['userProducts', userId],
+    queryFn: () => fetchUserProducts(userId),
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    retry: 3,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+  });
+
+  return (
+    <ProfileProductGrid
+      products={userProducts}
+      error=""
+      isLoading={false}
+    />
+  );
+};
+
+// Skills Component wrapped in Suspense
+const SkillsSection = ({ userId }: { userId: string }) => {
+  const { data: userSkills } = useSuspenseQuery({
+    queryKey: ['userSkills', userId],
+    queryFn: () => fetchUserSkills(userId),
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    retry: 3,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+  });
+
+  return (
+    <ProfileServiceGrid
+      services={userSkills}
+      error={null}
+      isLoading={false}
+    />
+  );
+};
 
 const ProfileView = () => {
   const { isAuthenticated, user, isInitialized } = useAuth();
@@ -18,21 +58,9 @@ const ProfileView = () => {
   if ((!isAuthenticated || !user) && isInitialized) {
     redirect("/sign-in");
   }
-  const { deleteUser, updateUser, isLoading } = useUser("1");
 
+  const { deleteUser, updateUser, isLoading: userLoading } = useUser("1");
   const [isEditing, setIsEditing] = React.useState(false);
-
-  // const { data, isLoading, error } = useQuery({
-  //   queryKey: ["profileProducts"],
-  //   queryFn: fetchUserProducts(user?.id),
-  //   enabled:user!==null
-  // });
-
-  // const { data, isLoading, error } = useQuery({
-  //   queryKey: ["profileSkills"],
-  //   queryFn: fetchUserSkills(user?.id),
-  //   enabled:user!==null
-  // });
 
   const handleEdit = () => setIsEditing(true);
   const handleCancel = () => setIsEditing(false);
@@ -76,7 +104,7 @@ const ProfileView = () => {
           onCancel={handleCancel}
           onSave={handleSave}
           onDelete={handleDelete}
-          loading={isLoading}
+          loading={userLoading}
         />
       )}
       <div className="flex flex-col gap-4">
@@ -97,18 +125,18 @@ const ProfileView = () => {
             <TabsTrigger value="services">Services</TabsTrigger>
           </TabsList>
           <TabsContent value="products">
-            <ProfileProductGrid
-              products={products}
-              error={""}
-              isLoading={false}
-            />
+            {user?.id && (
+              <Suspense fallback={<ProductGridSkeleton />}>
+                <ProductsSection userId={user.id} />
+              </Suspense>
+            )}
           </TabsContent>
           <TabsContent value="services">
-            <ProfileServiceGrid
-              services={skills}
-              error={null}
-              isLoading={false}
-            />
+            {user?.id && (
+              <Suspense fallback={<SkillGridSkeleton />}>
+                <SkillsSection userId={user.id} />
+              </Suspense>
+            )}
           </TabsContent>
         </Tabs>
       </div>
