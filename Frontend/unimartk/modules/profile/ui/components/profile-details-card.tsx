@@ -146,12 +146,13 @@ const ProfileDetailsCard = ({
             )}
             {!isEditing && (
               <div className="flex justify-end gap-4 pt-2 col-span-1 md:col-span-2">
-                <Button variant="destructive" onClick={onDelete} disabled={loading}>
+                <Button variant="outline" className="border-red-600 text-red-600 hover:bg-red-600 hover:text-white" onClick={onDelete} disabled={loading}>
                   Delete Account
                 </Button>
                 <Button
+                  variant="outline"
+                  className="border-primary text-primary hover:bg-primary hover:text-white"
                   onClick={() => onEdit()} // We can call onCancel to trigger "edit" toggle in parent
-                  className="bg-violet-600 hover:bg-violet-700"
                 >
                   Edit details
                 </Button>

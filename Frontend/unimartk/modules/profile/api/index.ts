@@ -19,26 +19,33 @@ export interface Product {
     results: Product[];
   }
   
-  export const fetchUserProducts = async (userId: string): Promise<Product[]> => {
+  export const fetchUserProducts = async (
+    userId: string, 
+    page: number = 1, 
+    pageSize: number = 9
+  ): Promise<ProductsResponse> => {
     if (!userId) {
       throw new Error('User ID is required');
     }
   
-    const response = await fetch(`http://localhost:8000/api/products/?user_id=${userId}`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        // Add authorization header if needed
-        // 'Authorization': `Bearer ${token}`,
-      },
-    });
+    const response = await fetch(
+      `http://localhost:8000/api/products/?user_id=${userId}&page=${page}&page_size=${pageSize}`, 
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          // Add authorization header if needed
+          // 'Authorization': `Bearer ${token}`,
+        },
+      }
+    );
   
     if (!response.ok) {
       throw new Error(`Failed to fetch products: ${response.status} ${response.statusText}`);
     }
   
     const data: ProductsResponse = await response.json();
-    return data.results;
+    return data;
   };
   
   // services/skillService.ts
@@ -62,24 +69,31 @@ export interface Product {
     results: Skill[];
   }
   
-  export const fetchUserSkills = async (userId: string): Promise<Skill[]> => {
+  export const fetchUserSkills = async (
+    userId: string, 
+    page: number = 1, 
+    pageSize: number = 9
+  ): Promise<SkillsResponse> => {
     if (!userId) {
       throw new Error('User ID is required');
     }
   
-    const response = await fetch(`http://localhost:8000/api/skills/?user_id=${userId}`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        // Add authorization header if needed
-        // 'Authorization': `Bearer ${token}`,
-      },
-    });
+    const response = await fetch(
+      `http://localhost:8000/api/skills/?user_id=${userId}&page=${page}&page_size=${pageSize}`, 
+      {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+          // Add authorization header if needed
+          // 'Authorization': `Bearer ${token}`,
+        },
+      }
+    );
   
     if (!response.ok) {
       throw new Error(`Failed to fetch skills: ${response.status} ${response.statusText}`);
     }
   
     const data: SkillsResponse = await response.json();
-    return data.results;
+    return data;
   };
