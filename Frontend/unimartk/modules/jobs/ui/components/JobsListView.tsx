@@ -37,15 +37,7 @@ export const JobsListView = ({
   const searchParams = useSearchParams();
   const search = searchParams.get("search") || "";
 
-  const hasAnyFilters = !!(filters.department || filters.jobType || filters.minRemuneration || filters.maxRemuneration || search);
-
-  const clearRemunerationFilters = () => {
-    onFiltersChange({
-      ...filters,
-      minRemuneration: "",
-      maxRemuneration: ""
-    });
-  };
+  const hasAnyFilters = !!(filters.department || filters.jobType || search);
 
   const clearDepartment = () => {
     onFiltersChange({
@@ -63,7 +55,7 @@ export const JobsListView = ({
 
   const clearAllFilters = () => {
     onFiltersChange({
-      department: "", jobType: "", minRemuneration: "", maxRemuneration: "" });
+      department: "", jobType: "" });
   };
 
   const showPagination = !isLoading && !error && jobs && jobs.count > 0;
@@ -85,7 +77,6 @@ export const JobsListView = ({
       {hasAnyFilters && (
         <ActiveJobFilters
           jobFilters={filters}
-          onClearRemunerationFilters={clearRemunerationFilters}
           onClearDepartment={clearDepartment}
           onClearJobType={clearJobType}
           onClearAll={clearAllFilters}

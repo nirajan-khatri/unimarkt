@@ -1,10 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 
 export interface JobFilters {
-  department: string;
   jobType: string;
-  minRemuneration: string;
-  maxRemuneration: string;
 }
 
 export interface JobPosting {
@@ -49,7 +46,8 @@ async function fetchJobs(
   page: number,
   searchTerm: string,
   filters: JobFilters,
-  pageSize: number = 9
+  pageSize: number = 9,
+  category?: string
 ): Promise<PaginatedJobsResponse> {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_API_URL || "http://localhost:8000/api/";
   const url = new URL(`${baseUrl}jobs/?isArchived=false`);
@@ -60,11 +58,11 @@ async function fetchJobs(
   if (searchTerm) {
     url.searchParams.append("title", searchTerm);
   }
-  if (filters.department) {
-    url.searchParams.append("department", filters.department);
-  }
   if (filters.jobType) {
     url.searchParams.append("job_type", filters.jobType);
+  }
+  if (category) {
+    url.searchParams.append("category", category);
   }
 
   const response = await fetch(url.toString());
@@ -88,10 +86,11 @@ export function useJobs(
   page: number,
   searchTerm: string,
   filters: JobFilters,
-  pageSize: number = 9
+  pageSize: number = 9,
+  category?: string
 ) {
   return useQuery({
-    queryKey: ["jobs", page, searchTerm, filters, pageSize],
-    queryFn: () => fetchJobs(page, searchTerm, filters, pageSize),
+    queryKey: ["jobs", page, searchTerm, filters, pageSize, category],
+    queryFn: () => fetchJobs(page, searchTerm, filters, pageSize, category),
   });
 } 

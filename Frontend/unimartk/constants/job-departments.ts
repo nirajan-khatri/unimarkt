@@ -5,52 +5,39 @@ export const categories = [
         subcategories: [],
         category_id: "681675a3b076a0eff2a196eb",
     },
-
     {
-        "name": "Computer Science",
-        "slug": "computer-science",
-        "color": "#FFB347",
+        name: "Engineering",
+        slug: "engineering",
+        color: "#FFB347",
         subcategories: [],
-        "category_id": "681675a3b076a0eff2a196ed"
+        category_id: 1,
     },
     {
-        "name": "Mathematics",
-        "slug": "mathematics",
-        "color": "#FFB347",
+        name: "Marketing",
+        slug: "marketing",
+        color: "#FFB347",
         subcategories: [],
-
-        "category_id": "681675a3b076a0eff2a196ed"
+        category_id: 2,
     },
     {
-        "name": "International Office",
-        "slug": "international-office",
-        "color": "#FFB347",
+        name: "Sales",
+        slug: "sales",
+        color: "#FFB347",
         subcategories: [],
-
-        "category_id": "681675a3b076a0eff2a196ed"
+        category_id: 3,
     },
     {
-        "name": "Department of Languages and Literature",
-        "slug": "department-of-languages-and-literature",
-        "color": "#FFB347",
+        name: "Human Resources",
+        slug: "human-resources",
+        color: "#FFB347",
         subcategories: [],
-
-        "category_id": "681675a3b076a0eff2a196ed"
+        category_id: 4,
     },
     {
-        "name": "Department of Media and Arts",
-        "slug": "department-of-media-and-arts",
-        "color": "#FFB347",
+        name: "Customer Support",
+        slug: "customer-support",
+        color: "#FFB347",
         subcategories: [],
-
-        "category_id": "681675a3b076a0eff2a196ed"
+        category_id: 5,
     },
-    {
-        "name": "Department of Sports Science",
-        "slug": "department-of-sports-science",
-        "color": "#FFB347",
-        subcategories: [],
-
-        "category_id": "681675a3b076a0eff2a196ed"
-    }
 ];

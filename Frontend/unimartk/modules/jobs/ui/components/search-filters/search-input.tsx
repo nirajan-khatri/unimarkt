@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
 import { CategoriesSidebar } from "./categories-sidebar";
+import { useDebounce } from "@/modules/jobs/hooks/useDebounce";
 
 interface Props {
   disabled?: boolean;
@@ -22,6 +23,15 @@ export const SearchInput = ({ disabled }: Props) => {
   const pathname = usePathname();
 
   const currentSearch = searchParams.get("search") || "";
+  const [searchTerm, setSearchTerm] = useState(currentSearch);
+  const debouncedSearch = useDebounce(searchTerm, 400);
+
+  React.useEffect(() => {
+    if (debouncedSearch !== currentSearch) {
+      handleSearch(debouncedSearch);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [debouncedSearch]);
 
   const handleSearch = (term: string) => {
     const params = new URLSearchParams(searchParams.toString());
@@ -40,17 +50,17 @@ export const SearchInput = ({ disabled }: Props) => {
         <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-neutral-500" />
         <Input
           className="pl-8 pr-10"
-          placeholder="Search skills and services..."
+          placeholder="Search jobs..."
           disabled={disabled}
-          value={currentSearch}
-          onChange={(e) => handleSearch(e.target.value)}
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
         />
-        {currentSearch && (
+        {searchTerm && (
           <Button
             variant="ghost"
             size="icon"
             className="absolute right-2 top-1/2 -translate-y-1/2 h-6 w-6"
-            onClick={() => handleSearch("")}
+            onClick={() => setSearchTerm("")}
           >
             <X className="h-4 w-4" />
           </Button>

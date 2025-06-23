@@ -12,29 +12,24 @@ interface JobFiltersProps {
 }
 
 export function JobFilters({ filters, onFiltersChange }: JobFiltersProps) {
-  // Only keep department and jobType in local state
-  const [localFilters, setLocalFilters] = React.useState<Pick<JobFilters, 'department' | 'jobType'>>({
-    department: filters.department,
+  // Only keep jobType in local state
+  const [localFilters, setLocalFilters] = React.useState<Pick<JobFilters, 'jobType'>>({
     jobType: filters.jobType,
   });
 
   React.useEffect(() => {
-    setLocalFilters({ department: filters.department, jobType: filters.jobType });
-  }, [filters.department, filters.jobType]);
+    setLocalFilters({ jobType: filters.jobType });
+  }, [filters.jobType]);
 
   // Debounce filter changes
   React.useEffect(() => {
     const handler = setTimeout(() => {
       if (
-        localFilters.department !== filters.department ||
         localFilters.jobType !== filters.jobType
       ) {
         onFiltersChange({
           ...filters,
-          department: localFilters.department,
           jobType: localFilters.jobType,
-          minRemuneration: "",
-          maxRemuneration: ""
         });
       }
     }, 500);
@@ -46,18 +41,15 @@ export function JobFilters({ filters, onFiltersChange }: JobFiltersProps) {
   };
 
   const clearAllFilters = () => {
-    const clearedFilters = { department: "", jobType: "" };
+    const clearedFilters = { jobType: "" };
     setLocalFilters(clearedFilters);
     onFiltersChange({
       ...filters,
-      department: "",
       jobType: "",
-      minRemuneration: "",
-      maxRemuneration: ""
     });
   };
 
-  const hasActiveFilters = localFilters.department || localFilters.jobType;
+  const hasActiveFilters = localFilters.jobType;
 
   return (
     <div className="lg:col-span-2 rounded-lg border bg-card text-card-foreground shadow-sm h-fit">
@@ -76,23 +68,9 @@ export function JobFilters({ filters, onFiltersChange }: JobFiltersProps) {
       </div>
       <Accordion
         type="multiple"
-        defaultValue={["price", "module"]}
+        defaultValue={["jobType"]}
         className="w-full"
       >
-        <AccordionItem value="department">
-          <AccordionTrigger className="p-4">Department</AccordionTrigger>
-          <AccordionContent className="p-4 pt-0">
-            <div className="grid gap-2">
-              <Input
-                id="department"
-                placeholder="Enter department"
-                value={localFilters.department}
-                onChange={e => handleInputChange("department", e.target.value)}
-              />
-            </div>
-          </AccordionContent>
-        </AccordionItem>
-
         <AccordionItem value="jobType">
           <AccordionTrigger className="p-4">Job Type</AccordionTrigger>
           <AccordionContent className="p-4 pt-0">

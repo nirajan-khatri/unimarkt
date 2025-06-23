@@ -85,7 +85,7 @@ export const Categories = ({ data }: Props) => {
       >
         {data.map((category) => {
           return (
-            <div className="" key={category.id}>
+            <div className="" key={category.slug}>
               <CategoryDropdown
                 category={category}
                 isActive={activeCategory === category.slug}
@@ -105,7 +105,7 @@ export const Categories = ({ data }: Props) => {
       >
         {data.slice(0, visibleCount).map((category) => {
           return (
-            <div className="" key={category.id}>
+            <div className="" key={category.slug}>
               <CategoryDropdown
                 category={category}
                 isActive={activeCategory === category.slug}

@@ -60,12 +60,6 @@ export const SkillView = ({skillId}:Props)=> {
               </svg>
               {data.skill_category.name}
             </span>
-            <span className="inline-flex items-center rounded-full bg-gray-50 px-2 py-1 text-xs font-medium text-gray-600 ring-1 ring-inset ring-gray-500/10">
-              <svg className="w-3 h-3 text-purple-600 mr-1" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
-              </svg>
-              {data.department.name}
-            </span>
           </div>
           <p className="block font-sans text-base font-light leading-relaxed text-inherit antialiased text-justify mt-4">
        {data.description}

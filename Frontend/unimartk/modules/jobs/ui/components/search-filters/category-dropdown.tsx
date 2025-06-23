@@ -39,6 +39,9 @@ export const CategoryDropdown = ({
   //   }
   // };
 
+  // Use category.slug in the URL instead of name
+  const categoryUrl = `/jobs/${category.slug === "all" ? "" : encodeURIComponent(category.slug)}`;
+
   return (
     <div
       className="relative"
@@ -57,9 +60,7 @@ export const CategoryDropdown = ({
             isOpen && "bg-muted"
           )}
         >
-          <Link
-            href={`/jobs/${category.slug === "all" ? "" : category.slug}`}
-          >
+          <Link href={categoryUrl}>
             {category.name}
           </Link>
         </Button>

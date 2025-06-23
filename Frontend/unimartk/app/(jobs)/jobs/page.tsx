@@ -15,9 +15,7 @@ export default function JobsPage() {
   const [pageSize, setPageSize] = useState(9);
   const [filters, setFilters] = useState<JobFilters>({
     department: searchParams.get("department") || "",
-    jobType: searchParams.get("jobType") || "",
-    minRemuneration: searchParams.get("minRemuneration") || "",
-    maxRemuneration: searchParams.get("maxRemuneration") || ""
+    jobType: searchParams.get("jobType") || ""
   });
 
   const search = searchParams.get("search") || "";
@@ -33,16 +31,6 @@ export default function JobsPage() {
       params.set("jobType", filters.jobType);
     } else {
       params.delete("jobType");
-    }
-    if (filters.minRemuneration) {
-      params.set("minRemuneration", filters.minRemuneration);
-    } else {
-      params.delete("minRemuneration");
-    }
-    if (filters.maxRemuneration) {
-      params.set("maxRemuneration", filters.maxRemuneration);
-    } else {
-      params.delete("maxRemuneration");
     }
     if (currentPage > 1) {
       params.set("page", currentPage.toString());
