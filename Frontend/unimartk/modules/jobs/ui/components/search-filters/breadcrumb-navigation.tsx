@@ -32,7 +32,7 @@ export const BreadcrumbNavigation = ({
                 asChild
                 className="text-sm font-medium underline text-primary"
               >
-                <Link href={`/skills/${activeCategorySlug}`}>
+                <Link href={`/jobs/${activeCategorySlug}`}>
                   {activeCategoryName}
                 </Link>
               </BreadcrumbLink>

@@ -52,25 +52,19 @@ async function fetchJobs(
   pageSize: number = 9
 ): Promise<PaginatedJobsResponse> {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_API_URL || "http://localhost:8000/api/";
-  const url = new URL(`${baseUrl}job-postings/?status=approved&isArchived=false`);
+  const url = new URL(`${baseUrl}jobs/?isArchived=false`);
 
   url.searchParams.append("page", page.toString());
   url.searchParams.append("page_size", pageSize.toString());
 
   if (searchTerm) {
-    url.searchParams.append("search", searchTerm);
+    url.searchParams.append("title", searchTerm);
   }
   if (filters.department) {
     url.searchParams.append("department", filters.department);
   }
   if (filters.jobType) {
     url.searchParams.append("job_type", filters.jobType);
-  }
-  if (filters.minRemuneration) {
-    url.searchParams.append("remuneration_min", filters.minRemuneration);
-  }
-  if (filters.maxRemuneration) {
-    url.searchParams.append("remuneration_max", filters.maxRemuneration);
   }
 
   const response = await fetch(url.toString());

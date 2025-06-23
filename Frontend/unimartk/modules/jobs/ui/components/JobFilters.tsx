@@ -2,9 +2,9 @@
 
 import * as React from "react";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import type { JobFilters } from '@/modules/jobs/hooks/useJobs';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 
 interface JobFiltersProps {
   filters: JobFilters;
@@ -74,26 +74,39 @@ export function JobFilters({ filters, onFiltersChange }: JobFiltersProps) {
           </Button>
         )}
       </div>
-      <div className="p-4 space-y-4">
-        <div>
-          <Label htmlFor="department">Department</Label>
-          <Input
-            id="department"
-            placeholder="Enter department"
-            value={localFilters.department}
-            onChange={e => handleInputChange("department", e.target.value)}
-          />
-        </div>
-        <div>
-          <Label htmlFor="jobType">Job Type</Label>
-          <Input
-            id="jobType"
-            placeholder="Enter job type (e.g. hiwi, tutoring)"
-            value={localFilters.jobType}
-            onChange={e => handleInputChange("jobType", e.target.value)}
-          />
-        </div>
-      </div>
+      <Accordion
+        type="multiple"
+        defaultValue={["price", "module"]}
+        className="w-full"
+      >
+        <AccordionItem value="department">
+          <AccordionTrigger className="p-4">Department</AccordionTrigger>
+          <AccordionContent className="p-4 pt-0">
+            <div className="grid gap-2">
+              <Input
+                id="department"
+                placeholder="Enter department"
+                value={localFilters.department}
+                onChange={e => handleInputChange("department", e.target.value)}
+              />
+            </div>
+          </AccordionContent>
+        </AccordionItem>
+
+        <AccordionItem value="jobType">
+          <AccordionTrigger className="p-4">Job Type</AccordionTrigger>
+          <AccordionContent className="p-4 pt-0">
+            <div className="grid gap-4">
+              <Input
+                id="jobType"
+                placeholder="Enter job type (e.g. hiwi, tutoring)"
+                value={localFilters.jobType}
+                onChange={e => handleInputChange("jobType", e.target.value)}
+              />
+            </div>
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
     </div>
   );
 } 
