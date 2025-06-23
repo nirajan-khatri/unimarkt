@@ -2,6 +2,7 @@ import axios from "@/lib/axios";
 import { Product } from "@/modules/products/types";
 import { Skill } from "@/modules/skills/types";
 import { User } from "../types";
+import { Job } from "@/modules/jobs/types";
 
 export interface DashboardStats {
   totalProducts: number;
@@ -216,4 +217,27 @@ export const fetchDashboardStats = async (): Promise<DashboardStats> => {
     console.error("Error fetching dashboard stats:", error);
     throw error;
   }
+};
+
+export const fetchAdminJobs = async () => {
+  // add logic to ckeck if user is actually superadmin
+  const response = await axios.get(`/admin_dashboard/jobs/`);
+  return response.data;
+};
+
+export const approveJob = async ({
+  jobId,
+  data,
+}: {
+  jobId: string;
+  data: Partial<Job>;
+}) => {
+  const response = await axios.put(`/admin_dashboard/jobs/${jobId}/`, data);
+  return response.data;
+};
+
+// Delete product
+export const deleteJob = async (jobId: string) => {
+  const response = await axios.delete(`/admin_dashboard/jobs/${jobId}/`);
+  return response.data;
 };

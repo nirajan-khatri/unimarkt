@@ -43,6 +43,12 @@ const AdminDashboardView = () => {
           href={"/admin/skills"}
         />
         <AdminCard
+          title="Jobs Listed"
+          value={data?.totalProducts ?? 0}
+          subtitle={`${data?.totalApprovedProducts ?? 0} approved, ${data?.totalRejectedProducts ?? 0} rejected, ${data?.totalPendingProducts ?? 0} pending`}
+          href={"/admin/jobs"}
+        />
+        <AdminCard
           title="Users"
           value={
             isSuperuser
@@ -66,6 +72,12 @@ const AdminDashboardView = () => {
           subtitle={`${data?.totalRejectedSkills ?? 0} rejected, ${data?.totalPendingSkills ?? 0} pending`}
           value={data?.totalUnapprovedSkills ?? 0}
           href={"/admin/skillsApprovals"}
+        />
+        <AdminCard
+          title="Jobs Approval Pending"
+          subtitle={`${data?.totalRejectedProducts ?? 0} rejected, ${data?.totalPendingProducts ?? 0} pending`}
+          value={data?.totalUnapprovedProducts ?? 0}
+          href="/admin/jobsApprovals"
         />
 
         <AdminCard

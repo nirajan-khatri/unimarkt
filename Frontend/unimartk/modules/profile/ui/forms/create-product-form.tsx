@@ -27,7 +27,16 @@ import { productSchema } from "../../schemas";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axios from "@/lib/axios";
 import { Button } from "../../../../components/ui/button";
-import { ArrowLeft, Loader2, UploadCloud, Sparkles, AlertTriangle, Shield, X, RotateCcw } from "lucide-react";
+import {
+  ArrowLeft,
+  Loader2,
+  UploadCloud,
+  Sparkles,
+  AlertTriangle,
+  Shield,
+  X,
+  RotateCcw,
+} from "lucide-react";
 import { cn, uploadToS3 } from "@/lib/utils";
 
 import { Category } from "@/modules/home/types";
@@ -41,7 +50,7 @@ import { useAuth } from "@/modules/auth/contexts/authContext";
 import { redirect, useRouter } from "next/navigation";
 import { Product } from "@/modules/products/types";
 import { fetchProductById } from "@/services/products";
-import { useContentModeration } from '@/hooks/useContentModeration';
+import { useContentModeration } from "@/hooks/useContentModeration";
 
 interface Props {
   productId?: string;
@@ -80,44 +89,54 @@ const useAIDescriptionGeneration = () => {
       keyFeatures: string;
     }) => {
       const prompt = `Start the description with "I am selling". Then, write a product description in simple, clear English, easy for anyone to understand. Maintain a helpful and personal tone. Do not use overly casual or overly friendly language, and avoid any introductory or concluding remarks (except for "I am selling"). Just provide the description.
-        Product Name: ${productName || 'A fantastic product'}
+        Product Name: ${productName || "A fantastic product"}
         Category: ${categoryName}
         Subcategory: ${subCategoryName}
-        Key Features: ${keyFeatures || 'No specific features provided. Highlight general benefits.'}
+        Key Features: ${keyFeatures || "No specific features provided. Highlight general benefits."}
         Focus on the practical benefits and unique aspects for the user. Keep it around 150-250 words.`;
 
-      const chatHistory = [{ role: 'user', parts: [{ text: prompt }] }];
+      const chatHistory = [{ role: "user", parts: [{ text: prompt }] }];
       const payload = { contents: chatHistory };
 
-      const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY || "AIzaSyAkWbT_GM0CdAb13rMdfU_UcSmFharCOCs";
+      const apiKey =
+        process.env.NEXT_PUBLIC_GEMINI_API_KEY ||
+        "AIzaSyAkWbT_GM0CdAb13rMdfU_UcSmFharCOCs";
       const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
 
       const response = await fetch(apiUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(`API error: ${response.status} - ${errorData.error?.message || 'Unknown error'}`);
+        throw new Error(
+          `API error: ${response.status} - ${errorData.error?.message || "Unknown error"}`
+        );
       }
 
       const result = await response.json();
-      if (result.candidates && result.candidates.length > 0 &&
-        result.candidates[0].content && result.candidates[0].content.parts &&
-        result.candidates[0].content.parts.length > 0) {
+      if (
+        result.candidates &&
+        result.candidates.length > 0 &&
+        result.candidates[0].content &&
+        result.candidates[0].content.parts &&
+        result.candidates[0].content.parts.length > 0
+      ) {
         return result.candidates[0].content.parts[0].text;
       } else {
-        throw new Error('No description generated. The AI might have encountered an issue.');
+        throw new Error(
+          "No description generated. The AI might have encountered an issue."
+        );
       }
     },
     onError: (error) => {
-      console.error('Error generating description:', error);
+      console.error("Error generating description:", error);
       toast.error(`Failed to generate description: ${error.message}`);
     },
     onSuccess: () => {
-      toast.success('AI description generated successfully!');
+      toast.success("AI description generated successfully!");
     },
   });
 };
@@ -138,10 +157,10 @@ const CreateProductForm = ({ productId }: Props) => {
     moderateTextContent,
     clearWarnings,
     removeImageWarnings,
-    isModeratingAny
+    isModeratingAny,
   } = useContentModeration();
 
-  if (!isAuthenticated) {
+  if ((!isAuthenticated || !user) && isInitialized) {
     redirect("/sign-in");
   }
 
@@ -180,7 +199,7 @@ const CreateProductForm = ({ productId }: Props) => {
         name: product?.name || "",
         description: product?.description || "",
         images: product?.images || [],
-        price: product?.price || "",
+        price: product?.price.toString() || "",
         pickup_location: product?.pickup_location || "",
         category_id: product?.category?.id?.toString() || "",
         sub_category_id: product?.sub_category?.id?.toString() || "",
@@ -246,12 +265,19 @@ const CreateProductForm = ({ productId }: Props) => {
     const subCategoryId = form.getValues("sub_category_id");
 
     if (!productName || !categoryId || !keyFeatures.trim()) {
-      toast.error("Please fill in Product Name, Category, and Key Features before generating description.");
+      toast.error(
+        "Please fill in Product Name, Category, and Key Features before generating description."
+      );
       return;
     }
 
-    const categoryName = categoryData?.find((cat: Category) => cat.id.toString() === categoryId)?.name || 'General Category';
-    const subCategoryName = subCategoryData?.find((sub: Category) => sub.id.toString() === subCategoryId)?.name || 'N/A Subcategory';
+    const categoryName =
+      categoryData?.find((cat: Category) => cat.id.toString() === categoryId)
+        ?.name || "General Category";
+    const subCategoryName =
+      subCategoryData?.find(
+        (sub: Category) => sub.id.toString() === subCategoryId
+      )?.name || "N/A Subcategory";
 
     try {
       const generatedDescription = await aiDescriptionMutation.mutateAsync({
@@ -261,7 +287,9 @@ const CreateProductForm = ({ productId }: Props) => {
         keyFeatures,
       });
 
-      form.setValue("description", generatedDescription, { shouldValidate: true });
+      form.setValue("description", generatedDescription, {
+        shouldValidate: true,
+      });
     } catch (error) {
       // Error handling is done in the mutation
     }
@@ -339,7 +367,9 @@ const CreateProductForm = ({ productId }: Props) => {
     }
 
     if (validFiles.length < filesArray.length) {
-      toast.warning(`${filesArray.length - validFiles.length} image(s) were rejected due to inappropriate content.`);
+      toast.warning(
+        `${filesArray.length - validFiles.length} image(s) were rejected due to inappropriate content.`
+      );
     }
 
     const newPreviewUrls = validFiles.map((file) => URL.createObjectURL(file));
@@ -388,11 +418,13 @@ const CreateProductForm = ({ productId }: Props) => {
       const isContentSafe = await moderateTextContent({
         name: data.name,
         description: data.description,
-        keyFeatures: keyFeatures
+        keyFeatures: keyFeatures,
       });
 
       if (!isContentSafe) {
-        toast.error("Your content contains inappropriate material. Please review and modify before submitting.");
+        toast.error(
+          "Your content contains inappropriate material. Please review and modify before submitting."
+        );
         return;
       }
 
@@ -438,7 +470,9 @@ const CreateProductForm = ({ productId }: Props) => {
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Product Name</FormLabel>
+                  <FormLabel>
+                    Product Name<span className="text-red-500 -ml-1.5">*</span>
+                  </FormLabel>
                   <FormControl>
                     <Input placeholder="Enter product name" {...field} />
                   </FormControl>
@@ -454,7 +488,9 @@ const CreateProductForm = ({ productId }: Props) => {
                 name="category_id"
                 render={({ field }) => (
                   <FormItem className="flex-1">
-                    <FormLabel>Category</FormLabel>
+                    <FormLabel>
+                      Category<span className="text-red-500 -ml-1.5">*</span>
+                    </FormLabel>
                     <Select
                       onValueChange={(value) => {
                         field.onChange(value);
@@ -490,7 +526,10 @@ const CreateProductForm = ({ productId }: Props) => {
                 name="sub_category_id"
                 render={({ field }) => (
                   <FormItem className="flex-1">
-                    <FormLabel>Sub Category</FormLabel>
+                    <FormLabel>
+                      Sub Category
+                      <span className="text-red-500 -ml-1.5">*</span>
+                    </FormLabel>
                     <Select
                       disabled={form.watch("category_id") === ""}
                       onValueChange={field.onChange}
@@ -531,7 +570,8 @@ const CreateProductForm = ({ productId }: Props) => {
                 className="mb-2"
               />
               <p className="text-xs text-gray-500">
-                Separate features with commas. This helps AI generate better descriptions.
+                Separate features with commas. This helps AI generate better
+                descriptions.
               </p>
             </div>
 
@@ -541,7 +581,9 @@ const CreateProductForm = ({ productId }: Props) => {
               name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Description</FormLabel>
+                  <FormLabel>
+                    Description<span className="text-red-500 -ml-1.5">*</span>
+                  </FormLabel>
                   <FormControl>
                     <div className="space-y-2">
                       <div className="flex gap-2">
@@ -578,7 +620,8 @@ const CreateProductForm = ({ productId }: Props) => {
                         </Button>
                       </div>
                       <p className="text-xs text-gray-500">
-                        Fill in Product Name, Category, and Key Features, then click "Generate with AI" to create a description.
+                        Fill in Product Name, Category, and Key Features, then
+                        click "Generate with AI" to create a description.
                       </p>
                     </div>
                   </FormControl>
@@ -593,7 +636,9 @@ const CreateProductForm = ({ productId }: Props) => {
               name="price"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Price</FormLabel>
+                  <FormLabel>
+                    Price<span className="text-red-500 -ml-1.5">*</span>
+                  </FormLabel>
                   <FormControl>
                     <div className="relative">
                       <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm">
@@ -617,7 +662,10 @@ const CreateProductForm = ({ productId }: Props) => {
               name="pickup_location"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Location (City)</FormLabel>
+                  <FormLabel>
+                    Location (City)
+                    <span className="text-red-500 -ml-1.5">*</span>
+                  </FormLabel>
                   <FormControl>
                     <Input placeholder="Enter Location" {...field} />
                   </FormControl>
@@ -653,7 +701,10 @@ const CreateProductForm = ({ productId }: Props) => {
 
                 return (
                   <FormItem>
-                    <FormLabel>Upload Images (up to 6)</FormLabel>
+                    <FormLabel>
+                      Upload Images (up to 6)
+                      <span className="text-red-500 -ml-1.5">*</span>
+                    </FormLabel>
                     <FormControl>
                       <div className="space-y-4">
                         {/* Upload Area */}
@@ -683,7 +734,9 @@ const CreateProductForm = ({ productId }: Props) => {
                             <div className="flex flex-col items-center space-y-2">
                               <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
                               <p className="text-sm text-gray-600">
-                                {isModeratingImages ? "Checking images for safety..." : "Uploading images..."}
+                                {isModeratingImages
+                                  ? "Checking images for safety..."
+                                  : "Uploading images..."}
                               </p>
                             </div>
                           ) : (
@@ -691,7 +744,9 @@ const CreateProductForm = ({ productId }: Props) => {
                               <UploadCloud className="h-8 w-8 text-gray-400" />
                               <div className="text-sm text-gray-600">
                                 <p>Click to upload or drag and drop</p>
-                                <p className="text-xs text-gray-500">PNG, JPG, GIF up to 10MB each</p>
+                                <p className="text-xs text-gray-500">
+                                  PNG, JPG, GIF up to 10MB each
+                                </p>
                               </div>
                             </div>
                           )}
@@ -732,7 +787,9 @@ const CreateProductForm = ({ productId }: Props) => {
                 <div className="flex items-start space-x-2">
                   <AlertTriangle className="h-5 w-5 text-yellow-600 mt-0.5 flex-shrink-0" />
                   <div className="flex-1">
-                    <h4 className="text-sm font-medium text-yellow-800 mb-2">Content Moderation Warnings</h4>
+                    <h4 className="text-sm font-medium text-yellow-800 mb-2">
+                      Content Moderation Warnings
+                    </h4>
                     <ul className="space-y-1">
                       {moderationWarnings.map((warning, index) => (
                         <li key={index} className="text-sm text-yellow-700">
@@ -807,15 +864,15 @@ const CreateProductForm = ({ productId }: Props) => {
                     <span>
                       {isModeratingText
                         ? "Checking content..."
-                        : (productId ? "Updating..." : "Creating...")
-                      }
+                        : productId
+                          ? "Updating..."
+                          : "Creating..."}
                     </span>
                   </>
                 ) : (
                   <span>{productId ? "Update Product" : "Create Product"}</span>
                 )}
               </Button>
- 
             </div>
           </div>
         </form>

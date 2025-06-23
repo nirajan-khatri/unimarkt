@@ -10,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import React, { Dispatch, SetStateAction } from "react";
 
 interface Props {
-  listingType: "product" | "skill";
+  listingType: "product" | "skill" | "job";
   dialogOpen: boolean;
   setDialogOpen: Dispatch<SetStateAction<boolean>>;
   dialogType: string | null;
@@ -37,10 +37,12 @@ const CommentDialog = ({
       <DialogContent>
         <DialogHeader>
           <DialogTitle>
-            {dialogType === "reject" ? "Reject Product" : "Delete Product"}
+            {dialogType === "reject"
+              ? `Reject  ${listingType === "skill" ? "Skill" : listingType === "job" ? "Job" : "Product"}`
+              : `Delete  ${listingType === "skill" ? "Skill" : listingType === "job" ? "Job" : "Product"}`}
           </DialogTitle>
         </DialogHeader>
-        <div className="space-y-4">
+        <div className="flex flex-col space-y-1">
           <label htmlFor="comment" className="text-sm font-medium">
             Comment
           </label>
@@ -59,7 +61,9 @@ const CommentDialog = ({
               const payload =
                 listingType === "skill"
                   ? { skillId: selectedId, comment }
-                  : { productId: selectedId, comment };
+                  : listingType === "job"
+                    ? { jobId: selectedId, comment }
+                    : { productId: selectedId, comment };
 
               if (dialogType === "reject") {
                 rejectMutation.mutate(payload);

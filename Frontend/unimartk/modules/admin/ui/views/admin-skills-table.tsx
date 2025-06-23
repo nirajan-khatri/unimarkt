@@ -245,7 +245,7 @@ const SkillsTable = () => {
                     setDialogOpen(true);
                   }}
                 >
-                  Reject Listing
+                  Reject Skill
                 </DropdownMenuItem>
               )}
 
@@ -258,7 +258,7 @@ const SkillsTable = () => {
                     });
                   }}
                 >
-                  Approve Listing
+                  Approve Skill
                 </DropdownMenuItem>
               )}
 
@@ -324,7 +324,7 @@ const SkillsTable = () => {
         >
           <ArrowLeft className="" />
         </div>
-        <p className="text-3xl font-semibold">Skills Approval</p>
+        <p className="text-3xl font-semibold">Skills</p>
       </div>
       <div className="flex items-center justify-between py-4">
         <Input

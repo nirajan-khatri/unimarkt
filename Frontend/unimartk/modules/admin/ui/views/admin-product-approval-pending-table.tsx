@@ -247,7 +247,7 @@ const ProductTable = () => {
                     setDialogOpen(true);
                   }}
                 >
-                  Reject Listing
+                  Reject Product
                 </DropdownMenuItem>
               )}
 
@@ -260,7 +260,7 @@ const ProductTable = () => {
                     });
                   }}
                 >
-                  Approve Listing
+                  Approve Product
                 </DropdownMenuItem>
               )}
 
