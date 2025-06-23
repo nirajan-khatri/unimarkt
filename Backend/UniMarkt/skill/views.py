@@ -161,7 +161,7 @@ class DepartmentViewSet(mixins.ListModelMixin, viewsets.GenericViewSet):
     serializer_class = DepartmentSerializer
 
     @swagger_auto_schema(
-        tags=["Departments"],
+        tags=["Skill Departments"],
         manual_parameters=[
             openapi.Parameter("name", openapi.IN_QUERY, type=openapi.TYPE_STRING, description="Filter by name")
         ]
