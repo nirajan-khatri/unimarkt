@@ -472,19 +472,19 @@ export const SkillView = ({ skillId }: Props) => {
                 </div>
               ) : (
                 <div className="text-center">
-                  <div className="mb-4 p-4 bg-muted rounded-lg border border-border">
-                    <MessageCircle className="w-8 h-8 text-primary mx-auto mb-2" />
+                  <div className="mb-4 p-4 bg-primary/10 rounded-lg border border-blue-200">
+                    <MessageCircle className="w-8 h-8 text-blue-500 mx-auto mb-2" />
                     <h3 className="font-semibold mb-1">Contact the Seller</h3>
                     <p className="text-sm text-muted-foreground">
                       Sign in to send messages and get contact details
                     </p>
                   </div>
 
-                  <button className="w-full bg-primary hover:bg-primary/90 text-primary-foreground py-3 px-4 rounded-lg font-medium transition-colors mb-4">
+                  <button className="w-full bg-blue-500 hover:bg-blue-600 text-white py-3 px-4 rounded-lg font-medium transition-colors mb-4">
                     Log in to Contact Seller
                   </button>
 
-                  <p className="text-xs text-muted-foreground">
+                  <p className="text-xs text-gray-500">
                     By signing in, you can message sellers directly and access
                     their contact information
                   </p>
