@@ -4,6 +4,8 @@ from uniMarktAuth.models import User,Role
 
 from skill.models import Skill,Department,Degree,SkillCategory,AvailableTimeSlot
 
+from job.models import JobCategory,Job
+
 
 
 class DepartmentSerializer(serializers.ModelSerializer):
@@ -117,3 +119,29 @@ class SkillStatusUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Skill
         fields = ['status']
+        
+class JobCategorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = JobCategory
+        fields = ['id', 'name']
+        ref_name = 'AdminDashboardJobCategorySerializer'  # Unique name to avoid conflict
+
+class JobSerializer(serializers.ModelSerializer):
+    user = UserSerializer(read_only=True)  # Nested user object
+    category = JobCategorySerializer(read_only=True)  # Nested category object
+    category_id = serializers.PrimaryKeyRelatedField(queryset=JobCategory.objects.all(), source='category', write_only=True)
+    user_id = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), source='user', write_only=True)
+
+    class Meta:
+        model = Job
+        fields = [
+            'job_id', 'title', 'location', 'status', 'isArchived', 'description',
+            'qualifications', 'contact_email', 'salary_per_hour', 'created_at',
+            'user', 'category', 'user_id', 'category_id',
+        ]
+        ref_name = 'AdminDashboardJobSerializer'  # Unique name to avoid conflict
+        
+class JobStatusUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Job
+        fields = ['status']  # Only allow status updates
