@@ -3,6 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import type { JobPosting } from '@/modules/jobs/hooks/useJobs';
 import { format } from 'date-fns';
 import { CalendarDays, MapPin, DollarSign, Mail, Phone, User } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 
 interface JobCardProps {
@@ -10,10 +11,11 @@ interface JobCardProps {
 }
 
 export function JobCard({ job }: JobCardProps) {
+  const router = useRouter();
   return (
     <Card
       className="group hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer border shadow-md bg-white/80 backdrop-blur-sm overflow-hidden relative"
-      onClick={() => console.log("Card Clicked")}
+      onClick={() => router.push(`/jobs/job-details/${job.job_id}`)}
     >
       {/* Gradient accent line */}
       {/* <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500"></div> */}
