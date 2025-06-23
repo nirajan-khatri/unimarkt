@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Product } from "@/modules/products/types";
+import {MapPin} from "lucide-react"
 
 interface ProductCardProps {
   product: Product;
@@ -31,6 +32,10 @@ export const ProductCard = ({ product }: ProductCardProps) => {
         <p className="text-slate-600 dark:text-slate-300 mb-2 line-clamp-2">
           {product.description}
         </p>
+        <div className="flex gap-2 py-2">
+          <MapPin/>
+          <p>{product.pickup_location}</p>
+        </div>
         <div className="flex justify-between items-center mb-2">
           <span className="text-blue-600 dark:text-blue-400 font-bold">
             €{parseFloat(product.price).toFixed(2)}

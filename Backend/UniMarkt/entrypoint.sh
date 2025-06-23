@@ -50,6 +50,7 @@ python manage.py migrate
 echo "Loading initial data fixtures..."
 python manage.py loaddata users.json products.json skills.json jobs.json
 
+
 touch /app/.fixtures_loaded
 
 echo "Starting Uvicorn ASGI server..."
