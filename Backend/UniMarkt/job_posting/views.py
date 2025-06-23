@@ -7,6 +7,7 @@ from rest_framework.decorators import action
 from django.db.models import Q
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework_simplejwt.authentication import JWTAuthentication
+from product.views import StandardResultsSetPagination
 
 from .filters import JobPostingFilter
 from .models import JobPosting
@@ -28,6 +29,7 @@ class JobPostingViewSet(viewsets.ModelViewSet):
     ordering = ['-created_at']
     
     parser_classes = [JSONParser]
+    pagination_class = StandardResultsSetPagination
     
     def get_queryset(self):
         """
@@ -51,21 +53,32 @@ class JobPostingViewSet(viewsets.ModelViewSet):
     
     @swagger_auto_schema(
         tags=["Job Postings"],
-        operation_description="Filter job postings by department, job type, search in title/description",
+        operation_description="Filter job postings by department, job type, search in title/description. Supports pagination.",
         manual_parameters=[
-            openapi.Parameter("department", openapi.IN_QUERY, type=openapi.TYPE_INTEGER,
-                            description="Filter by department ID"),
-            openapi.Parameter("department__name", openapi.IN_QUERY, type=openapi.TYPE_STRING,
-                            description="Filter by department name"),
-            openapi.Parameter("job_type", openapi.IN_QUERY, type=openapi.TYPE_STRING,
-                            description="Filter by job type (research, hiwi, tutoring, administrative, other)"),
-            openapi.Parameter("title", openapi.IN_QUERY, type=openapi.TYPE_STRING,
-                            description="Search in job title"),
-            openapi.Parameter("description", openapi.IN_QUERY, type=openapi.TYPE_STRING,
-                            description="Search in job description"),
-            openapi.Parameter("status", openapi.IN_QUERY, type=openapi.TYPE_STRING,
-                            description="Job status - pending, approved, archived, rejected"),
+            openapi.Parameter("department", openapi.IN_QUERY, type=openapi.TYPE_INTEGER, description="Filter by department ID"),
+            openapi.Parameter("department__name", openapi.IN_QUERY, type=openapi.TYPE_STRING, description="Filter by department name"),
+            openapi.Parameter("job_type", openapi.IN_QUERY, type=openapi.TYPE_STRING, description="Filter by job type (research, hiwi, tutoring, administrative, other)"),
+            openapi.Parameter("title", openapi.IN_QUERY, type=openapi.TYPE_STRING, description="Search in job title"),
+            openapi.Parameter("description", openapi.IN_QUERY, type=openapi.TYPE_STRING, description="Search in job description"),
+            openapi.Parameter("status", openapi.IN_QUERY, type=openapi.TYPE_STRING, description="Job status - pending, approved, archived, rejected"),
+            openapi.Parameter("page", openapi.IN_QUERY, type=openapi.TYPE_INTEGER, description="Page number for pagination"),
+            openapi.Parameter("page_size", openapi.IN_QUERY, type=openapi.TYPE_INTEGER, description="Number of items per page (default: 9, max: 100)")
         ],
+        responses={
+            200: openapi.Response('Success', openapi.Schema(
+                type=openapi.TYPE_OBJECT,
+                properties={
+                    'count': openapi.Schema(type=openapi.TYPE_INTEGER, description='Total number of items'),
+                    'hasNext': openapi.Schema(type=openapi.TYPE_BOOLEAN, description='Whether there is a next page'),
+                    'hasPrevious': openapi.Schema(type=openapi.TYPE_BOOLEAN, description='Whether there is a previous page'),
+                    'currentPage': openapi.Schema(type=openapi.TYPE_INTEGER, description='Current page number'),
+                    'results': openapi.Schema(
+                        type=openapi.TYPE_ARRAY,
+                        items=openapi.Schema(type=openapi.TYPE_OBJECT)
+                    )
+                }
+            ))
+        }
     )
     def list(self, request, *args, **kwargs):
         return super().list(request, *args, **kwargs)

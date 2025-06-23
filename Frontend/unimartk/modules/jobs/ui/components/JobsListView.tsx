@@ -7,6 +7,7 @@ import { JobFilters } from "./JobFilters";
 import { JobPosting, PaginatedJobsResponse, JobFilters as JobFiltersType } from '@/modules/jobs/hooks/useJobs';
 import { ProductGridSkeleton } from "@/components/skeletons/ProductSkeleton";
 import { useSearchParams } from "next/navigation";
+import { Pagination } from "@/components/ui/pagination";
 
 interface JobsListViewProps {
   title?: string;
@@ -110,7 +111,17 @@ export const JobsListView = ({
               error={error}
             />
           </Suspense>
-          {/* Pagination can be added here if needed */}
+          {showPagination && (
+            <Pagination
+              currentPage={jobs.currentPage}
+              totalItems={jobs.count}
+              pageSize={pageSize}
+              hasNext={jobs.hasNext}
+              hasPrevious={jobs.hasPrevious}
+              onPageChange={onPageChange}
+              onPageSizeChange={onPageSizeChange}
+            />
+          )}
         </div>
       </div>
     </div>
