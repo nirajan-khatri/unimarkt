@@ -1,4 +1,4 @@
-from .filters import ProductFilter,SkillFilter,UserFilter
+from .filters import JobFilter, ProductFilter,SkillFilter,UserFilter
 from drf_yasg import openapi
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework import viewsets,  status
@@ -8,6 +8,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 
 from product.models import Product
 from skill.models import Skill
+from job.models import Job
 from uniMarktAuth.models import User,Role
 
 from .serializers import (
@@ -15,7 +16,8 @@ from .serializers import (
     ProductStatusUpdateSerializer,
     SkillSerializer,
     SkillStatusUpdateSerializer,
-    UserSerializer, UserUpdateSerializer
+    UserSerializer, UserUpdateSerializer,
+    JobSerializer,JobStatusUpdateSerializer
 )
 
 
@@ -115,6 +117,7 @@ class UserViewSet(viewsets.ModelViewSet):
         manual_parameters=[
             openapi.Parameter("is_superuser", openapi.IN_QUERY, type=openapi.TYPE_BOOLEAN, description="Is the user a super user?"),
             openapi.Parameter("is_active", openapi.IN_QUERY, type=openapi.TYPE_BOOLEAN, description="Is the user active?"),
+            openapi.Parameter("is_admin", openapi.IN_QUERY, type=openapi.TYPE_BOOLEAN, description="Is the user an admin?"),
             openapi.Parameter("is_staff", openapi.IN_QUERY, type=openapi.TYPE_BOOLEAN, description="Is the user a staff member?"),
         ],
     )
@@ -133,3 +136,42 @@ class UserViewSet(viewsets.ModelViewSet):
         return super().destroy(request, *args, **kwargs)
 
  
+class JobViewSet(viewsets.ModelViewSet):
+    http_method_names = ['get', 'put', 'delete']
+    queryset = Job.objects.all()
+    serializer_class = JobSerializer
+    parser_classes = [JSONParser]
+    
+    filterset_class = JobFilter
+    filter_backends = [DjangoFilterBackend]
+
+    @swagger_auto_schema(
+        tags=["admin_dashboard"],
+        operation_description="Filter jobs by status",
+        manual_parameters=[
+            openapi.Parameter("status", openapi.IN_QUERY, type=openapi.TYPE_STRING,
+                              description="job status - pending, approved, rejected"),
+        ]
+    )
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
+
+    @swagger_auto_schema(tags=["admin_dashboard"])
+    def retrieve(self, request, *args, **kwargs):
+        return super().retrieve(request, *args, **kwargs)
+
+    @swagger_auto_schema(request_body=JobStatusUpdateSerializer, tags=["admin_dashboard"])
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = JobStatusUpdateSerializer(instance, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @swagger_auto_schema(tags=["admin_dashboard"])
+    def destroy(self, request, *args, **kwargs):
+        return super().destroy(request, *args, **kwargs)
+
+    @swagger_auto_schema(tags=["admin_dashboard"])
+    def partial_update(self, request, *args, **kwargs):
+        return Response({'detail': 'PATCH method not allowed.'}, status=status.HTTP_405_METHOD_NOT_ALLOWED)
