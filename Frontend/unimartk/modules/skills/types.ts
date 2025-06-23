@@ -15,6 +15,23 @@ export type Skill = {
   updated_at: string;
 };
 
+export type SkillDetail = {
+  id: number;
+  description: string;
+  charge_per_hour: number;
+  module: string;
+  skill_category: Category;
+  sub_category: Category;
+  user: User;
+  status: "pending" | "approved" | "rejected";
+  isArchived: boolean;
+  created_at: string;
+  updated_at: string;
+  department: DepartmentOrRoleOrSkillCategory;
+  degree: Degree;
+  available_time_week: AvailableTimeWeekEntity[];
+};
+
 export interface PaginatedSkillsResponse {
   count: number;
   hasNext: boolean;

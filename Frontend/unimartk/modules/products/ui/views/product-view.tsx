@@ -267,12 +267,10 @@ export const ProductView = ({ productId }: Props) => {
               ) : (
                 // Non-authenticated User View
                 <div className="text-center">
-                  <div className="mb-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                  <div className="mb-4 p-4 bg-primary/10 rounded-lg border border-blue-200">
                     <MessageCircle className="w-8 h-8 text-blue-500 mx-auto mb-2" />
-                    <h3 className="font-semibold text-gray-900 mb-1">
-                      Contact the Seller
-                    </h3>
-                    <p className="text-sm text-gray-600">
+                    <h3 className="font-semibold mb-1">Contact the Seller</h3>
+                    <p className="text-sm text-muted-foreground">
                       Sign in to send messages and get contact details
                     </p>
                   </div>

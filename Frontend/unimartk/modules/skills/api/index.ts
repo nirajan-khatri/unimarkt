@@ -1,7 +1,7 @@
 import axios from "@/lib/axios";
-import { Skill } from "../types";
+import { Skill, SkillDetail } from "../types";
 
-export const fetchSkillById = async (skillId: string): Promise<Skill> => {
+export const fetchSkillById = async (skillId: string): Promise<SkillDetail> => {
   // add logic to ckeck if user is actually superadmin
   const response = await axios.get(`/skills/${skillId}`);
   return response.data;
