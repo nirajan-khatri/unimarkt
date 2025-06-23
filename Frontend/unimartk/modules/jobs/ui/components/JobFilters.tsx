@@ -12,47 +12,52 @@ interface JobFiltersProps {
 }
 
 export function JobFilters({ filters, onFiltersChange }: JobFiltersProps) {
-  const [localFilters, setLocalFilters] = React.useState<JobFilters>(filters);
+  // Only keep department and jobType in local state
+  const [localFilters, setLocalFilters] = React.useState<Pick<JobFilters, 'department' | 'jobType'>>({
+    department: filters.department,
+    jobType: filters.jobType,
+  });
 
   React.useEffect(() => {
-    setLocalFilters(filters);
-  }, [filters]);
+    setLocalFilters({ department: filters.department, jobType: filters.jobType });
+  }, [filters.department, filters.jobType]);
 
   // Debounce filter changes
   React.useEffect(() => {
     const handler = setTimeout(() => {
       if (
         localFilters.department !== filters.department ||
-        localFilters.jobType !== filters.jobType ||
-        localFilters.minRemuneration !== filters.minRemuneration ||
-        localFilters.maxRemuneration !== filters.maxRemuneration
+        localFilters.jobType !== filters.jobType
       ) {
-        onFiltersChange(localFilters);
+        onFiltersChange({
+          ...filters,
+          department: localFilters.department,
+          jobType: localFilters.jobType,
+          minRemuneration: "",
+          maxRemuneration: ""
+        });
       }
     }, 500);
     return () => clearTimeout(handler);
   }, [localFilters, filters, onFiltersChange]);
 
-  const handleInputChange = (field: keyof JobFilters, value: string) => {
+  const handleInputChange = (field: keyof typeof localFilters, value: string) => {
     setLocalFilters({ ...localFilters, [field]: value });
   };
 
   const clearAllFilters = () => {
-    const clearedFilters = {
+    const clearedFilters = { department: "", jobType: "" };
+    setLocalFilters(clearedFilters);
+    onFiltersChange({
+      ...filters,
       department: "",
       jobType: "",
       minRemuneration: "",
-      maxRemuneration: "",
-    };
-    setLocalFilters(clearedFilters);
-    onFiltersChange(clearedFilters);
+      maxRemuneration: ""
+    });
   };
 
-  const hasActiveFilters =
-    localFilters.department ||
-    localFilters.jobType ||
-    localFilters.minRemuneration ||
-    localFilters.maxRemuneration;
+  const hasActiveFilters = localFilters.department || localFilters.jobType;
 
   return (
     <div className="lg:col-span-2 rounded-lg border bg-card text-card-foreground shadow-sm h-fit">
@@ -86,26 +91,6 @@ export function JobFilters({ filters, onFiltersChange }: JobFiltersProps) {
             placeholder="Enter job type (e.g. hiwi, tutoring)"
             value={localFilters.jobType}
             onChange={e => handleInputChange("jobType", e.target.value)}
-          />
-        </div>
-        <div>
-          <Label htmlFor="minRemuneration">Min Remuneration (€)</Label>
-          <Input
-            id="minRemuneration"
-            type="number"
-            placeholder="0"
-            value={localFilters.minRemuneration}
-            onChange={e => handleInputChange("minRemuneration", e.target.value)}
-          />
-        </div>
-        <div>
-          <Label htmlFor="maxRemuneration">Max Remuneration (€)</Label>
-          <Input
-            id="maxRemuneration"
-            type="number"
-            placeholder="1000"
-            value={localFilters.maxRemuneration}
-            onChange={e => handleInputChange("maxRemuneration", e.target.value)}
           />
         </div>
       </div>
