@@ -27,11 +27,10 @@ export interface PaginatedProductsResponse {
 
 export interface Message {
   id: number;
-  content: string;
+  message: string;
   timestamp: string;
-  sender: User;
-  receiver: User;
-  product: Product;
+  sender_id: string;
+  receiver_id: string;
 }
 
 export interface WebSocketMessage {

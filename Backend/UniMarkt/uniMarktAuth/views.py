@@ -6,7 +6,7 @@ from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from .models import Role, User
-from .serializers import LoginSerializer, UserSerializer, RegisterSerializer, RoleSerializer
+from .serializers import LoginSerializer, UserSerializer, RegisterSerializer, RoleSerializer, PasswordResetSerializer
 
 
 class LoginAPIView(APIView):
@@ -70,3 +70,17 @@ class SecurityQuestionChoiceView(APIView):
         choices = User.SECURITY_QUESTION_CHOICES
         data = [{"key": key, "question": question} for key, question in choices]
         return Response(data, status=status.HTTP_200_OK)
+
+
+class PasswordResetAPIView(APIView):
+    @swagger_auto_schema(
+        request_body=PasswordResetSerializer,
+        responses={200: 'Password reset successful', 400: 'Validation error'},
+        tags=['Auth']
+    )
+    def post(self, request):
+        serializer = PasswordResetSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"detail": "Password reset successful."}, status=200)
+        return Response(serializer.errors, status=400)

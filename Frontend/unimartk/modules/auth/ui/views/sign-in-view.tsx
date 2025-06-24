@@ -114,18 +114,92 @@ export const SignInView = () => {
     return null;
   }
 
+  // return (
+  //   <div className="grid grid-cols-1 lg:grid-cols-5">
+  //     <div className="bg-[#f4f4f0] h-screen w-full lg:col-span-3 overflow-y-auto">
+  //       <div className="flex flex-col gap-6 p-4 lg:p-16">
+  //         <div className="flex items-center justify-between mb-8">
+  //           <Link href={"/"}>
+  //             <span className={"text-2xl font-black"}>UniMarkt</span>
+  //           </Link>
+  //           <SignUpLink>
+  //             <Button
+  //               className="text-base border-none underline"
+  //               variant={"ghost"}
+  //             >
+  //               Sign Up
+  //             </Button>
+  //           </SignUpLink>
+  //         </div>
+  //         <Form {...form}>
+  //           <form
+  //             onSubmit={form.handleSubmit(onSubmit)}
+  //             className="flex flex-col gap-6"
+  //           >
+  //             <h1 className="text-4xl font-medium">Welcome back 👋</h1>
+  //             <FormField
+  //               name="email"
+  //               render={({ field }) => (
+  //                 <FormItem>
+  //                   <FormLabel className="text-base">Email</FormLabel>
+  //                   <FormControl>
+  //                     <Input {...field} />
+  //                   </FormControl>
+  //                   <FormMessage />
+  //                 </FormItem>
+  //               )}
+  //             />
+  //             <FormField
+  //               name="password"
+  //               render={({ field }) => (
+  //                 <FormItem>
+  //                   <FormLabel className="text-base">Password</FormLabel>
+  //                   <FormControl>
+  //                     <Input {...field} type="password" />
+  //                   </FormControl>
+  //                   <FormMessage />
+  //                 </FormItem>
+  //               )}
+  //             />
+  //             <Link prefetch href={"/forgot-password"}>
+  //               forgot password?
+  //             </Link>
+  //             <Button
+  //               disabled={loginMutation.isPending}
+  //               type="submit"
+  //               size={"lg"}
+  //               variant={"default"}
+  //               className="bg-black text-white hover:bg-pink-400 hover:text-primary"
+  //             >
+  //               {loginMutation.isPending ? "Logging in..." : "Log In"}
+  //             </Button>
+  //           </form>
+  //         </Form>
+  //       </div>
+  //     </div>
+  //     <div
+  //       style={{
+  //         backgroundImage: "url('/auth-bg.png')",
+  //         backgroundSize: "cover",
+  //         backgroundPosition: "center",
+  //       }}
+  //       className="h-screen w-full lg:col-span-2 hidden lg:block"
+  //     ></div>
+  //   </div>
+  // );
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-5">
-      <div className="bg-[#f4f4f0] h-screen w-full lg:col-span-3 overflow-y-auto">
+      <div className="bg-background text-foreground h-screen w-full lg:col-span-3 overflow-y-auto">
         <div className="flex flex-col gap-6 p-4 lg:p-16">
           <div className="flex items-center justify-between mb-8">
             <Link href={"/"}>
-              <span className={"text-2xl font-black"}>UniMarkt</span>
+              <span className="text-2xl font-black">UniMarkt</span>
             </Link>
             <SignUpLink>
               <Button
                 className="text-base border-none underline"
-                variant={"ghost"}
+                variant="ghost"
               >
                 Sign Up
               </Button>
@@ -161,15 +235,18 @@ export const SignInView = () => {
                   </FormItem>
                 )}
               />
-              <Link prefetch href={"/forgot-password"}>
-                forgot password?
+              <Link
+                className="text-sm text-muted-foreground hover:underline"
+                prefetch
+                href={"/forgot-password"}
+              >
+                Forgot password?
               </Link>
               <Button
                 disabled={loginMutation.isPending}
                 type="submit"
-                size={"lg"}
-                variant={"default"}
-                className="bg-black text-white hover:bg-pink-400 hover:text-primary"
+                size="lg"
+                className="bg-primary text-primary-foreground hover:bg-primary/85"
               >
                 {loginMutation.isPending ? "Logging in..." : "Log In"}
               </Button>
@@ -183,8 +260,8 @@ export const SignInView = () => {
           backgroundSize: "cover",
           backgroundPosition: "center",
         }}
-        className="h-screen w-full lg:col-span-2 hidden lg:block"
-      ></div>
+        className="h-screen w-full lg:col-span-2 hidden lg:block dark:brightness-[0.6]"
+      />
     </div>
   );
 };

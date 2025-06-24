@@ -48,14 +48,15 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'skill',
     'product',
-    'job_posting',  # Add this line
+    # 'job_posting',  # Add this line
     'uniMarktAuth',
     'drf_yasg',
     'django_filters',
     'rest_framework',
     'corsheaders',
     'admin_dashboard',
-    'chat'
+    'chat',
+    'job'
 ]
 CHANNEL_LAYERS = {
     "default": {

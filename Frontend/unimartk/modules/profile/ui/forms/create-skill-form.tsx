@@ -95,7 +95,7 @@ const CreateSkillForm = ({ skillId }: Props) => {
         skill_category_id: skill.skill_category?.id?.toString() || "",
         module: skill.module || "",
         description: skill.description || "",
-        charge_per_hour: skill.charge_per_hour || "",
+        charge_per_hour: skill.charge_per_hour.toString() || "",
         available_time_week:
           skill.available_time_week?.length > 0
             ? skill.available_time_week.map((slot) => ({
