@@ -18,11 +18,9 @@ import {
   ArrowUpDown,
   ChevronDown,
   MoreHorizontal,
-  ExternalLink,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -52,6 +50,7 @@ import LoadingPage from "@/app/(admin)/admin/loader";
 import { Category } from "@/modules/home/types";
 import CommentDialog from "../components/comment-dialog";
 import Link from "next/link";
+import { User } from "../../types";
 
 const ProductTable = () => {
   const router = useRouter();
@@ -197,6 +196,17 @@ const ProductTable = () => {
       },
     },
     {
+      accessorKey: "user",
+      header: "Posted By",
+      cell: ({ row }) => {
+        return (
+          <div className="lowercase">
+            {(row.getValue("user") as User)?.name}
+          </div>
+        );
+      },
+    },
+    {
       accessorKey: "status",
       header: "Status",
       cell: ({ row }) => (
@@ -246,7 +256,7 @@ const ProductTable = () => {
                     setDialogOpen(true);
                   }}
                 >
-                  Reject Listing
+                  Reject Product
                 </DropdownMenuItem>
               )}
 
@@ -259,7 +269,7 @@ const ProductTable = () => {
                     });
                   }}
                 >
-                  Approve Listing
+                  Approve Product
                 </DropdownMenuItem>
               )}
 

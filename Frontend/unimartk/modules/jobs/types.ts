@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import { User } from "../admin/types";
 import { Category } from "../home/types";
 
@@ -9,11 +10,26 @@ export type Skill = {
   skill_category: Category;
   sub_category: Category;
   user: User;
+=======
+import { User } from "../profile/types";
+import { DepartmentOrRoleOrSkillCategory } from "../skills/types";
+
+export type Job = {
+  job_id: string;
+  title: string;
+  description: string;
+  salary_per_hour: number;
+  category: DepartmentOrRoleOrSkillCategory;
+  contact_email: string;
+  user: User;
+  location: string;
+>>>>>>> f9d986bb45ac728319ee0a4d36ff534f3ab8b94b
   status: "pending" | "approved" | "rejected";
   isArchived: boolean;
   created_at: string;
   updated_at: string;
 };
+<<<<<<< HEAD
 
 export interface PaginatedSkillsResponse {
   count: number;
@@ -70,3 +86,5 @@ export interface SkillMessageWindowProps {
   sellerName: string;
   initialMessage: string;
 }
+=======
+>>>>>>> f9d986bb45ac728319ee0a4d36ff534f3ab8b94b

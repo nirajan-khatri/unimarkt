@@ -1,6 +1,10 @@
 "use client";
 
-import { useMutation, useQueryClient, useSuspenseQuery } from "@tanstack/react-query";
+import {
+  useMutation,
+  useQueryClient,
+  useSuspenseQuery,
+} from "@tanstack/react-query";
 import {
   XIcon,
   ChevronLeftIcon,
@@ -14,10 +18,9 @@ import {
 import Image from "next/image";
 import React, { useState } from "react";
 
-import { fetchProductById } from "@/services/products";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { approveProduct, deleteProduct } from "../../api";
+
+import { approveProduct, deleteProduct, fetchProductById } from "../../api";
 import { cn, sendAdminMessage } from "@/lib/utils";
 import CommentDialog from "../components/comment-dialog";
 import { useRouter } from "next/navigation";
@@ -128,10 +131,11 @@ const ImageModal = ({
                 e.stopPropagation();
                 onIndexChange(index);
               }}
-              className={`flex-shrink-0 w-16 h-12 relative rounded overflow-hidden border-2 transition-colors ${index === currentIndex
-                ? "border-blue-500"
-                : "border-transparent"
-                }`}
+              className={`flex-shrink-0 w-16 h-12 relative rounded overflow-hidden border-2 transition-colors ${
+                index === currentIndex
+                  ? "border-blue-500"
+                  : "border-transparent"
+              }`}
             >
               <Image
                 src={image}
@@ -257,11 +261,11 @@ export const ProductDetailsView = ({ productId }: Props) => {
         className={cn(
           "px-3 py-1 text-sm font-medium uppercase",
           status === "pending" &&
-          "bg-orange-100 border-orange-300 text-orange-700 hover:bg-orange-200",
+            "bg-orange-100 border-orange-300 text-orange-700 hover:bg-orange-200",
           status === "rejected" &&
-          "bg-red-100 border-red-300 text-red-700 hover:bg-red-200",
+            "bg-red-100 border-red-300 text-red-700 hover:bg-red-200",
           status === "approved" &&
-          "bg-green-100 border-green-300 text-green-700 hover:bg-green-200"
+            "bg-green-100 border-green-300 text-green-700 hover:bg-green-200"
         )}
       >
         {status}
@@ -335,13 +339,17 @@ export const ProductDetailsView = ({ productId }: Props) => {
             <div className="flex-1">
               <div className="p-4 border-t border-border flex flex-row justify-between items-center">
                 <div>
-                  <h2 className="text-xl sm:text-2xl font-semibold mb-2">{data.name}</h2>
+                  <h2 className="text-xl sm:text-2xl font-semibold mb-2">
+                    {data.name}
+                  </h2>
                   <div className="flex items-center gap-1 text-muted-foreground">
                     <MapPin className="w-4 h-4" />
                     <span className="text-sm">{data.pickup_location}</span>
                   </div>
                 </div>
-                <div className="mb-4 text-xl sm:text-2xl font-bold">{data.price}€</div>
+                <div className="mb-4 text-xl sm:text-2xl font-bold">
+                  {data.price}€
+                </div>
               </div>
               {data?.user && (
                 <div className="p-4 sm:p-6 border-t border-border">
@@ -382,7 +390,9 @@ export const ProductDetailsView = ({ productId }: Props) => {
                   variant="destructive"
                   className="flex flex-row gap-2"
                   onClick={handleReject}
-                  disabled={!showRejectButton || rejectProductMutation.isPending}
+                  disabled={
+                    !showRejectButton || rejectProductMutation.isPending
+                  }
                 >
                   <XIcon className="w-4 h-4" />
                   {rejectProductMutation.isPending ? "Rejecting..." : "Reject"}
@@ -392,10 +402,14 @@ export const ProductDetailsView = ({ productId }: Props) => {
                   variant="default"
                   className="flex flex-row gap-2 bg-green-600 hover:bg-green-700"
                   onClick={handleApprove}
-                  disabled={!showApproveButton || approveProductMutation.isPending}
+                  disabled={
+                    !showApproveButton || approveProductMutation.isPending
+                  }
                 >
                   <CheckIcon className="w-4 h-4" />
-                  {approveProductMutation.isPending ? "Approving..." : "Approve"}
+                  {approveProductMutation.isPending
+                    ? "Approving..."
+                    : "Approve"}
                 </Button>
               </div>
             </div>

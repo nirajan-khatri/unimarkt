@@ -54,6 +54,7 @@ import {
   DepartmentOrRoleOrSkillCategory,
   Skill,
 } from "@/modules/skills/types";
+import { User } from "../../types";
 
 export const columns: ColumnDef<Skill>[] = [
   // {
@@ -129,6 +130,15 @@ export const columns: ColumnDef<Skill>[] = [
     },
   },
   {
+    accessorKey: "user",
+    header: "Posted By",
+    cell: ({ row }) => {
+      return (
+        <div className="lowercase">{(row.getValue("user") as User)?.name}</div>
+      );
+    },
+  },
+  {
     accessorKey: "status",
     header: "Status",
     cell: ({ row }) => (
@@ -160,12 +170,12 @@ export const columns: ColumnDef<Skill>[] = [
           <DropdownMenuContent align="end">
             {row.getValue("status") !== "rejected" && (
               <DropdownMenuItem onClick={() => alert(`Approved listing `)}>
-                Reject Listing
+                Reject Skill
               </DropdownMenuItem>
             )}
 
             <DropdownMenuItem onClick={() => alert(`Rejected Listing `)}>
-              Approve Listing
+              Approve Skill
             </DropdownMenuItem>
 
             <DropdownMenuSeparator />
