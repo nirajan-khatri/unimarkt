@@ -9,7 +9,7 @@ import LoadingPage from "@/app/(admin)/admin/loader";
 import ErrorPage from "@/app/(admin)/admin/error";
 
 const AdminDashboardView = () => {
-  const isSuperuser = true;
+  const isSuperuser = false;
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["adminDashboardStats"],

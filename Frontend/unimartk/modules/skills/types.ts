@@ -85,5 +85,5 @@ export interface SkillMessageWindowProps {
   receiverId: string;
   productName: string;
   sellerName: string;
-  initialMessage: string;
+  data: SkillDetail;
 }
