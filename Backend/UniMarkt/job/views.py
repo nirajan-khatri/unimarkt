@@ -9,6 +9,7 @@ from rest_framework import mixins
 
 from .models import Job, JobCategory
 from .serializers import JobSerializer, JobCategorySerializer
+from .filters import JobFilter
 from product.views import StandardResultsSetPagination
 
 
@@ -16,9 +17,9 @@ class JobViewSet(viewsets.ModelViewSet):
     http_method_names = ['get', 'post', 'put', 'delete']
     queryset = Job.objects.all()
     filter_backends = [DjangoFilterBackend, filters.OrderingFilter]
+    filterset_class = JobFilter
     ordering_fields = ['created_at', 'salary_per_hour']
     ordering = ['-created_at']
-
     parser_classes = [JSONParser]
     pagination_class = StandardResultsSetPagination
 
@@ -44,41 +45,23 @@ class JobViewSet(viewsets.ModelViewSet):
 
     @swagger_auto_schema(
         tags=["Jobs"],
-        operation_description="Filter jobs by title, status, category, user, archived flag. Supports ordering and pagination.",
+        operation_description="Filter jobs by title, status, user, category name, location, qualifications, degree, salary range, and archive flag.",
         manual_parameters=[
-            openapi.Parameter("title", openapi.IN_QUERY, type=openapi.TYPE_STRING, description="Job title contains"),
-            openapi.Parameter("status", openapi.IN_QUERY, type=openapi.TYPE_STRING, description="Job status"),
-            openapi.Parameter("user_id", openapi.IN_QUERY, type=openapi.TYPE_INTEGER, description="User ID"),
-            openapi.Parameter("category_id", openapi.IN_QUERY, type=openapi.TYPE_INTEGER, description="Job Category ID"),
-            openapi.Parameter("isArchived", openapi.IN_QUERY, type=openapi.TYPE_BOOLEAN, description="Archived flag"),
+            openapi.Parameter("title", openapi.IN_QUERY, type=openapi.TYPE_STRING),
+            openapi.Parameter("status", openapi.IN_QUERY, type=openapi.TYPE_STRING),
+            openapi.Parameter("user_id", openapi.IN_QUERY, type=openapi.TYPE_INTEGER),
+            openapi.Parameter("category", openapi.IN_QUERY, type=openapi.TYPE_STRING, description="Category name"),
+            openapi.Parameter("location", openapi.IN_QUERY, type=openapi.TYPE_STRING),
+            openapi.Parameter("qualifications", openapi.IN_QUERY, type=openapi.TYPE_STRING),
+            openapi.Parameter("degree", openapi.IN_QUERY, type=openapi.TYPE_STRING),
+            openapi.Parameter("min_salary", openapi.IN_QUERY, type=openapi.TYPE_NUMBER),
+            openapi.Parameter("max_salary", openapi.IN_QUERY, type=openapi.TYPE_NUMBER),
+            openapi.Parameter("isArchived", openapi.IN_QUERY, type=openapi.TYPE_BOOLEAN),
             openapi.Parameter("page", openapi.IN_QUERY, type=openapi.TYPE_INTEGER),
             openapi.Parameter("page_size", openapi.IN_QUERY, type=openapi.TYPE_INTEGER),
         ]
     )
     def list(self, request, *args, **kwargs):
-        queryset = self.queryset
-
-        title = request.query_params.get("title")
-        if title:
-            queryset = queryset.filter(title__icontains=title)
-
-        status_param = request.query_params.get("status")
-        if status_param:
-            queryset = queryset.filter(status=status_param)
-
-        category_id = request.query_params.get("category_id")
-        if category_id:
-            queryset = queryset.filter(category__id=category_id)
-
-        user_id = request.query_params.get("user_id")
-        if user_id:
-            queryset = queryset.filter(user__id=user_id)
-
-        is_archived = request.query_params.get("isArchived")
-        if is_archived is not None:
-            queryset = queryset.filter(isArchived=is_archived.lower() == 'true')
-
-        self.queryset = queryset
         return super().list(request, *args, **kwargs)
 
     @swagger_auto_schema(tags=["Jobs"])

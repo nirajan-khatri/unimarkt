@@ -46,6 +46,7 @@
       "category": 1,
       "description": "Develop and maintain backend services.",
       "qualifications": "Python, Django, REST APIs",
+      "degree": "Bachelor's in Computer Science",
       "contact_email": "hr@example.com",
       "salary_per_hour": "50.00",
       "created_at": "2024-06-01T12:00:00Z"
@@ -63,6 +64,7 @@
       "category": 2,
       "description": "Plan and execute marketing campaigns.",
       "qualifications": "SEO, Social Media, Analytics",
+      "degree": "any",
       "contact_email": "marketing@example.com",
       "salary_per_hour": "35.00",
       "created_at": "2024-06-02T08:30:00Z"
@@ -80,6 +82,7 @@
       "category": 3,
       "description": "Drive sales and manage client relationships.",
       "qualifications": "Negotiation, CRM, Communication",
+      "degree": "Bachelor's in Business",
       "contact_email": "sales@example.com",
       "salary_per_hour": "40.00",
       "created_at": "2024-06-03T09:15:00Z"
@@ -97,6 +100,7 @@
       "category": 4,
       "description": "Manage recruitment and employee relations.",
       "qualifications": "HR policies, Recruitment, Conflict resolution",
+      "degree": "Master's in HR Management",
       "contact_email": "hr@example.com",
       "salary_per_hour": "45.00",
       "created_at": "2024-06-04T10:00:00Z"
@@ -114,6 +118,7 @@
       "category": 5,
       "description": "Provide technical support to customers.",
       "qualifications": "Communication, Troubleshooting",
+      "degree": "any",
       "contact_email": "support@example.com",
       "salary_per_hour": "30.00",
       "created_at": "2024-06-05T11:00:00Z"
