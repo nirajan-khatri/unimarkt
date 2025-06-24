@@ -2,7 +2,7 @@ import { User } from "../admin/types";
 import { Category } from "../home/types";
 
 export type Product = {
-  id: number;
+  product_id: string;
   name: string;
   description: string;
   price: number;

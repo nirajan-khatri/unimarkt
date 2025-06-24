@@ -9,14 +9,7 @@ import { useRouter } from "next/navigation";
 import React, { useState } from "react";
 
 import {
-  DollarSign,
-  Book,
-  Code,
-  Dumbbell,
-  Languages,
   Lightbulb,
-  Music,
-  Palette,
   GraduationCapIcon,
   SchoolIcon,
   CalendarDaysIcon,
@@ -24,32 +17,33 @@ import {
   XIcon,
   CheckIcon,
   ArrowLeft,
+  Microscope,
+  User,
+  PenToolIcon,
+  FileText,
+  Briefcase,
 } from "lucide-react";
-
 import { sortedAvailability, sendAdminMessage } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { approveSkill, deleteSkill, fetchSkillById } from "../../api";
+import { approveJob, deleteJob, fetchJobById } from "../../api";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import CommentDialog from "../components/comment-dialog";
 
 interface Props {
-  skillId: string;
+  jobId: string;
 }
 
-const skillCovers = [
-  { value: "academic", label: "Academic", icon: Book },
-  { value: "programming", label: "Programming", icon: Code },
-  { value: "language", label: "Language", icon: Languages },
-  { value: "creative", label: "Creative", icon: Palette },
-  { value: "finance", label: "Finance", icon: DollarSign },
-  { value: "music", label: "Music", icon: Music },
-  { value: "fitness", label: "Fitness", icon: Dumbbell },
-  { value: "softskills", label: "Soft Skills", icon: Lightbulb },
+const jobTypes = [
+  { value: "Engineering", label: "Engineering", icon: Microscope },
+  { value: "Marketing", label: "Marketing", icon: User },
+  { value: "Sales", label: "Sales", icon: PenToolIcon },
+  { value: "Human Resources", label: "Human Resources", icon: FileText },
+  { value: "Customer Support", label: "Customer Support", icon: Briefcase },
 ];
 
-export const AdminSkillDetailsView = ({ skillId }: Props) => {
+export const AdminJobDetailsView = ({ jobId }: Props) => {
   const router = useRouter();
   const queryClient = useQueryClient();
 
@@ -61,59 +55,59 @@ export const AdminSkillDetailsView = ({ skillId }: Props) => {
   const [dialogOpen, setDialogOpen] = useState(false);
 
   const { data, error, isLoading } = useSuspenseQuery({
-    queryKey: ["skill", skillId],
-    queryFn: () => fetchSkillById(skillId),
+    queryKey: ["job", jobId],
+    queryFn: () => fetchJobById(jobId),
   });
 
-  const deleteSkillMutation = useMutation({
+  const deletejobMutation = useMutation({
     mutationFn: async ({
-      skillId,
+      jobId,
       comment,
     }: {
-      skillId: string;
+      jobId: string;
       comment: string;
     }) => {
       if (data?.user?.id && comment.trim()) {
         await sendAdminMessage(data.user.id, comment);
       }
-      return deleteSkill(skillId);
+      return deleteJob(jobId);
     },
     onSuccess: () => {
-      toast.success("Skill deleted successfully!");
-      queryClient.invalidateQueries({ queryKey: ["adminSkills"] });
-      queryClient.invalidateQueries({ queryKey: ["skill", skillId] });
+      toast.success("job deleted successfully!");
+      queryClient.invalidateQueries({ queryKey: ["adminJobs"] });
+      queryClient.invalidateQueries({ queryKey: ["job", jobId] });
       setDialogOpen(false);
       setComment("");
-      // Navigate back to skills list
-      router.push("/admin/skills");
+      // Navigate back to jobs list
+      router.push("/admin/jobs");
     },
     onError: (error) => {
       console.error("Delete error:", error);
-      toast.error("Failed to delete skill. Please try again.");
+      toast.error("Failed to delete job. Please try again.");
     },
   });
 
-  const approveSkillMutation = useMutation({
+  const approvejobMutation = useMutation({
     mutationFn: () => {
-      return approveSkill({ skillId, data: { status: "approved" } });
+      return approveJob({ jobId, data: { status: "approved" } });
     },
     onSuccess: () => {
-      toast.success("Skill approved successfully!");
-      queryClient.invalidateQueries({ queryKey: ["adminSkills"] });
-      queryClient.invalidateQueries({ queryKey: ["skill", skillId] });
+      toast.success("job approved successfully!");
+      queryClient.invalidateQueries({ queryKey: ["adminJobs"] });
+      queryClient.invalidateQueries({ queryKey: ["job", jobId] });
     },
     onError: (error) => {
       console.error("Approve error:", error);
-      toast.error("Failed to approve skill. Please try again.");
+      toast.error("Failed to approve job. Please try again.");
     },
   });
 
-  const rejectSkillMutation = useMutation({
+  const rejectjobMutation = useMutation({
     mutationFn: async ({
-      skillId,
+      jobId,
       comment,
     }: {
-      skillId: string;
+      jobId: string;
       comment: string;
     }) => {
       // Send admin message first if comment exists
@@ -121,32 +115,32 @@ export const AdminSkillDetailsView = ({ skillId }: Props) => {
         await sendAdminMessage(data.user.id, comment);
       }
 
-      return approveSkill({ skillId, data: { status: "rejected" } });
+      return approveJob({ jobId, data: { status: "rejected" } });
     },
     onSuccess: () => {
-      toast.success("Skill rejected successfully!");
-      queryClient.invalidateQueries({ queryKey: ["adminSkills"] });
-      queryClient.invalidateQueries({ queryKey: ["skill", skillId] });
+      toast.success("job rejected successfully!");
+      queryClient.invalidateQueries({ queryKey: ["adminJobs"] });
+      queryClient.invalidateQueries({ queryKey: ["job", jobId] });
       setDialogOpen(false);
       setComment("");
     },
     onError: (error) => {
       console.error("Reject error:", error);
-      toast.error("Failed to reject skill. Please try again.");
+      toast.error("Failed to reject job. Please try again.");
     },
   });
 
   const handleApprove = () => {
     if (data?.status === "approved") {
-      toast.info("Skill is already approved.");
+      toast.info("job is already approved.");
       return;
     }
-    approveSkillMutation.mutate();
+    approvejobMutation.mutate();
   };
 
   const handleReject = () => {
     if (data?.status === "rejected") {
-      toast.info("Skill is already rejected.");
+      toast.info("job is already rejected.");
       return;
     }
     setDialogType("reject");
@@ -197,20 +191,18 @@ export const AdminSkillDetailsView = ({ skillId }: Props) => {
             <div className="lg:col-span-2">
               <div className="flex flex-col sm:flex-row">
                 <div className="flex-1 order-2 sm:order-1">
-                  <div className="w-full relative aspect-[4/3] sm:max-h-[500px] cursor-pointer hover:scale-[1.02] transition-transform group bg-muted">
+                  <div className="w-full relative aspect-[4/3] sm:max-h-[400px] cursor-pointer hover:scale-[1.02] transition-transform group bg-muted">
                     <div className="absolute inset-0 flex flex-col justify-center items-center bg-muted text-muted-foreground group-hover:brightness-95 transition">
                       {(() => {
-                        const cover = skillCovers.find(
-                          (c) =>
-                            c.value ===
-                            data?.skill_category?.name?.toLowerCase()
+                        const cover = jobTypes.find(
+                          (c) => c.value === data?.category.name
                         );
                         const Icon = cover?.icon || Lightbulb;
                         return (
                           <>
                             <Icon className="w-16 h-16 mb-2" />
                             <span className="text-lg font-semibold">
-                              {cover?.label || "Skill"}
+                              {cover?.label || "job"}
                             </span>
                           </>
                         );
@@ -227,78 +219,33 @@ export const AdminSkillDetailsView = ({ skillId }: Props) => {
               <div className="p-4 border-t border-border flex flex-row justify-between items-center">
                 <div>
                   <h2 className="text-xl sm:text-2xl font-semibold mb-2">
-                    {data?.module}
+                    {data?.title}
                   </h2>
                   <div className="flex flex-col md:flex-row gap-1 md:gap-3">
                     <div className="flex items-center gap-1 text-muted-foreground">
-                      <SchoolIcon className="w-4 h-4" />
-                      <span className="text-xs sm:text-sm">
-                        {data?.department?.name}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-1 text-muted-foreground">
                       <GraduationCapIcon className="w-4 h-4" />
                       <span className="text-xs sm:text-sm">
-                        {data?.degree?.name}
+                        {data?.category.name}
                       </span>
                     </div>
                   </div>
                 </div>
                 <div className="mb-4">
                   <span className="text-xl sm:text-2xl font-bold">
-                    {data?.charge_per_hour}€
+                    {data?.salary_per_hour}€
                   </span>
                 </div>
               </div>
 
-              {/* User Information */}
-              {data?.user && (
-                <div className="p-4 sm:p-6 border-t border-border">
-                  <h3 className="text-lg font-semibold mb-3">Skill Provider</h3>
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
-                      <span className="text-sm font-medium">
-                        {data.user.name?.[0]}
-                      </span>
-                    </div>
-                    <div>
-                      <p className="font-medium">{data.user.name}</p>
-                      <p className="text-sm text-muted-foreground">
-                        {data.user.email}
-                      </p>
-                    </div>
+              <div className="p-4 sm:p-6 border-t border-border">
+                <h3 className="text-lg font-semibold mb-3">Job Contact</h3>
+                <div className="flex items-center gap-3">
+                  <div>
+                    <p className="text-sm text-muted-foreground">
+                      {data.contact_email}
+                    </p>
                   </div>
                 </div>
-              )}
-
-              {/* Weekly Availability */}
-              <div className="p-4 sm:p-6 border-t border-border">
-                <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                  <CalendarDaysIcon className="w-5 h-5 text-muted-foreground" />
-                  Weekly Availability
-                </h3>
-                {data?.available_time_week?.length > 0 ? (
-                  <ul className="space-y-2">
-                    {sortedAvailability(data.available_time_week).map(
-                      (slot, index) => (
-                        <li
-                          key={index}
-                          className="flex justify-between items-center p-3 bg-muted rounded-md border border-border"
-                        >
-                          <span className="font-medium">{slot.day}</span>
-                          <span className="text-sm text-muted-foreground">
-                            {slot.start_time.slice(0, 5)} -{" "}
-                            {slot.end_time.slice(0, 5)}
-                          </span>
-                        </li>
-                      )
-                    )}
-                  </ul>
-                ) : (
-                  <p className="text-muted-foreground">
-                    No availability specified
-                  </p>
-                )}
               </div>
 
               {/* Description */}
@@ -315,10 +262,10 @@ export const AdminSkillDetailsView = ({ skillId }: Props) => {
                   variant="outline"
                   className="flex flex-row gap-2 hover:bg-red-50 hover:border-red-300"
                   onClick={handleDelete}
-                  disabled={deleteSkillMutation.isPending}
+                  disabled={deletejobMutation.isPending}
                 >
                   <Trash2Icon className="w-4 h-4 text-red-500" />
-                  {deleteSkillMutation.isPending ? "Deleting..." : "Delete"}
+                  {deletejobMutation.isPending ? "Deleting..." : "Delete"}
                 </Button>
 
                 <Button
@@ -326,11 +273,11 @@ export const AdminSkillDetailsView = ({ skillId }: Props) => {
                   className="flex flex-row gap-2"
                   onClick={handleReject}
                   disabled={
-                    rejectSkillMutation.isPending || data?.status === "rejected"
+                    rejectjobMutation.isPending || data?.status === "rejected"
                   }
                 >
                   <XIcon className="w-4 h-4" />
-                  {rejectSkillMutation.isPending ? "Rejecting..." : "Reject"}
+                  {rejectjobMutation.isPending ? "Rejecting..." : "Reject"}
                 </Button>
 
                 <Button
@@ -338,12 +285,11 @@ export const AdminSkillDetailsView = ({ skillId }: Props) => {
                   className="flex flex-row gap-2 bg-green-600 hover:bg-green-700"
                   onClick={handleApprove}
                   disabled={
-                    approveSkillMutation.isPending ||
-                    data?.status === "approved"
+                    approvejobMutation.isPending || data?.status === "approved"
                   }
                 >
                   <CheckIcon className="w-4 h-4" />
-                  {approveSkillMutation.isPending ? "Approving..." : "Approve"}
+                  {approvejobMutation.isPending ? "Approving..." : "Approve"}
                 </Button>
               </div>
             </div>
@@ -353,16 +299,26 @@ export const AdminSkillDetailsView = ({ skillId }: Props) => {
 
       {/* Comment Dialog for reject and delete actions */}
       <CommentDialog
-        listingType="skill"
+        listingType="job"
         dialogOpen={dialogOpen}
         setDialogOpen={setDialogOpen}
         dialogType={dialogType}
-        selectedId={skillId}
+        selectedId={jobId}
         comment={comment}
         setComment={setComment}
-        rejectMutation={rejectSkillMutation}
-        deleteMutation={deleteSkillMutation}
+        rejectMutation={rejectjobMutation}
+        deleteMutation={deletejobMutation}
       />
     </>
+  );
+};
+
+export const AdminDetailsViewSkeleton = () => {
+  return (
+    <div className="px-4 lg:px-12 py-10">
+      <div className="border rounded-sm bg-white overflow-hidden">
+        <div className="relative aspect-[3.9] border-b"></div>
+      </div>
+    </div>
   );
 };

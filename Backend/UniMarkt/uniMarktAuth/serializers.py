@@ -44,12 +44,12 @@ class RegisterSerializer(serializers.ModelSerializer):
             'security_question3', 'answer3','is_admin','is_staff'
         ]
 
+    
     def create(self, validated_data):
         password = validated_data.pop('password')
-        user = User(**validated_data)
-        user.set_password(password)
-        user.save()
+        user = User.objects.create_user(password=password, **validated_data)
         return user
+
 
 class RoleSerializer(serializers.ModelSerializer):
     class Meta:

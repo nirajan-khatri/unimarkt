@@ -21,7 +21,6 @@ import {
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -44,88 +43,80 @@ import { useRouter } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import { cn, sendAdminMessage } from "@/lib/utils";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { approveProduct, deleteProduct, fetchAdminProducts } from "../../api";
-import { Product } from "@/modules/products/types";
-import ErrorPage from "@/app/(admin)/admin/error";
-import LoadingPage from "@/app/(admin)/admin/loader";
-import { Category } from "@/modules/home/types";
+
 import CommentDialog from "../components/comment-dialog";
 import Link from "next/link";
+import { Job } from "@/modules/jobs/types";
+import { approveJob, deleteJob, fetchAdminJobs } from "../../api";
+import { DepartmentOrRoleOrSkillCategory } from "@/modules/skills/types";
+import LoadingPage from "@/app/(admin)/admin/loader";
+import ErrorPage from "@/app/(admin)/admin/error";
 import { User } from "../../types";
 
-const ProductTable = () => {
+const JobsTable = () => {
   const router = useRouter();
   const [dialogType, setDialogType] = React.useState<
     "reject" | "delete" | null
   >(null);
-  const [selectedProductId, setSelectedProductId] = React.useState<
-    string | null
-  >(null);
+  const [selectedJobId, setSelectedJobId] = React.useState<string | null>(null);
   const [comment, setComment] = React.useState("");
   const [dialogOpen, setDialogOpen] = React.useState(false);
 
   const { data, isLoading, error } = useQuery({
-    queryKey: ["adminProducts"],
-    queryFn: fetchAdminProducts,
+    queryKey: ["adminJobs"],
+    queryFn: fetchAdminJobs,
   });
 
   const queryClient = useQueryClient();
 
-  const approveProductMutation = useMutation({
-    mutationFn: approveProduct,
+  const approveJobMutation = useMutation({
+    mutationFn: approveJob,
     onSuccess: () => {
       // refetch products after approval
-      queryClient.invalidateQueries({ queryKey: ["adminProducts"] });
+      queryClient.invalidateQueries({ queryKey: ["adminJobs"] });
     },
   });
-
-  const rejectProductMutation = useMutation({
+  const rejectJobMutation = useMutation({
     mutationFn: async ({
-      productId,
+      jobId,
       comment,
     }: {
-      productId: string;
+      jobId: string;
       comment: string;
     }) => {
-      const userId = data.filter(
-        (product: Product) => product.product_id === selectedProductId
-      )[0].user.id;
-      approveProduct({ productId, data: { status: "rejected" } });
+      const userId = data.filter((job: Job) => job.job_id === selectedJobId)[0]
+        .user.id;
+      approveJob({ jobId, data: { status: "rejected" } });
       await sendAdminMessage(userId, comment);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["adminProducts"] });
+      queryClient.invalidateQueries({ queryKey: ["adminJobs"] });
       setDialogOpen(false);
       setComment("");
     },
   });
 
-  const deleteProductMutation = useMutation({
+  const deleteJobMutation = useMutation({
     mutationFn: async ({
-      productId,
+      jobId,
       comment,
     }: {
-      productId: string;
+      jobId: string;
       comment: string;
     }) => {
-      const userId = data.filter(
-        (product: Product) => product.product_id === selectedProductId
-      )[0].user.id;
-      deleteProduct(productId);
+      const userId = data.filter((job: Job) => job.job_id === selectedJobId)[0]
+        .user.id;
+      deleteJob(jobId);
       await sendAdminMessage(userId, comment);
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["adminProducts"] });
+      queryClient.invalidateQueries({ queryKey: ["adminJobs"] });
       setDialogOpen(false);
       setComment("");
     },
   });
 
-  const unapprovedProducts = React.useMemo(() => {
-    return data?.filter((product: Product) => product.status !== "approved");
-  }, [data]);
-
-  const columns: ColumnDef<Product>[] = [
+  const columns: ColumnDef<Job>[] = [
     // {
     //   id: "select",
     //   header: ({ table }) => (
@@ -149,56 +140,48 @@ const ProductTable = () => {
     //   enableHiding: false,
     // },
     {
-      accessorKey: "name",
+      accessorKey: "title",
       header: ({ column }) => (
         <Button
           variant="ghost"
           onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
         >
-          Name <ArrowUpDown className="ml-2 h-4 w-4" />
+          Title <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
       ),
       cell: ({ row }) => (
-        <Link href={`/admin/products/${row.original.product_id}`}>
-          <span className="font-medium">{row.getValue("name")}</span>
+        <Link href={`/admin/job/${row.original.job_id}`}>
+          <span className="font-medium">{row.getValue("title")}</span>
         </Link>
       ),
     },
     {
-      accessorKey: "price",
-      header: "Price",
+      accessorKey: "salary_per_hour",
+      header: "Remuneration",
       cell: ({ row }) => (
-        <div className="lowercase">{row.getValue("price")}</div>
+        <div className="lowercase">{row.getValue("salary_per_hour")}</div>
       ),
     },
     {
       accessorKey: "category",
       header: "Category",
-
-      cell: ({ row }) => (
-        <div className="lowercase">
-          {(row.getValue("category") as Category).name}
-        </div>
-      ),
-    },
-    {
-      accessorKey: "sub_category",
-      header: "SubCategory",
       cell: ({ row }) => {
         return (
           <div className="lowercase">
-            {(row.getValue("sub_category") as Category).name}
+            {
+              (row.getValue("category") as DepartmentOrRoleOrSkillCategory)
+                ?.name
+            }
           </div>
         );
       },
     },
+
     {
-      accessorKey: "pickup_location",
+      accessorKey: "location",
       header: "Location",
       cell: ({ row }) => {
-        return (
-          <div className="lowercase">{row.getValue("pickup_location")}</div>
-        );
+        return <div className="lowercase">{row.getValue("location")}</div>;
       },
     },
     {
@@ -246,33 +229,36 @@ const ProductTable = () => {
             <DropdownMenuContent align="end">
               <DropdownMenuItem
                 onClick={() => {
-                  router.push(`/admin/products/${row.original.product_id}`);
+                  router.push(`/admin/jobs/${row.original.job_id}`);
                 }}
               >
                 View Details
               </DropdownMenuItem>
+
+              <DropdownMenuSeparator />
+
               {row.getValue("status") !== "rejected" && (
                 <DropdownMenuItem
                   onClick={() => {
                     setDialogType("reject");
-                    setSelectedProductId(row.original.product_id);
+                    setSelectedJobId(row.original.job_id);
                     setDialogOpen(true);
                   }}
                 >
-                  Reject Product
+                  Reject Job
                 </DropdownMenuItem>
               )}
 
               {row.getValue("status") !== "approved" && (
                 <DropdownMenuItem
                   onClick={() => {
-                    approveProductMutation.mutate({
-                      productId: row.original.product_id,
+                    approveJobMutation.mutate({
+                      jobId: row.original.job_id,
                       data: { status: "approved" },
                     });
                   }}
                 >
-                  Approve Product
+                  Approve Job
                 </DropdownMenuItem>
               )}
 
@@ -281,7 +267,7 @@ const ProductTable = () => {
               <DropdownMenuItem
                 onClick={() => {
                   setDialogType("delete");
-                  setSelectedProductId(row.original.product_id);
+                  setSelectedJobId(row.original.job_id);
                   setDialogOpen(true);
                 }}
               >
@@ -303,7 +289,7 @@ const ProductTable = () => {
   const [rowSelection, setRowSelection] = React.useState({});
 
   const table = useReactTable({
-    data: unapprovedProducts,
+    data,
     columns,
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
@@ -333,19 +319,19 @@ const ProductTable = () => {
     <div className="w-full px-4 lg:px-12 py-8 flex flex-col gap-4">
       <div className="flex flex-row gap-4 items-center">
         <div
-          className="p-3 hover:bg-gray-200 rounded-full"
+          className="p-3 hover:bg-gray-200 rounded-full cursor-pointer"
           onClick={() => router.back()}
         >
           <ArrowLeft className="" />
         </div>
-        <p className="text-3xl font-semibold">Products Approval</p>
+        <p className="text-3xl font-semibold">Jobs</p>
       </div>
       <div className="flex items-center justify-between py-4">
         <Input
           placeholder="Filter name..."
-          value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
+          value={(table.getColumn("title")?.getFilterValue() as string) ?? ""}
           onChange={(event) =>
-            table.getColumn("name")?.setFilterValue(event.target.value)
+            table.getColumn("title")?.setFilterValue(event.target.value)
           }
           className="max-w-sm"
         />
@@ -495,18 +481,18 @@ const ProductTable = () => {
         </div>
       </div>
       <CommentDialog
-        listingType="product"
+        listingType="job"
         dialogOpen={dialogOpen}
         setDialogOpen={setDialogOpen}
         dialogType={dialogType}
-        selectedId={selectedProductId}
+        selectedId={selectedJobId}
         comment={comment}
         setComment={setComment}
-        rejectMutation={rejectProductMutation}
-        deleteMutation={deleteProductMutation}
+        rejectMutation={rejectJobMutation}
+        deleteMutation={deleteJobMutation}
       />
     </div>
   );
 };
 
-export default ProductTable;
+export default JobsTable;

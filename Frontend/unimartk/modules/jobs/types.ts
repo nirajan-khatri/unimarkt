@@ -1,42 +1,20 @@
-import { User } from "../admin/types";
-import { Category } from "../home/types";
+import { User } from "../profile/types";
+import { DepartmentOrRoleOrSkillCategory } from "../skills/types";
 
-export type Skill = {
-  id: number;
+export type Job = {
+  job_id: string;
+  title: string;
   description: string;
-  price: number;
-  module: string;
-  skill_category: Category;
-  sub_category: Category;
+  salary_per_hour: number;
+  category: DepartmentOrRoleOrSkillCategory;
+  contact_email: string;
   user: User;
+  location: string;
   status: "pending" | "approved" | "rejected";
   isArchived: boolean;
   created_at: string;
   updated_at: string;
 };
-
-export interface PaginatedSkillsResponse {
-  count: number;
-  hasNext: boolean;
-  hasPrevious: boolean;
-  currentPage: number;
-  results: Skill[];
-}
-
-export interface AvailableTimeWeekEntity {
-  day:
-    | "Monday"
-    | "Tuesday"
-    | "Wednesday"
-    | "Thursday"
-    | "Friday"
-    | "Saturday"
-    | "Sunday";
-  start_time: string;
-  end_time: string;
-  status: "open" | "booked" | undefined;
-}
-
 export interface DepartmentOrRoleOrSkillCategory {
   id: string;
   name: string;

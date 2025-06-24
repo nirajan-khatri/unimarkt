@@ -11,7 +11,8 @@ export async function fetchFilteredServices(
   subcategory?: string,
   serviceFilters?: ServiceFilters
 ) {
-  const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
+  const baseUrl =
+    process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
   const url = new URL(`${baseUrl}/skills/`);
 
   // Add pagination
@@ -46,7 +47,7 @@ export async function fetchFilteredServices(
 
   try {
     const response = await fetch(url.toString());
-    
+
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
@@ -54,7 +55,7 @@ export async function fetchFilteredServices(
     const data = await response.json();
     return data;
   } catch (error) {
-    console.error('Error fetching services:', error);
+    console.error("Error fetching services:", error);
     throw error;
   }
 }

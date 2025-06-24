@@ -47,22 +47,24 @@ export const SignInView = () => {
   const { login, isAuthenticated } = useAuth();
 
   useEffect(() => {
-    // Check if user is already authenticated
+    const urlParams = new URLSearchParams(window.location.search);
+    const redirect = urlParams.get("redirect");
+
     if (isAuthenticated) {
-      router.push("/");
+      if (redirect) {
+        router.push(redirect);
+      } else {
+        router.push("/"); // fallback if no redirect provided
+      }
       return;
     }
 
-    // Get redirect URL from query parameters
-    const urlParams = new URLSearchParams(window.location.search);
-    const redirect = urlParams.get("redirect");
     if (redirect) {
       setRedirectUrl(decodeURIComponent(redirect));
     }
 
-    // Mark loading as complete since we've checked authentication
     setIsLoading(false);
-  }, [router, isAuthenticated]);
+  }, [isAuthenticated, router]);
 
   const form = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
@@ -113,80 +115,6 @@ export const SignInView = () => {
   if (isAuthenticated) {
     return null;
   }
-
-  // return (
-  //   <div className="grid grid-cols-1 lg:grid-cols-5">
-  //     <div className="bg-[#f4f4f0] h-screen w-full lg:col-span-3 overflow-y-auto">
-  //       <div className="flex flex-col gap-6 p-4 lg:p-16">
-  //         <div className="flex items-center justify-between mb-8">
-  //           <Link href={"/"}>
-  //             <span className={"text-2xl font-black"}>UniMarkt</span>
-  //           </Link>
-  //           <SignUpLink>
-  //             <Button
-  //               className="text-base border-none underline"
-  //               variant={"ghost"}
-  //             >
-  //               Sign Up
-  //             </Button>
-  //           </SignUpLink>
-  //         </div>
-  //         <Form {...form}>
-  //           <form
-  //             onSubmit={form.handleSubmit(onSubmit)}
-  //             className="flex flex-col gap-6"
-  //           >
-  //             <h1 className="text-4xl font-medium">Welcome back 👋</h1>
-  //             <FormField
-  //               name="email"
-  //               render={({ field }) => (
-  //                 <FormItem>
-  //                   <FormLabel className="text-base">Email</FormLabel>
-  //                   <FormControl>
-  //                     <Input {...field} />
-  //                   </FormControl>
-  //                   <FormMessage />
-  //                 </FormItem>
-  //               )}
-  //             />
-  //             <FormField
-  //               name="password"
-  //               render={({ field }) => (
-  //                 <FormItem>
-  //                   <FormLabel className="text-base">Password</FormLabel>
-  //                   <FormControl>
-  //                     <Input {...field} type="password" />
-  //                   </FormControl>
-  //                   <FormMessage />
-  //                 </FormItem>
-  //               )}
-  //             />
-  //             <Link prefetch href={"/forgot-password"}>
-  //               forgot password?
-  //             </Link>
-  //             <Button
-  //               disabled={loginMutation.isPending}
-  //               type="submit"
-  //               size={"lg"}
-  //               variant={"default"}
-  //               className="bg-black text-white hover:bg-pink-400 hover:text-primary"
-  //             >
-  //               {loginMutation.isPending ? "Logging in..." : "Log In"}
-  //             </Button>
-  //           </form>
-  //         </Form>
-  //       </div>
-  //     </div>
-  //     <div
-  //       style={{
-  //         backgroundImage: "url('/auth-bg.png')",
-  //         backgroundSize: "cover",
-  //         backgroundPosition: "center",
-  //       }}
-  //       className="h-screen w-full lg:col-span-2 hidden lg:block"
-  //     ></div>
-  //   </div>
-  // );
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-5">
