@@ -6,7 +6,7 @@ from .models import Job
 class JobFilter(django_filters.FilterSet):
     min_salary = django_filters.NumberFilter(field_name="salary_per_hour", lookup_expr='gte')
     max_salary = django_filters.NumberFilter(field_name="salary_per_hour", lookup_expr='lte')
-    category = django_filters.CharFilter(field_name="category__name", lookup_expr='icontains')
+    category = django_filters.CharFilter(field_name="category__slug", lookup_expr='icontains')
     location = django_filters.CharFilter(lookup_expr='icontains')
     qualifications = django_filters.CharFilter(lookup_expr='icontains')
     degree = django_filters.CharFilter(lookup_expr='icontains')
