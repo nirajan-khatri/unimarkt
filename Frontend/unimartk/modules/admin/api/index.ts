@@ -1,7 +1,8 @@
 import axios from "@/lib/axios";
 import { Product } from "@/modules/products/types";
-import { Skill } from "@/modules/skills/types";
+import { Skill, SkillDetail } from "@/modules/skills/types";
 import { User } from "../types";
+import { Job } from "@/modules/jobs/types";
 
 export interface DashboardStats {
   totalProducts: number;
@@ -14,6 +15,11 @@ export interface DashboardStats {
   totalApprovedSkills: number;
   totalPendingSkills: number;
   totalRejectedSkills: number;
+  totalJobs: number;
+  totalUnapprovedJobs: number;
+  totalApprovedJobs: number;
+  totalPendingJobs: number;
+  totalRejectedJobs: number;
   totalUsersWithSuperUser: number;
   totalUsersWithoutSuperUser: number;
   totalInactiveUsers: number;
@@ -43,6 +49,44 @@ export const fetchAdminUsers = async () => {
   const response = await axios.get(`/admin_dashboard/users/`);
   return response.data;
 };
+
+export async function fetchProductById(productId: string): Promise<Product> {
+  const baseUrl =
+    process.env.NEXT_PUBLIC_BASE_API_URL || "http://localhost:8000/api/";
+  const response = await fetch(
+    `${baseUrl}admin_dashboard/products/${productId}/`
+  );
+
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+
+  return response.json();
+}
+
+export async function fetchSkillById(skillId: string): Promise<SkillDetail> {
+  const baseUrl =
+    process.env.NEXT_PUBLIC_BASE_API_URL || "http://localhost:8000/api/";
+  const response = await fetch(`${baseUrl}admin_dashboard/skills/${skillId}/`);
+
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+
+  return response.json();
+}
+
+export async function fetchJobById(jobId: string): Promise<Job> {
+  const baseUrl =
+    process.env.NEXT_PUBLIC_BASE_API_URL || "http://localhost:8000/api/";
+  const response = await fetch(`${baseUrl}admin_dashboard/jobs/${jobId}/`);
+
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+
+  return response.json();
+}
 
 export const approveProduct = async ({
   productId,
@@ -107,11 +151,12 @@ export const fetchDashboardStats = async (): Promise<DashboardStats> => {
     // add logic to check if user is actually superadmin
 
     // Fetch all data in parallel
-    const [products, skills, users]: [Product[], Skill[], User[]] =
+    const [products, skills, users, jobs]: [Product[], Skill[], User[], Job[]] =
       await Promise.all([
         fetchAdminProducts(),
         fetchAdminSkills(),
         fetchAdminUsers(),
+        fetchAdminJobs(),
       ]);
 
     // Calculate product statistics
@@ -139,6 +184,17 @@ export const fetchDashboardStats = async (): Promise<DashboardStats> => {
       (s: Skill) => s.status === "rejected"
     ).length;
     const unapprovedSkills = pendingSkills + rejectedSkills;
+
+    // Calculate job statistics
+    const totalJobs = skills.length;
+    const approvedJobs = jobs.filter(
+      (s: Job) => s.status === "approved"
+    ).length;
+    const pendingJobs = jobs.filter((s: Job) => s.status === "pending").length;
+    const rejectedJobs = jobs.filter(
+      (s: Job) => s.status === "rejected"
+    ).length;
+    const unapprovedJobs = pendingJobs + rejectedJobs;
 
     // Calculate user statistics
     const totalUsersWithSuperUser = users.length;
@@ -200,6 +256,11 @@ export const fetchDashboardStats = async (): Promise<DashboardStats> => {
       totalApprovedSkills: approvedSkills,
       totalPendingSkills: pendingSkills,
       totalRejectedSkills: rejectedSkills,
+      totalJobs,
+      totalUnapprovedJobs: unapprovedJobs,
+      totalApprovedJobs: approvedJobs,
+      totalPendingJobs: pendingJobs,
+      totalRejectedJobs: rejectedJobs,
       totalUsersWithSuperUser,
       totalUsersWithoutSuperUser,
       totalInactiveUsers: inactiveUsers,
@@ -216,4 +277,27 @@ export const fetchDashboardStats = async (): Promise<DashboardStats> => {
     console.error("Error fetching dashboard stats:", error);
     throw error;
   }
+};
+
+export const fetchAdminJobs = async () => {
+  // add logic to ckeck if user is actually superadmin
+  const response = await axios.get(`/admin_dashboard/jobs/`);
+  return response.data;
+};
+
+export const approveJob = async ({
+  jobId,
+  data,
+}: {
+  jobId: string;
+  data: Partial<Job>;
+}) => {
+  const response = await axios.put(`/admin_dashboard/jobs/${jobId}/`, data);
+  return response.data;
+};
+
+// Delete product
+export const deleteJob = async (jobId: string) => {
+  const response = await axios.delete(`/admin_dashboard/jobs/${jobId}/`);
+  return response.data;
 };

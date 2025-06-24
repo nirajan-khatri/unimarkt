@@ -160,7 +160,7 @@ const CreateProductForm = ({ productId }: Props) => {
     isModeratingAny,
   } = useContentModeration();
 
-  if (!isAuthenticated) {
+  if ((!isAuthenticated || !user) && isInitialized) {
     redirect("/sign-in");
   }
 
@@ -470,7 +470,9 @@ const CreateProductForm = ({ productId }: Props) => {
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Product Name</FormLabel>
+                  <FormLabel>
+                    Product Name<span className="text-red-500 -ml-1.5">*</span>
+                  </FormLabel>
                   <FormControl>
                     <Input placeholder="Enter product name" {...field} />
                   </FormControl>
@@ -486,7 +488,9 @@ const CreateProductForm = ({ productId }: Props) => {
                 name="category_id"
                 render={({ field }) => (
                   <FormItem className="flex-1">
-                    <FormLabel>Category</FormLabel>
+                    <FormLabel>
+                      Category<span className="text-red-500 -ml-1.5">*</span>
+                    </FormLabel>
                     <Select
                       onValueChange={(value) => {
                         field.onChange(value);
@@ -522,7 +526,10 @@ const CreateProductForm = ({ productId }: Props) => {
                 name="sub_category_id"
                 render={({ field }) => (
                   <FormItem className="flex-1">
-                    <FormLabel>Sub Category</FormLabel>
+                    <FormLabel>
+                      Sub Category
+                      <span className="text-red-500 -ml-1.5">*</span>
+                    </FormLabel>
                     <Select
                       disabled={form.watch("category_id") === ""}
                       onValueChange={field.onChange}
@@ -574,7 +581,9 @@ const CreateProductForm = ({ productId }: Props) => {
               name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Description</FormLabel>
+                  <FormLabel>
+                    Description<span className="text-red-500 -ml-1.5">*</span>
+                  </FormLabel>
                   <FormControl>
                     <div className="space-y-2">
                       <div className="flex gap-2">
@@ -627,14 +636,16 @@ const CreateProductForm = ({ productId }: Props) => {
               name="price"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Price</FormLabel>
+                  <FormLabel>
+                    Price<span className="text-red-500 -ml-1.5">*</span>
+                  </FormLabel>
                   <FormControl>
                     <div className="relative">
                       <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm">
                         €
                       </span>
                       <Input
-                        type="text"
+                        type="number"
                         placeholder="0.00"
                         {...field}
                         className="pl-7"
@@ -651,7 +662,10 @@ const CreateProductForm = ({ productId }: Props) => {
               name="pickup_location"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Location (City)</FormLabel>
+                  <FormLabel>
+                    Location (City)
+                    <span className="text-red-500 -ml-1.5">*</span>
+                  </FormLabel>
                   <FormControl>
                     <Input placeholder="Enter Location" {...field} />
                   </FormControl>
@@ -687,7 +701,10 @@ const CreateProductForm = ({ productId }: Props) => {
 
                 return (
                   <FormItem>
-                    <FormLabel>Upload Images (up to 6)</FormLabel>
+                    <FormLabel>
+                      Upload Images (up to 6)
+                      <span className="text-red-500 -ml-1.5">*</span>
+                    </FormLabel>
                     <FormControl>
                       <div className="space-y-4">
                         {/* Upload Area */}

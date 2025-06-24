@@ -15,7 +15,7 @@ export const ProductCard = ({ product }: ProductCardProps) => {
   };
 
   return (
-    <div 
+    <div
       className="border rounded-lg cursor-pointer transition-transform hover:scale-[1.02] hover:shadow-lg"
       onClick={handleClick}
     >

@@ -16,6 +16,7 @@ import { parseAsStringEnum, useQueryState } from "nuqs";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
+import CreateJobForm from "@/modules/profile/ui/forms/create-job-form";
 
 const Page = () => {
   const [type, setType] = useQueryState<"job" | "skill" | "product">(
@@ -52,7 +53,7 @@ const Page = () => {
               setType(value)
             }
           >
-            <SelectTrigger className="w-40 text-primary">
+            <SelectTrigger className="w-40 ">
               <SelectValue placeholder="Sort by" />
             </SelectTrigger>
             <SelectContent>
@@ -64,7 +65,7 @@ const Page = () => {
         </CardHeader>
         <CardContent>
           {type === "product" && <CreateProductForm />}
-          {type === "job" && <CreateProductForm />}
+          {type === "job" && <CreateJobForm />}
           {type === "skill" && <CreateSkillForm />}
         </CardContent>
       </Card>
