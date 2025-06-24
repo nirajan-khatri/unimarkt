@@ -151,6 +151,13 @@ export const fetchDashboardStats = async (): Promise<DashboardStats> => {
     // add logic to check if user is actually superadmin
 
     // Fetch all data in parallel
+    // const [products, skills, users, jobs]: [Product[], Skill[], User[], Job[]] =
+    //   await Promise.all([
+    //     fetchAdminProducts(),
+    //     fetchAdminSkills(),
+    //     fetchAdminUsers(),
+    //     fetchAdminJobs(),
+    //   ]);
     const [products, skills, users, jobs]: [Product[], Skill[], User[], Job[]] =
       await Promise.all([
         fetchAdminProducts(),
@@ -186,7 +193,7 @@ export const fetchDashboardStats = async (): Promise<DashboardStats> => {
     const unapprovedSkills = pendingSkills + rejectedSkills;
 
     // Calculate job statistics
-    const totalJobs = skills.length;
+    const totalJobs = jobs.length;
     const approvedJobs = jobs.filter(
       (s: Job) => s.status === "approved"
     ).length;

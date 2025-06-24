@@ -58,7 +58,8 @@ export const CategoryDropdown = ({
           )}
         >
           <Link
-            href={`/skills/${category.slug === "all" ? "" : category.slug}`}
+            // TODO: change with slug
+            href={`/skills/${category.name === "all" ? "" : category.name}`}
           >
             {category.name}
           </Link>

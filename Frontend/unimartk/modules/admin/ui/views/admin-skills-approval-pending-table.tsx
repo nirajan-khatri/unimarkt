@@ -42,9 +42,9 @@ import {
 
 import { useRouter } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils";
-import { useQuery } from "@tanstack/react-query";
-import { fetchAdminSkills } from "../../api";
+import { cn, sendAdminMessage } from "@/lib/utils";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { approveSkill, deleteSkill, fetchAdminSkills } from "../../api";
 import { Product } from "@/modules/products/types";
 import ErrorPage from "@/app/(admin)/admin/error";
 import LoadingPage from "@/app/(admin)/admin/loader";
@@ -55,147 +55,235 @@ import {
   Skill,
 } from "@/modules/skills/types";
 import { User } from "../../types";
-
-export const columns: ColumnDef<Skill>[] = [
-  // {
-  //   id: "select",
-  //   header: ({ table }) => (
-  //     <Checkbox
-  //       checked={
-  //         table.getIsAllPageRowsSelected() ||
-  //         (table.getIsSomePageRowsSelected() && "indeterminate")
-  //       }
-  //       onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-  //       aria-label="Select all"
-  //     />
-  //   ),
-  //   cell: ({ row }) => (
-  //     <Checkbox
-  //       checked={row.getIsSelected()}
-  //       onCheckedChange={(value) => row.toggleSelected(!!value)}
-  //       aria-label="Select row"
-  //     />
-  //   ),
-  //   enableSorting: false,
-  //   enableHiding: false,
-  // },
-  {
-    accessorKey: "module",
-    header: ({ column }) => (
-      <Button
-        variant="ghost"
-        onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-      >
-        Module <ArrowUpDown className="ml-2 h-4 w-4" />
-      </Button>
-    ),
-  },
-  {
-    accessorKey: "charge_per_hour",
-    header: "Charge Per Hour",
-    cell: ({ row }) => (
-      <div className="lowercase">{row.getValue("charge_per_hour")}</div>
-    ),
-  },
-  {
-    accessorKey: "skill_category",
-    header: "Category",
-
-    cell: ({ row }) => (
-      <div className="lowercase">
-        {(row.getValue("skill_category") as Category).name}
-      </div>
-    ),
-  },
-  {
-    accessorKey: "department",
-    header: "Department",
-    cell: ({ row }) => {
-      return (
-        <div className="lowercase max-w-40 overflow-hidden text-ellipsis">
-          {(row.getValue("department") as DepartmentOrRoleOrSkillCategory).name}
-        </div>
-      );
-    },
-  },
-  {
-    accessorKey: "degree",
-    header: "Degree",
-    cell: ({ row }) => {
-      return (
-        <div className="lowercase max-w-40 overflow-hidden text-ellipsis">
-          {(row.getValue("degree") as Degree).name}
-        </div>
-      );
-    },
-  },
-  {
-    accessorKey: "user",
-    header: "Posted By",
-    cell: ({ row }) => {
-      return (
-        <div className="lowercase">{(row.getValue("user") as User)?.name}</div>
-      );
-    },
-  },
-  {
-    accessorKey: "status",
-    header: "Status",
-    cell: ({ row }) => (
-      <Badge
-        className={cn(
-          "px-2 uppercase",
-          row.getValue("status") === "pending" &&
-            "bg-orange-200 border-orange-500 text-orange-600",
-          row.getValue("status") === "rejected" &&
-            "bg-red-200 border-red-500 text-red-600"
-        )}
-      >
-        {row.getValue("status")}
-      </Badge>
-    ),
-  },
-  {
-    id: "actions",
-    enableHiding: false,
-    cell: ({ row }) => {
-      return (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="h-8 w-8 p-0">
-              <span className="sr-only">Open menu</span>
-              <MoreHorizontal />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            {row.getValue("status") !== "rejected" && (
-              <DropdownMenuItem onClick={() => alert(`Approved listing `)}>
-                Reject Skill
-              </DropdownMenuItem>
-            )}
-
-            <DropdownMenuItem onClick={() => alert(`Rejected Listing `)}>
-              Approve Skill
-            </DropdownMenuItem>
-
-            <DropdownMenuSeparator />
-            <DropdownMenuItem onClick={() => alert(`Delete `)}>
-              Delete
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      );
-    },
-  },
-];
+import CommentDialog from "../components/comment-dialog";
 
 const ApproveSkillsTable = () => {
   const router = useRouter();
+  const [dialogType, setDialogType] = React.useState<
+    "reject" | "delete" | null
+  >(null);
+  const [selectedSkillId, setSelectedSkillId] = React.useState<string | null>(
+    null
+  );
+  const [comment, setComment] = React.useState("");
+  const [dialogOpen, setDialogOpen] = React.useState(false);
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["adminSkills"],
     queryFn: fetchAdminSkills,
   });
+
+  const queryClient = useQueryClient();
+
+  const approveSkillMutation = useMutation({
+    mutationFn: approveSkill,
+    onSuccess: () => {
+      // refetch products after approval
+      queryClient.invalidateQueries({ queryKey: ["adminSkills"] });
+    },
+  });
+
+  const rejectSkillMutation = useMutation({
+    mutationFn: async ({
+      skillId,
+      comment,
+    }: {
+      skillId: string;
+      comment: string;
+    }) => {
+      const userId = data.filter(
+        (skill: Skill) => skill.skill_id === selectedSkillId
+      )[0].user.id;
+      approveSkill({ skillId, data: { status: "rejected" } });
+      await sendAdminMessage(userId, comment);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["adminSkills"] });
+      setDialogOpen(false);
+      setComment("");
+    },
+  });
+
+  const deleteSkillMutation = useMutation({
+    mutationFn: async ({
+      skillId,
+      comment,
+    }: {
+      skillId: string;
+      comment: string;
+    }) => {
+      const userId = data.filter(
+        (skill: Skill) => skill.skill_id === selectedSkillId
+      )[0].user.id;
+      deleteSkill(skillId);
+      await sendAdminMessage(userId, comment);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["adminSkills"] });
+      setDialogOpen(false);
+      setComment("");
+    },
+  });
+
+  const columns: ColumnDef<Skill>[] = [
+    // {
+    //   id: "select",
+    //   header: ({ table }) => (
+    //     <Checkbox
+    //       checked={
+    //         table.getIsAllPageRowsSelected() ||
+    //         (table.getIsSomePageRowsSelected() && "indeterminate")
+    //       }
+    //       onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+    //       aria-label="Select all"
+    //     />
+    //   ),
+    //   cell: ({ row }) => (
+    //     <Checkbox
+    //       checked={row.getIsSelected()}
+    //       onCheckedChange={(value) => row.toggleSelected(!!value)}
+    //       aria-label="Select row"
+    //     />
+    //   ),
+    //   enableSorting: false,
+    //   enableHiding: false,
+    // },
+    {
+      accessorKey: "module",
+      header: ({ column }) => (
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Module <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      ),
+    },
+    {
+      accessorKey: "charge_per_hour",
+      header: "Charge Per Hour",
+      cell: ({ row }) => (
+        <div className="lowercase">{row.getValue("charge_per_hour")}</div>
+      ),
+    },
+    {
+      accessorKey: "skill_category",
+      header: "Category",
+
+      cell: ({ row }) => (
+        <div className="lowercase">
+          {(row.getValue("skill_category") as Category).name}
+        </div>
+      ),
+    },
+    {
+      accessorKey: "department",
+      header: "Department",
+      cell: ({ row }) => {
+        return (
+          <div className="lowercase max-w-40 overflow-hidden text-ellipsis">
+            {
+              (row.getValue("department") as DepartmentOrRoleOrSkillCategory)
+                .name
+            }
+          </div>
+        );
+      },
+    },
+    {
+      accessorKey: "degree",
+      header: "Degree",
+      cell: ({ row }) => {
+        return (
+          <div className="lowercase max-w-40 overflow-hidden text-ellipsis">
+            {(row.getValue("degree") as Degree).name}
+          </div>
+        );
+      },
+    },
+    {
+      accessorKey: "user",
+      header: "Posted By",
+      cell: ({ row }) => {
+        return (
+          <div className="lowercase">
+            {(row.getValue("user") as User)?.name}
+          </div>
+        );
+      },
+    },
+    {
+      accessorKey: "status",
+      header: "Status",
+      cell: ({ row }) => (
+        <Badge
+          className={cn(
+            "px-2 uppercase",
+            row.getValue("status") === "pending" &&
+              "bg-orange-200 border-orange-500 text-orange-600",
+            row.getValue("status") === "rejected" &&
+              "bg-red-200 border-red-500 text-red-600"
+          )}
+        >
+          {row.getValue("status")}
+        </Badge>
+      ),
+    },
+    {
+      id: "actions",
+      enableHiding: false,
+      cell: ({ row }) => {
+        return (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="h-8 w-8 p-0">
+                <span className="sr-only">Open menu</span>
+                <MoreHorizontal />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              {row.getValue("status") !== "rejected" && (
+                <DropdownMenuItem
+                  onClick={() => {
+                    setDialogType("reject");
+                    setSelectedSkillId(row.original.skill_id);
+                    setDialogOpen(true);
+                  }}
+                >
+                  Reject Skill
+                </DropdownMenuItem>
+              )}
+
+              {row.getValue("status") !== "approved" && (
+                <DropdownMenuItem
+                  onClick={() => {
+                    approveSkillMutation.mutate({
+                      skillId: row.original.skill_id,
+                      data: { status: "approved" },
+                    });
+                  }}
+                >
+                  Approve Skill
+                </DropdownMenuItem>
+              )}
+
+              <DropdownMenuSeparator />
+
+              <DropdownMenuItem
+                onClick={() => {
+                  setDialogType("delete");
+                  setSelectedSkillId(row.original.skill_id);
+                  setDialogOpen(true);
+                }}
+              >
+                Delete
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        );
+      },
+    },
+  ];
 
   const unapprovedSkills = React.useMemo(() => {
     return data?.filter((skill: Skill) => skill.status !== "approved");
@@ -401,6 +489,18 @@ const ApproveSkillsTable = () => {
           </Button>
         </div>
       </div>
+
+      <CommentDialog
+        listingType="skill"
+        dialogOpen={dialogOpen}
+        setDialogOpen={setDialogOpen}
+        dialogType={dialogType}
+        selectedId={selectedSkillId}
+        comment={comment}
+        setComment={setComment}
+        rejectMutation={rejectSkillMutation}
+        deleteMutation={deleteSkillMutation}
+      />
     </div>
   );
 };
