@@ -10,7 +10,7 @@ class SkillFilter(django_filters.FilterSet):
 
     module = django_filters.CharFilter(field_name="module", lookup_expr='icontains')
     description = django_filters.CharFilter(field_name="description", lookup_expr='icontains')
-    skill_category__name = django_filters.CharFilter(field_name="skill_category__name", lookup_expr='icontains')
+    skill_category__name = django_filters.CharFilter(field_name="skill_category__slug", lookup_expr='icontains')
     isArchived = django_filters.BooleanFilter(field_name="isArchived")
     status = django_filters.ChoiceFilter(
             field_name="status",

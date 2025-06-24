@@ -78,6 +78,12 @@ class ProductViewSet(viewsets.ModelViewSet):
                                                         description="Filter by user ID"
                                                     ),
                             openapi.Parameter(
+                                                    "exclude_user_id",
+                                                    openapi.IN_QUERY,
+                                                    type=openapi.TYPE_INTEGER,
+                                                    description="Exclude products by this user ID"
+                                                ),
+                            openapi.Parameter(
                                 "isArchived",
                                 openapi.IN_QUERY,
                                 type=openapi.TYPE_BOOLEAN,

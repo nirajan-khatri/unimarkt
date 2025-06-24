@@ -7,14 +7,16 @@ class ProductFilter(django_filters.FilterSet):
 
     name = django_filters.CharFilter(field_name="name", lookup_expr='icontains')
     description = django_filters.CharFilter(field_name="description", lookup_expr='icontains')
-    category__name = django_filters.CharFilter(field_name="category__name", lookup_expr='icontains')
-    sub_category__name = django_filters.CharFilter(field_name="sub_category__name", lookup_expr='icontains')
+    category__name = django_filters.CharFilter(field_name="category__slug", lookup_expr='icontains')
+    sub_category__name = django_filters.CharFilter(field_name="sub_category__slug", lookup_expr='icontains')
     pickup_location = django_filters.CharFilter(field_name="pickup_location", lookup_expr='icontains')
     status = django_filters.ChoiceFilter(
             field_name="status",
             choices=[("pending", "pending"), ("approved", "approved"), ("rejected", "rejected")]
         )
     user_id = django_filters.NumberFilter(field_name="user_id")
+    exclude_user_id = django_filters.NumberFilter(field_name="user_id", exclude=True)
+
     isArchived = django_filters.BooleanFilter(field_name="isArchived")
 
     

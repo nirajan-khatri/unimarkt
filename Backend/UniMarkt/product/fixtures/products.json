@@ -159,7 +159,7 @@
     "fields": {
       "name": "iPhone 13",
       "category": 1,
-      "sub_category": 1,
+      "sub_category": 2,
       "description": "Latest Apple iPhone 13",
       "price": "799.99",
       "images": ["https://unimarkt-bucket.s3.eu-central-1.amazonaws.com/uploads/iphone13pro.jpg"],
@@ -175,7 +175,7 @@
     "fields": {
       "name": "The Great Gatsby",
       "category": 2,
-      "sub_category": 2,
+      "sub_category": 3,
       "description": "Classic novel by F. Scott Fitzgerald",
       "price": "15.00",
       "images": ["https://unimarkt-bucket.s3.eu-central-1.amazonaws.com/uploads/book.jpg"],
@@ -191,7 +191,7 @@
     "fields": {
       "name": "Men's T-Shirt",
       "category": 3,
-      "sub_category": 3,
+      "sub_category": 4,
       "description": "Comfortable cotton t-shirt",
       "price": "20.00",
       "images": ["https://unimarkt-bucket.s3.eu-central-1.amazonaws.com/uploads/tshirt.jpg"],
@@ -207,7 +207,7 @@
     "fields": {
       "name": "Office Chair",
       "category": 4,
-      "sub_category": 4,
+      "sub_category": 5,
       "description": "Ergonomic office chair",
       "price": "150.00",
       "images": ["https://unimarkt-bucket.s3.eu-central-1.amazonaws.com/uploads/office+chair.jpg"],
@@ -223,7 +223,7 @@
     "fields": {
       "name": "Tent",
       "category": 5,
-      "sub_category": 5,
+      "sub_category": 6,
       "description": "4-person outdoor camping tent",
       "price": "120.00",
       "images": ["https://unimarkt-bucket.s3.eu-central-1.amazonaws.com/uploads/tent.jpg"],
