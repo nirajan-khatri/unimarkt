@@ -29,7 +29,6 @@ export type Job = {
   created_at: string;
   updated_at: string;
 };
-<<<<<<< HEAD
 
 export interface PaginatedSkillsResponse {
   count: number;
@@ -86,5 +85,3 @@ export interface SkillMessageWindowProps {
   sellerName: string;
   initialMessage: string;
 }
-=======
->>>>>>> f9d986bb45ac728319ee0a4d36ff534f3ab8b94b
