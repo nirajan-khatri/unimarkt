@@ -147,7 +147,7 @@ const CreateSkillForm = ({ skillId }: Props) => {
       toast.success(
         skillId ? "Skill updated successfully!" : "Skill created successfully!"
       );
-      // window.location.href = "/";
+      window.location.href = "/profile";
     },
   });
 
