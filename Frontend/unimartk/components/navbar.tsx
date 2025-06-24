@@ -22,6 +22,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "./ui/avatar";
 import { useTheme } from "next-themes";
 import { useAuth } from "@/modules/auth/contexts/authContext";
 import { UserProfile } from "@/modules/auth/types/auth";
+import dynamic from "next/dynamic";
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -54,6 +55,13 @@ const NavbarItem = ({ children, href, isActive }: NavbarItemProps) => {
     </Button>
   );
 };
+
+const ClientLink = dynamic(
+  () => import("@/components/client-link").then((m) => m.default),
+  {
+    ssr: false,
+  }
+);
 
 export const Navbar = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -190,24 +198,20 @@ export const Navbar = () => {
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-          <Button
+          {/* <Button
             asChild
-            variant={"secondary"}
-            className=" px-10 xl:px-12 transition-colors text-lg bg-primary max-w-32"
-          >
-            <Link prefetch href={"/sign-in"}>
-              Log in
-            </Link>
-          </Button>
-          <Button
-            asChild
-            variant={"secondary"}
-            className=" px-10 xl:px-12 transition-colors text-lg bg-primary  max-w-32"
-          >
-            <Link prefetch href={"/sign-up"}>
-              Start Selling
-            </Link>
-          </Button>
+            variant="secondary"
+            className="px-10 xl:px-12 transition-colors text-lg bg-primary max-w-32"
+          > */}
+          <ClientLink basePath="/sign-in">
+            <Button className="">Log in</Button>
+          </ClientLink>
+
+          {/* </Button> */}
+
+          <ClientLink basePath="/sign-up">
+            <Button className="">Register</Button>
+          </ClientLink>
         </div>
       )}
 
