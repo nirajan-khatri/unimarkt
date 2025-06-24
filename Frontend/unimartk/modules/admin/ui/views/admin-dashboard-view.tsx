@@ -44,8 +44,8 @@ const AdminDashboardView = () => {
         />
         <AdminCard
           title="Jobs Listed"
-          value={data?.totalProducts ?? 0}
-          subtitle={`${data?.totalApprovedProducts ?? 0} approved, ${data?.totalRejectedProducts ?? 0} rejected, ${data?.totalPendingProducts ?? 0} pending`}
+          value={data?.totalJobs ?? 0}
+          subtitle={`${data?.totalApprovedJobs ?? 0} approved, ${data?.totalRejectedJobs ?? 0} rejected, ${data?.totalPendingJobs ?? 0} pending`}
           href={"/admin/jobs"}
         />
         <AdminCard
@@ -75,8 +75,8 @@ const AdminDashboardView = () => {
         />
         <AdminCard
           title="Jobs Approval Pending"
-          subtitle={`${data?.totalRejectedProducts ?? 0} rejected, ${data?.totalPendingProducts ?? 0} pending`}
-          value={data?.totalUnapprovedProducts ?? 0}
+          subtitle={`${data?.totalRejectedJobs ?? 0} rejected, ${data?.totalPendingJobs ?? 0} pending`}
+          value={data?.totalUnapprovedJobs ?? 0}
           href="/admin/jobsApprovals"
         />
 

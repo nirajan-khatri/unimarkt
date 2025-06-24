@@ -80,14 +80,12 @@ export const jobSchema = z.object({
     .string()
     .min(1, "Job title is required")
     .max(100, "job title must not exceed 200 characters"),
+  location: z.string().min(1, "Location is required"),
   description: z.string().min(1, "Description is required"),
   qualifications: z.string().min(1, "Qualification is required"),
-  department_id: z.string().min(1, "Department is required"),
-  remuneration: z.string().min(1, "Price is required"),
-  job_type: JobEnum.optional(),
+  salary_per_hour: z.string().min(1, "Price is required"),
+  category_id: z.string().min(1, "Please select a category"),
   contact_email: z.string().min(1, "Contact Email is required"),
-  contact_name: z.string().min(1, "Contact Name is required"),
-  contact_phone: z.string(),
 });
 
 export const profileSchema = z.object({

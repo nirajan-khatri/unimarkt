@@ -55,6 +55,7 @@ import {
 } from "@/modules/skills/types";
 import CommentDialog from "../components/comment-dialog";
 import Link from "next/link";
+import { User } from "../../types";
 
 const SkillsTable = () => {
   const router = useRouter();
@@ -201,6 +202,17 @@ const SkillsTable = () => {
         return (
           <div className="lowercase max-w-40 overflow-hidden text-ellipsis">
             {(row.getValue("degree") as Degree).name}
+          </div>
+        );
+      },
+    },
+    {
+      accessorKey: "user",
+      header: "Posted By",
+      cell: ({ row }) => {
+        return (
+          <div className="lowercase">
+            {(row.getValue("user") as User)?.name}
           </div>
         );
       },

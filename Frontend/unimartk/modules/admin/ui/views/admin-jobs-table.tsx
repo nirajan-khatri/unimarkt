@@ -18,11 +18,9 @@ import {
   ArrowUpDown,
   ChevronDown,
   MoreHorizontal,
-  ExternalLink,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -46,16 +44,14 @@ import { Badge } from "@/components/ui/badge";
 import { cn, sendAdminMessage } from "@/lib/utils";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
-import { Product } from "@/modules/products/types";
-import ErrorPage from "@/app/(admin)/admin/error";
-import LoadingPage from "@/app/(admin)/admin/loader";
-import { Category } from "@/modules/home/types";
 import CommentDialog from "../components/comment-dialog";
 import Link from "next/link";
-import { jobs as data } from "@/constants/jobs";
 import { Job } from "@/modules/jobs/types";
-import { approveJob, deleteJob } from "../../api";
+import { approveJob, deleteJob, fetchAdminJobs } from "../../api";
 import { DepartmentOrRoleOrSkillCategory } from "@/modules/skills/types";
+import LoadingPage from "@/app/(admin)/admin/loader";
+import ErrorPage from "@/app/(admin)/admin/error";
+import { User } from "../../types";
 
 const JobsTable = () => {
   const router = useRouter();
@@ -66,10 +62,10 @@ const JobsTable = () => {
   const [comment, setComment] = React.useState("");
   const [dialogOpen, setDialogOpen] = React.useState(false);
 
-  // const { data, isLoading, error } = useQuery({
-  //   queryKey: ["adminJobs"],
-  //   queryFn: fetchAdminJobs,
-  // });
+  const { data, isLoading, error } = useQuery({
+    queryKey: ["adminJobs"],
+    queryFn: fetchAdminJobs,
+  });
 
   const queryClient = useQueryClient();
 
@@ -80,7 +76,6 @@ const JobsTable = () => {
       queryClient.invalidateQueries({ queryKey: ["adminJobs"] });
     },
   });
-
   const rejectJobMutation = useMutation({
     mutationFn: async ({
       jobId,
@@ -90,7 +85,7 @@ const JobsTable = () => {
       comment: string;
     }) => {
       const userId = data.filter((job: Job) => job.job_id === selectedJobId)[0]
-        .posted_by.id;
+        .user.id;
       approveJob({ jobId, data: { status: "rejected" } });
       await sendAdminMessage(userId, comment);
     },
@@ -110,7 +105,7 @@ const JobsTable = () => {
       comment: string;
     }) => {
       const userId = data.filter((job: Job) => job.job_id === selectedJobId)[0]
-        .posted_by.id;
+        .user.id;
       deleteJob(jobId);
       await sendAdminMessage(userId, comment);
     },
@@ -161,37 +156,45 @@ const JobsTable = () => {
       ),
     },
     {
-      accessorKey: "remuneration",
+      accessorKey: "salary_per_hour",
       header: "Remuneration",
       cell: ({ row }) => (
-        <div className="lowercase">{row.getValue("remuneration")}</div>
+        <div className="lowercase">{row.getValue("salary_per_hour")}</div>
       ),
     },
     {
-      accessorKey: "department",
-      header: "Department",
-      cell: ({ row }) => (
-        <div className="lowercase">
-          {(row.getValue("department") as DepartmentOrRoleOrSkillCategory).name}
-        </div>
-      ),
-    },
-    {
-      accessorKey: "job_type",
-      header: "Job Type",
+      accessorKey: "category",
+      header: "Category",
       cell: ({ row }) => {
-        return <div className="lowercase">{row.getValue("job_type")}</div>;
+        return (
+          <div className="lowercase">
+            {
+              (row.getValue("category") as DepartmentOrRoleOrSkillCategory)
+                ?.name
+            }
+          </div>
+        );
       },
     },
-    // {
-    //   accessorKey: "pickup_location",
-    //   header: "Location",
-    //   cell: ({ row }) => {
-    //     return (
-    //       <div className="lowercase">{row.getValue("pickup_location")}</div>
-    //     );
-    //   },
-    // },
+
+    {
+      accessorKey: "location",
+      header: "Location",
+      cell: ({ row }) => {
+        return <div className="lowercase">{row.getValue("location")}</div>;
+      },
+    },
+    {
+      accessorKey: "user",
+      header: "Posted By",
+      cell: ({ row }) => {
+        return (
+          <div className="lowercase">
+            {(row.getValue("user") as User)?.name}
+          </div>
+        );
+      },
+    },
     {
       accessorKey: "status",
       header: "Status",
@@ -304,13 +307,13 @@ const JobsTable = () => {
     },
   });
 
-  // if (isLoading) {
-  //   return <LoadingPage />;
-  // }
+  if (isLoading) {
+    return <LoadingPage />;
+  }
 
-  // if (error) {
-  //   return <ErrorPage />;
-  // }
+  if (error) {
+    return <ErrorPage />;
+  }
 
   return (
     <div className="w-full px-4 lg:px-12 py-8 flex flex-col gap-4">

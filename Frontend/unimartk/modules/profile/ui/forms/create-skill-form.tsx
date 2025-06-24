@@ -337,7 +337,7 @@ const CreateSkillForm = ({ skillId }: Props) => {
                     €
                   </span>
                   <Input
-                    type="text"
+                    type="number"
                     placeholder="0.00"
                     {...field}
                     className="pl-7"

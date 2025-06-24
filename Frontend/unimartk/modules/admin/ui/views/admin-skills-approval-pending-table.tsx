@@ -54,6 +54,7 @@ import {
   DepartmentOrRoleOrSkillCategory,
   Skill,
 } from "@/modules/skills/types";
+import { User } from "../../types";
 
 export const columns: ColumnDef<Skill>[] = [
   // {
@@ -125,6 +126,15 @@ export const columns: ColumnDef<Skill>[] = [
         <div className="lowercase max-w-40 overflow-hidden text-ellipsis">
           {(row.getValue("degree") as Degree).name}
         </div>
+      );
+    },
+  },
+  {
+    accessorKey: "user",
+    header: "Posted By",
+    cell: ({ row }) => {
+      return (
+        <div className="lowercase">{(row.getValue("user") as User)?.name}</div>
       );
     },
   },

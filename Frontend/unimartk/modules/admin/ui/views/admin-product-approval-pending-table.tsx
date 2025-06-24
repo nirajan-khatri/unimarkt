@@ -51,6 +51,7 @@ import LoadingPage from "@/app/(admin)/admin/loader";
 import { Category } from "@/modules/home/types";
 import CommentDialog from "../components/comment-dialog";
 import Link from "next/link";
+import { User } from "../../types";
 
 const ProductTable = () => {
   const router = useRouter();
@@ -197,6 +198,17 @@ const ProductTable = () => {
       cell: ({ row }) => {
         return (
           <div className="lowercase">{row.getValue("pickup_location")}</div>
+        );
+      },
+    },
+    {
+      accessorKey: "user",
+      header: "Posted By",
+      cell: ({ row }) => {
+        return (
+          <div className="lowercase">
+            {(row.getValue("user") as User)?.name}
+          </div>
         );
       },
     },

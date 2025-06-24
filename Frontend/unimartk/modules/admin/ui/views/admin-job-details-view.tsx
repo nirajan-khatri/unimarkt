@@ -26,24 +26,21 @@ import {
 import { sortedAvailability, sendAdminMessage } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { approveJob, deleteJob } from "../../api";
+import { approveJob, deleteJob, fetchJobById } from "../../api";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import CommentDialog from "../components/comment-dialog";
-import { fetchJobById } from "@/services/products";
-
-import { job as data } from "@/constants/jobs";
 
 interface Props {
   jobId: string;
 }
 
 const jobTypes = [
-  { value: "research", label: "Research", icon: Microscope },
-  { value: "hiwi", label: "Hiwi", icon: User },
-  { value: "tutoring", label: "Tutoring", icon: PenToolIcon },
-  { value: "administrative", label: "Administrative", icon: FileText },
-  { value: "other", label: "Other", icon: Briefcase },
+  { value: "Engineering", label: "Engineering", icon: Microscope },
+  { value: "Marketing", label: "Marketing", icon: User },
+  { value: "Sales", label: "Sales", icon: PenToolIcon },
+  { value: "Human Resources", label: "Human Resources", icon: FileText },
+  { value: "Customer Support", label: "Customer Support", icon: Briefcase },
 ];
 
 export const AdminJobDetailsView = ({ jobId }: Props) => {
@@ -57,10 +54,10 @@ export const AdminJobDetailsView = ({ jobId }: Props) => {
   const [comment, setComment] = useState("");
   const [dialogOpen, setDialogOpen] = useState(false);
 
-  // const { data, error, isLoading } = useSuspenseQuery({
-  //   queryKey: ["job", jobId],
-  //   queryFn: () => fetchJobById(jobId),
-  // });
+  const { data, error, isLoading } = useSuspenseQuery({
+    queryKey: ["job", jobId],
+    queryFn: () => fetchJobById(jobId),
+  });
 
   const deletejobMutation = useMutation({
     mutationFn: async ({
@@ -70,8 +67,8 @@ export const AdminJobDetailsView = ({ jobId }: Props) => {
       jobId: string;
       comment: string;
     }) => {
-      if (data?.posted_by?.id && comment.trim()) {
-        await sendAdminMessage(data.posted_by.id, comment);
+      if (data?.user?.id && comment.trim()) {
+        await sendAdminMessage(data.user.id, comment);
       }
       return deleteJob(jobId);
     },
@@ -114,8 +111,8 @@ export const AdminJobDetailsView = ({ jobId }: Props) => {
       comment: string;
     }) => {
       // Send admin message first if comment exists
-      if (data?.posted_by?.id && comment.trim()) {
-        await sendAdminMessage(data.posted_by.id, comment);
+      if (data?.user?.id && comment.trim()) {
+        await sendAdminMessage(data.user.id, comment);
       }
 
       return approveJob({ jobId, data: { status: "rejected" } });
@@ -198,7 +195,7 @@ export const AdminJobDetailsView = ({ jobId }: Props) => {
                     <div className="absolute inset-0 flex flex-col justify-center items-center bg-muted text-muted-foreground group-hover:brightness-95 transition">
                       {(() => {
                         const cover = jobTypes.find(
-                          (c) => c.value === data?.job_type?.toLowerCase()
+                          (c) => c.value === data?.category.name
                         );
                         const Icon = cover?.icon || Lightbulb;
                         return (
@@ -226,22 +223,16 @@ export const AdminJobDetailsView = ({ jobId }: Props) => {
                   </h2>
                   <div className="flex flex-col md:flex-row gap-1 md:gap-3">
                     <div className="flex items-center gap-1 text-muted-foreground">
-                      <SchoolIcon className="w-4 h-4" />
-                      <span className="text-xs sm:text-sm">
-                        {data?.department?.name}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-1 text-muted-foreground">
                       <GraduationCapIcon className="w-4 h-4" />
                       <span className="text-xs sm:text-sm">
-                        {data?.job_type}
+                        {data?.category.name}
                       </span>
                     </div>
                   </div>
                 </div>
                 <div className="mb-4">
                   <span className="text-xl sm:text-2xl font-bold">
-                    {data?.remuneration}€
+                    {data?.salary_per_hour}€
                   </span>
                 </div>
               </div>
@@ -249,21 +240,10 @@ export const AdminJobDetailsView = ({ jobId }: Props) => {
               <div className="p-4 sm:p-6 border-t border-border">
                 <h3 className="text-lg font-semibold mb-3">Job Contact</h3>
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
-                    <span className="text-sm font-medium">
-                      {data.contact_name?.[0]}
-                    </span>
-                  </div>
                   <div>
-                    <p className="font-medium">{data.contact_name}</p>
                     <p className="text-sm text-muted-foreground">
                       {data.contact_email}
                     </p>
-                    {data.contact_phone && (
-                      <p className="text-sm text-muted-foreground">
-                        {data.contact_phone}
-                      </p>
-                    )}
                   </div>
                 </div>
               </div>

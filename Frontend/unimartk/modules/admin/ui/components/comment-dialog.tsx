@@ -64,7 +64,6 @@ const CommentDialog = ({
                   : listingType === "job"
                     ? { jobId: selectedId, comment }
                     : { productId: selectedId, comment };
-
               if (dialogType === "reject") {
                 rejectMutation.mutate(payload);
               } else if (dialogType === "delete") {

@@ -31,10 +31,7 @@ import { Button } from "../../../../components/ui/button";
 import { Category } from "@/modules/home/types";
 import LoadingPage from "@/app/(admin)/admin/loader";
 import ErrorPage from "@/app/(admin)/admin/error";
-import {
-  fetchproductCategories,
-  fetchProductSubcategories,
-} from "@/modules/home/api";
+import { fetchJobCategories } from "@/modules/home/api";
 import { useAuth } from "@/modules/auth/contexts/authContext";
 import { redirect, useRouter } from "next/navigation";
 import { fetchJobById } from "@/services/products";
@@ -54,8 +51,6 @@ const CreateJobForm = ({ jobId }: Props) => {
     redirect("/sign-in");
   }
 
-  console.log(user);
-
   const queryClient = useQueryClient();
 
   const {
@@ -74,22 +69,23 @@ const CreateJobForm = ({ jobId }: Props) => {
       title: "",
       description: "",
       qualifications: "",
-      department_id: "",
-      job_type: undefined,
-      remuneration: "",
+      salary_per_hour: "",
+      location: "",
+      category_id: "",
       contact_email: "",
-      contact_name: "",
-      contact_phone: "",
     },
   });
 
-  const jobTypes = [
-    { value: "research", label: "Research" },
-    { value: "hiwi", label: "Hiwi" },
-    { value: "tutoring", label: "Tutoring" },
-    { value: "administrative", label: "Administrative" },
-    { value: "other", label: "Other" },
-  ];
+  console.log(form.formState.errors);
+
+  const {
+    data: categoryData,
+    isLoading: categoryIsLoading,
+    error: categoryError,
+  } = useQuery({
+    queryKey: ["jobCategories"],
+    queryFn: fetchJobCategories,
+  });
 
   // Update form and preview images when product data is loaded
   // useEffect(() => {
@@ -109,9 +105,9 @@ const CreateJobForm = ({ jobId }: Props) => {
   const mutation = useMutation({
     mutationFn: (newJob: JobFromData) => {
       if (jobId) {
-        return axios.put(`/job-postings/${jobId}/`, newJob);
+        return axios.put(`/jobs/${jobId}/`, newJob);
       }
-      return axios.post("/job-postings/", newJob);
+      return axios.post("/jobs/", newJob);
     },
     onError: () => {
       toast.error("Something went wrong!");
@@ -128,12 +124,11 @@ const CreateJobForm = ({ jobId }: Props) => {
     },
   });
 
-  // Loading state for edit mode
-  if (jobId && isLoading) {
+  if ((jobId && isLoading) || categoryIsLoading) {
     return <LoadingPage />;
   }
 
-  if (error) {
+  if (error || categoryError) {
     return <ErrorPage />;
   }
 
@@ -142,7 +137,7 @@ const CreateJobForm = ({ jobId }: Props) => {
       const payload = {
         ...data,
         status: "pending",
-        posted_by_id: user!.id,
+        user_id: user!.id,
       };
 
       console.log("Submitting payload:", payload);
@@ -198,32 +193,35 @@ const CreateJobForm = ({ jobId }: Props) => {
             <div className="flex gap-3">
               <FormField
                 control={form.control}
-                name="job_type"
+                name="category_id"
                 render={({ field }) => (
                   <FormItem className="flex-1">
-                    <FormLabel>Job Type</FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
+                    <FormLabel>
+                      Category<span className="text-red-500 -ml-1.5">*</span>
+                    </FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl className="w-full">
                         <SelectTrigger>
-                          <SelectValue placeholder="Select a department" />
+                          <SelectValue placeholder="Select a category" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        {jobTypes.map((job) => (
-                          <SelectItem key={job.value} value={job.value}>
-                            {job.label}
-                          </SelectItem>
-                        ))}
+                        {categoryData &&
+                          categoryData.slice(1).map((category: Category) => (
+                            <SelectItem
+                              key={category.id}
+                              value={category.id.toString()}
+                            >
+                              {category.name}
+                            </SelectItem>
+                          ))}
                       </SelectContent>
                     </Select>
                     <FormMessage />
                   </FormItem>
                 )}
               />
-              <FormField
+              {/* <FormField
                 control={form.control}
                 name="department_id"
                 render={({ field }) => (
@@ -254,8 +252,24 @@ const CreateJobForm = ({ jobId }: Props) => {
                     <FormMessage />
                   </FormItem>
                 )}
-              />
+              /> */}
             </div>
+            <FormField
+              control={form.control}
+              name="location"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>
+                    Location (City)
+                    <span className="text-red-500 -ml-1.5">*</span>
+                  </FormLabel>
+                  <FormControl>
+                    <Input placeholder="Enter Location" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <FormField
               control={form.control}
               name="description"
@@ -279,7 +293,7 @@ const CreateJobForm = ({ jobId }: Props) => {
             {/* Price */}
             <FormField
               control={form.control}
-              name="remuneration"
+              name="salary_per_hour"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>
@@ -291,7 +305,7 @@ const CreateJobForm = ({ jobId }: Props) => {
                         €
                       </span>
                       <Input
-                        type="text"
+                        type="number"
                         placeholder="0.00"
                         {...field}
                         className="pl-7"
@@ -317,7 +331,7 @@ const CreateJobForm = ({ jobId }: Props) => {
                 </FormItem>
               )}
             />
-            <FormField
+            {/* <FormField
               control={form.control}
               name="contact_name"
               render={({ field }) => (
@@ -344,7 +358,7 @@ const CreateJobForm = ({ jobId }: Props) => {
                   <FormMessage />
                 </FormItem>
               )}
-            />
+            /> */}
             {/* Submit Button */}
             <div className="flex gap-4">
               <Button
