@@ -129,7 +129,7 @@ const ProfileView = () => {
   //   );
   // }
 
-  if ((!isAuthenticated || !user) && isInitialized) {
+  if (isInitialized && !isAuthenticated) {
     redirect("/sign-in");
   }
   const handleEdit = () => {
@@ -155,8 +155,8 @@ const ProfileView = () => {
           // avatarUrl={user?.}
           name={user.name}
           email={user.email}
-          contact_number={user.contact_number}
-          role={user.role?.name || "User"}
+          contact_number={user.contact_number || undefined}
+          role={user.role || "User"}
           isEditing={isEditing}
           onEdit={handleEdit}
           onCancel={handleCancel}

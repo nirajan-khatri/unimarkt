@@ -1,6 +1,7 @@
 import { JobCard } from "./JobCard";
+import type { JobPosting } from '@/modules/jobs/hooks/useJobs';
+import { JobGridSkeleton } from "@/modules/profile/ui/components/skeletons";
 import { Loader2 } from "lucide-react";
-import type { JobPosting } from "@/modules/jobs/hooks/useJobs";
 import { Job } from "../../types";
 
 interface JobGridProps {
@@ -11,11 +12,7 @@ interface JobGridProps {
 
 export function JobGrid({ jobs, isLoading, error }: JobGridProps) {
   if (isLoading) {
-    return (
-      <div className="fixed inset-0 bg-white/50 flex items-center justify-center z-50">
-        <Loader2 className="h-12 w-12 text-blue-500 animate-spin" />
-      </div>
-    );
+    return <JobGridSkeleton />;
   }
 
   if (error) {

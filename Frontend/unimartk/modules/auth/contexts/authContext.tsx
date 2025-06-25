@@ -2,7 +2,8 @@
 "use client";
 
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
-import { LoginResponse, UserProfile, StoredTokens } from '../types/auth';
+import { LoginResponse, UserProfile, StoredTokens, ROLE_MAP, UserRole } from '../types/auth';
+import { fetchCurrentUser } from '../services/api';
 
 // Cookie management utilities
 const setCookie = (name: string, value: string, days: number = 7) => {
@@ -39,6 +40,9 @@ interface AuthContextType {
   getAccessToken: () => string | null;
   getRefreshToken: () => string | null;
   getAuthHeader: () => { Authorization: string } | {};
+
+  // RBAC helper
+  hasRole: (role: UserRole) => boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -57,26 +61,26 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   useEffect(() => {
     const accessToken = getCookie('accessToken');
     const refreshToken = getCookie('refreshToken');
-    const storedUser = getCookie('user');
 
-    if (accessToken && refreshToken && storedUser) {
-      try {
-        const parsedUser = JSON.parse(storedUser);
-        setTokens({
-          access: accessToken,
-          refresh: refreshToken,
-          timestamp: parseInt(getCookie('tokenTimestamp') || Date.now().toString())
+    if (accessToken && refreshToken) {
+      setTokens({
+        access: accessToken,
+        refresh: refreshToken,
+        timestamp: parseInt(getCookie('tokenTimestamp') || Date.now().toString())
+      });
+      setIsAuthenticated(true);
+
+      fetchCurrentUser(accessToken)
+        .then((data: UserProfile) => {
+          setUser({
+            ...data,
+            role: ROLE_MAP[(data as any).role as keyof typeof ROLE_MAP] || "user"
+          });
+        })
+        .catch((err: unknown) => {
+          console.error('Error fetching user:', err);
+          logout();
         });
-        setUser(parsedUser);
-        setIsAuthenticated(true);
-      } catch (error) {
-        console.error('Error parsing stored user data:', error);
-        // Clear invalid cookies
-        removeCookie('accessToken');
-        removeCookie('refreshToken');
-        removeCookie('user');
-        removeCookie('tokenTimestamp');
-      }
     }
     setIsInitialized(true);
   }, []);
@@ -87,30 +91,35 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       refresh: loginResponse.refresh,
       timestamp: Date.now()
     };
-    const userProfile: UserProfile = { ...loginResponse.user };
 
-    // Update state
     setTokens(newTokens);
-    setUser(userProfile);
     setIsAuthenticated(true);
 
     // Set cookies
     setCookie('accessToken', newTokens.access);
     setCookie('refreshToken', newTokens.refresh);
     setCookie('tokenTimestamp', newTokens.timestamp.toString());
-    setCookie('user', JSON.stringify(userProfile));
+
+    fetchCurrentUser(loginResponse.access)
+      .then((data: UserProfile) => {
+        setUser({
+          ...data,
+          role: ROLE_MAP[(data as any).role as keyof typeof ROLE_MAP] || "user"
+        });
+      })
+      .catch((err: unknown) => {
+        console.error('Error fetching user:', err);
+        logout();
+      });
   };
 
   const logout = () => {
-    // Clear state
     setTokens(null);
     setUser(null);
     setIsAuthenticated(false);
 
-    // Clear cookies
     removeCookie('accessToken');
     removeCookie('refreshToken');
-    removeCookie('user');
     removeCookie('tokenTimestamp');
   };
 
@@ -143,6 +152,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     return token ? { Authorization: `Bearer ${token}` } : {};
   };
 
+  // RBAC helper
+  const hasRole = (role: UserRole) => {
+    return user?.role === role;
+  };
+
   const value: AuthContextType = {
     isAuthenticated,
     isInitialized,
@@ -154,6 +168,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     getAccessToken,
     getRefreshToken,
     getAuthHeader,
+    hasRole,
   };
 
   return (

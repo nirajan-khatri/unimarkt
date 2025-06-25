@@ -17,8 +17,10 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft } from "lucide-react";
 import CreateJobForm from "@/modules/profile/ui/forms/create-job-form";
+import { useAuth } from "@/modules/auth/contexts/authContext";
 
 const Page = () => {
+  const { isAuthenticated, user, logout, hasRole } = useAuth();
   const [type, setType] = useQueryState<"job" | "skill" | "product">(
     "type",
     parseAsStringEnum(["job", "skill", "product"]).withDefault("product")
@@ -59,7 +61,7 @@ const Page = () => {
             <SelectContent>
               <SelectItem value="product">Product</SelectItem>
               <SelectItem value="skill">Skill</SelectItem>
-              <SelectItem value="job">Job</SelectItem>
+              {hasRole("faculty") && <SelectItem value="job">Job</SelectItem>}
             </SelectContent>
           </Select>
         </CardHeader>

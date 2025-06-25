@@ -52,3 +52,17 @@ export const loginUser = async (loginData: LoginRequest): Promise<LoginResponse>
 
   return response.json();
 };
+
+export async function fetchCurrentUser(accessToken: string) {
+  const response = await fetch(`${API_BASE_URL}current-user/`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ token: accessToken }),
+  });
+  if (!response.ok) {
+    throw new Error('Failed to fetch user');
+  }
+  return response.json();
+} 

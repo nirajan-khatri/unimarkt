@@ -7,9 +7,11 @@ import { fetchDashboardStats } from "../../api";
 import { useQuery } from "@tanstack/react-query";
 import LoadingPage from "@/app/(admin)/admin/loader";
 import ErrorPage from "@/app/(admin)/admin/error";
+import { useAuth } from "@/modules/auth/contexts/authContext";
 
 const AdminDashboardView = () => {
   const isSuperuser = false;
+  const { isAuthenticated, user, logout, hasRole } = useAuth();
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["adminDashboardStats"],
@@ -27,7 +29,7 @@ const AdminDashboardView = () => {
   return (
     <div className="flex flex-col gap-6 px-4 lg:px-12 py-8">
       <p className="text-3xl font-semibold">
-        {isSuperuser ? "SuperAdmin" : "Admin"} Dashboard
+        {hasRole("superuser") ? "SuperAdmin" : "Admin"} Dashboard
       </p>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
         <AdminCard
@@ -79,13 +81,12 @@ const AdminDashboardView = () => {
           value={data?.totalUnapprovedJobs ?? 0}
           href="/admin/jobsApprovals"
         />
-
-        <AdminCard
+        {hasRole("superuser") && <AdminCard
           title="Admins"
           subtitle={`${data?.totalRejectedAdmins ?? 0} rejected, ${data?.totalPendingAdmins ?? 0} pending`}
           value={data?.totalUnapprovedAdmins ?? 0}
           href="/admin/admins"
-        />
+        />}
         <AdminCard
           title="Faculty"
           subtitle={`${data?.totalRejectedFaculty ?? 0} rejected, ${data?.totalPendingFaculty ?? 0} pending`}

@@ -1,36 +1,59 @@
-import { Skeleton } from "@/components/ui/skeleton"
+import { Skeleton } from "@/components/ui/skeleton";
+import { Card, CardContent } from "@/components/ui/card";
 
 export function ProductSkeleton() {
   return (
-    <div className="rounded-lg">
-      {/* Image container with exact height */}
-      <div className="relative h-48 mb-4">
-        <Skeleton className="absolute inset-0 rounded-t-lg" />
-      </div>
-      
-      <div className="p-4">
-        {/* Title */}
-        <Skeleton className="h-7 w-3/4 mb-2" />
-        
-        {/* Description - two lines */}
-        <div className="space-y-2 mb-2">
-          <Skeleton className="h-4 w-full" />
-          <Skeleton className="h-4 w-2/3" />
+    <Card className="group bg-white gap-0 rounded-xl py-0 shadow-sm border border-gray-200 overflow-hidden h-full flex flex-col">
+      {/* Image placeholder + floating badges */}
+      <div className="relative h-48 bg-gradient-to-br from-gray-50 to-gray-100 overflow-hidden">
+        {/* full-bleed image skeleton */}
+        <Skeleton className="absolute inset-0" />
+
+        {/* category badge */}
+        <div className="absolute top-3 right-3">
+          <Skeleton className="h-6 w-20 rounded-md" />
         </div>
-        
-        {/* Price and category row */}
-        <div className="flex justify-between items-center mb-2">
-          <Skeleton className="h-6 w-16" /> {/* Price */}
-          <Skeleton className="h-6 w-24 rounded" /> {/* Category tag */}
-        </div>
-        
-        {/* Posted date */}
-        <div className="mt-2">
-          <Skeleton className="h-4 w-32" />
+
+        {/* price badge */}
+        <div className="absolute bottom-3 left-3">
+          <Skeleton className="h-8 w-24 rounded-lg" />
         </div>
       </div>
-    </div>
-  )
+
+      <CardContent className="p-5 flex flex-col flex-grow">
+        {/* title */}
+        <Skeleton className="h-6 w-3/4 mb-4" />
+
+        {/* description (2 lines) */}
+        <Skeleton className="h-4 w-full mb-1" />
+        <Skeleton className="h-4 w-5/6 mb-4" />
+
+        {/* info blocks */}
+        <div className="space-y-3 mb-4">
+          {/* location */}
+          <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+            <Skeleton className="h-8 w-8 rounded-full flex-shrink-0" />
+            <div className="flex-1 space-y-1">
+              <Skeleton className="h-3 w-24" />
+              <Skeleton className="h-3 w-32" />
+            </div>
+          </div>
+
+          {/* date */}
+          <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+            <Skeleton className="h-8 w-8 rounded-full flex-shrink-0" />
+            <div className="flex-1 space-y-1">
+              <Skeleton className="h-3 w-20" />
+              <Skeleton className="h-3 w-28" />
+            </div>
+          </div>
+        </div>
+
+        {/* CTA button */}
+        <Skeleton className="h-10 w-full mt-auto rounded-md" />
+      </CardContent>
+    </Card>
+  );
 }
 
 export function ProductGridSkeleton() {
@@ -40,5 +63,5 @@ export function ProductGridSkeleton() {
         <ProductSkeleton key={index} />
       ))}
     </div>
-  )
-} 
+  );
+}
