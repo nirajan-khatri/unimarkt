@@ -1,7 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
 
 export interface JobFilters {
-  jobType: string;
+  location: string;
+  minSalary: string;
+  maxSalary: string;
 }
 
 export interface JobPosting {
@@ -58,8 +60,14 @@ async function fetchJobs(
   if (searchTerm) {
     url.searchParams.append("title", searchTerm);
   }
-  if (filters.jobType) {
-    url.searchParams.append("job_type", filters.jobType);
+  if (filters.location) {
+    url.searchParams.append("location", filters.location);
+  }
+  if (filters.minSalary) {
+    url.searchParams.append("min_salary", filters.minSalary);
+  }
+  if (filters.maxSalary) {
+    url.searchParams.append("max_salary", filters.maxSalary);
   }
   if (category) {
     url.searchParams.append("category", category);

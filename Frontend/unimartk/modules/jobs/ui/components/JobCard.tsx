@@ -4,6 +4,7 @@ import type { JobPosting } from '@/modules/jobs/hooks/useJobs';
 import { format } from 'date-fns';
 import { CalendarDays, MapPin, DollarSign, Mail, Phone, User } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
 
 
 interface JobCardProps {
@@ -12,77 +13,84 @@ interface JobCardProps {
 
 export function JobCard({ job }: JobCardProps) {
   const router = useRouter();
+  const salary = job.salary_per_hour ? parseFloat(job.salary_per_hour) : "Negotiable";
+
   return (
     <Card
-      className="group hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer border shadow-md bg-white/80 backdrop-blur-sm overflow-hidden relative"
+      className="group bg-white rounded-xl py-0 shadow-sm border border-gray-200 overflow-hidden cursor-pointer transition-all duration-300 hover:shadow-lg hover:-translate-y-1 h-full flex flex-col"
       onClick={() => router.push(`/jobs/job-details/${job.job_id}`)}
     >
-      {/* Gradient accent line */}
-      {/* <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500"></div> */}
-
-      <CardHeader className="pt-6">
-        <div className="space-y-3">
-          <div className="flex items-start">
-            <CardTitle className="text-xl font-bold line-clamp-2 group-hover:text-blue-600 transition-colors leading-tight">
+      <CardContent className="p-6 flex flex-col h-full">
+        {/* Header Section */}
+        <div className="flex items-start justify-between mb-4">
+          <div className="flex-1">
+            <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2 group-hover:text-gray-700 transition-colors min-h-[3.5rem] leading-tight">
               {job.title}
-            </CardTitle>
-          </div>
-
-          <div className="flex flex-wrap">
+            </h3>
             {job.location && (
-              <Badge variant="outline" className="text-xs bg-gray-50 text-gray-700 border-gray-200">
-                <MapPin className="h-4 w-4 text-purple-500 shrink-0" />
+              <Badge variant="secondary" className="bg-gray-100 text-gray-700 border-gray-200 font-medium">
+                <MapPin size={12} className="mr-1" />
                 {job.location}
               </Badge>
             )}
           </div>
         </div>
-      </CardHeader>
 
-      <CardContent className="pt-0 space-y-4">
-        {/* Description */}
-        <p className="text-gray-600 line-clamp-3 leading-relaxed text-sm">
-          {job.description}
-        </p>
+        {/* Description - Fixed height */}
+        <div className="mb-4 flex-grow">
+          <p className="text-gray-600 text-sm leading-relaxed line-clamp-2 h-[2.5rem] overflow-hidden">
+            {job.description}
+          </p>
+        </div>
 
-        {/* Key details with icons */}
-        <div className="space-y-3">
-          {job.salary_per_hour && (
-            <div className="flex items-center gap-2 text-sm">
-              <DollarSign className="h-4 w-4 text-green-500 shrink-0" />
-              <span className="font-medium text-gray-700">Salary:</span>
-              <span className="text-gray-600">{job.salary_per_hour}/hr</span>
+        {/* Contact Info - Fixed height section */}
+        <div className="space-y-3 mb-4">
+          <div className="flex items-center gap-2 p-3 bg-gray-50 rounded-lg min-h-[3.5rem]">
+            <div className="w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center flex-shrink-0">
+              <User size={16} className="text-white" />
             </div>
-          )}
-
-          <div className="flex items-center gap-2 text-sm">
-            <User className="h-4 w-4 text-blue-500 shrink-0" />
-            <span className="font-medium text-gray-700">Contact:</span>
-            <span className="text-gray-600 truncate">{job.user.name}</span>
+            <div className="flex-1 min-w-0">
+              <p className="font-medium text-gray-900 text-sm truncate">{job.user.name}</p>
+              <p className="text-xs text-gray-500 truncate">{job.contact_email}</p>
+            </div>
           </div>
 
-          <div className="flex items-center gap-2 text-sm">
-            <Mail className="h-4 w-4 text-purple-500 shrink-0" />
-            <span className="text-gray-600 truncate">{job.contact_email}</span>
-          </div>
-
-          {job.contact_phone && (
-            <div className="flex items-center gap-2 text-sm">
-              <Phone className="h-4 w-4 text-orange-500 shrink-0" />
-              <span className="text-gray-600">{job.contact_phone}</span>
+          {/* Salary Info */}
+          {salary && (
+            <div className="flex items-center gap-2 p-2 bg-gray-50 rounded-lg border border-gray-200">
+              <span className="flex-shrink-0">Salary:</span>
+              <span className="text-sm text-gray-800 font-medium">
+                €{salary}/hr
+              </span>
             </div>
           )}
         </div>
 
-        {/* Footer with date */}
-        <div className="flex items-center justify-between pt-3 border-t border-gray-100">
-          <div className="flex items-center gap-1 text-xs text-gray-500">
-            <CalendarDays className="h-3 w-3" />
-            <span>Posted {format(new Date(job.created_at), 'MMM dd, yyyy')}</span>
+        {/* Date Section - Fixed at bottom */}
+        <div className="mt-auto">
+          <div className="flex items-center gap-2 mb-2">
+            <CalendarDays size={16} className="text-gray-400" />
+            <span className="text-sm font-medium text-gray-700">Posted Date</span>
           </div>
-          <div className="text-xs text-blue-600 group-hover:text-blue-700 font-medium">
-            View Details →
+
+          <div className="p-2 bg-gray-50 rounded-lg border border-gray-200 mb-4">
+            <span className="text-sm text-gray-800">
+              {new Date(job.created_at).toLocaleDateString('en-US', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+              })}
+            </span>
           </div>
+
+          {/* Action Button */}
+          <Button
+            size="lg"
+            className="w-full font-medium bg-gray-800 hover:bg-gray-900 text-white shadow-sm hover:shadow-md transition-all duration-200"
+          >
+            View Job Details
+          </Button>
         </div>
       </CardContent>
     </Card>

@@ -12,24 +12,34 @@ interface JobFiltersProps {
 }
 
 export function JobFilters({ filters, onFiltersChange }: JobFiltersProps) {
-  // Only keep jobType in local state
-  const [localFilters, setLocalFilters] = React.useState<Pick<JobFilters, 'jobType'>>({
-    jobType: filters.jobType,
+  // Only keep location, minSalary, maxSalary in local state
+  const [localFilters, setLocalFilters] = React.useState<Pick<JobFilters, 'location' | 'minSalary' | 'maxSalary'>>({
+    location: filters.location,
+    minSalary: filters.minSalary,
+    maxSalary: filters.maxSalary,
   });
 
   React.useEffect(() => {
-    setLocalFilters({ jobType: filters.jobType });
-  }, [filters.jobType]);
+    setLocalFilters({
+      location: filters.location,
+      minSalary: filters.minSalary,
+      maxSalary: filters.maxSalary,
+    });
+  }, [filters.location, filters.minSalary, filters.maxSalary]);
 
   // Debounce filter changes
   React.useEffect(() => {
     const handler = setTimeout(() => {
       if (
-        localFilters.jobType !== filters.jobType
+        localFilters.location !== filters.location ||
+        localFilters.minSalary !== filters.minSalary ||
+        localFilters.maxSalary !== filters.maxSalary
       ) {
         onFiltersChange({
           ...filters,
-          jobType: localFilters.jobType,
+          location: localFilters.location,
+          minSalary: localFilters.minSalary,
+          maxSalary: localFilters.maxSalary,
         });
       }
     }, 500);
@@ -41,15 +51,15 @@ export function JobFilters({ filters, onFiltersChange }: JobFiltersProps) {
   };
 
   const clearAllFilters = () => {
-    const clearedFilters = { jobType: "" };
+    const clearedFilters = { location: "", minSalary: "", maxSalary: "" };
     setLocalFilters(clearedFilters);
     onFiltersChange({
       ...filters,
-      jobType: "",
+      ...clearedFilters,
     });
   };
 
-  const hasActiveFilters = localFilters.jobType;
+  const hasActiveFilters = localFilters.location || localFilters.minSalary || localFilters.maxSalary;
 
   return (
     <div className="lg:col-span-2 rounded-lg border bg-card text-card-foreground shadow-sm h-fit">
@@ -68,18 +78,41 @@ export function JobFilters({ filters, onFiltersChange }: JobFiltersProps) {
       </div>
       <Accordion
         type="multiple"
-        defaultValue={["jobType"]}
+        defaultValue={["location", "salary"]}
         className="w-full"
       >
-        <AccordionItem value="jobType">
-          <AccordionTrigger className="p-4">Job Type</AccordionTrigger>
+        <AccordionItem value="location">
+          <AccordionTrigger className="p-4">Location</AccordionTrigger>
           <AccordionContent className="p-4 pt-0">
             <div className="grid gap-4">
               <Input
-                id="jobType"
-                placeholder="Enter job type (e.g. hiwi, tutoring)"
-                value={localFilters.jobType}
-                onChange={e => handleInputChange("jobType", e.target.value)}
+                id="location"
+                placeholder="Enter location (e.g. Fulda)"
+                value={localFilters.location}
+                onChange={e => handleInputChange("location", e.target.value)}
+              />
+            </div>
+          </AccordionContent>
+        </AccordionItem>
+        <AccordionItem value="salary">
+          <AccordionTrigger className="p-4">Salary Range</AccordionTrigger>
+          <AccordionContent className="p-4 pt-0">
+            <div className="grid gap-4 grid-cols-2">
+              <Input
+                id="minSalary"
+                type="number"
+                placeholder="Min Salary"
+                value={localFilters.minSalary}
+                onChange={e => handleInputChange("minSalary", e.target.value)}
+                min={0}
+              />
+              <Input
+                id="maxSalary"
+                type="number"
+                placeholder="Max Salary"
+                value={localFilters.maxSalary}
+                onChange={e => handleInputChange("maxSalary", e.target.value)}
+                min={0}
               />
             </div>
           </AccordionContent>

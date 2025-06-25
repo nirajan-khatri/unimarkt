@@ -37,25 +37,32 @@ export const JobsListView = ({
   const searchParams = useSearchParams();
   const search = searchParams.get("search") || "";
 
-  const hasAnyFilters = !!(filters.department || filters.jobType || search);
+  const hasAnyFilters = !!(filters.location || filters.minSalary || filters.maxSalary || search);
 
-  const clearDepartment = () => {
+  const clearLocation = () => {
     onFiltersChange({
       ...filters,
-      department: ""
+      location: ""
     });
   };
 
-  const clearJobType = () => {
+  const clearMinSalary = () => {
     onFiltersChange({
       ...filters,
-      jobType: ""
+      minSalary: ""
+    });
+  };
+
+  const clearMaxSalary = () => {
+    onFiltersChange({
+      ...filters,
+      maxSalary: ""
     });
   };
 
   const clearAllFilters = () => {
     onFiltersChange({
-      department: "", jobType: "" });
+      location: "", minSalary: "", maxSalary: "" });
   };
 
   const showPagination = !isLoading && !error && jobs && jobs.count > 0;
@@ -77,8 +84,9 @@ export const JobsListView = ({
       {hasAnyFilters && (
         <ActiveJobFilters
           jobFilters={filters}
-          onClearDepartment={clearDepartment}
-          onClearJobType={clearJobType}
+          onClearLocation={clearLocation}
+          onClearMinSalary={clearMinSalary}
+          onClearMaxSalary={clearMaxSalary}
           onClearAll={clearAllFilters}
         />
       )}
