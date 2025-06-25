@@ -16,13 +16,31 @@ export function formatCurrency(value: number | string) {
 
 export const sendAdminMessage = (
   receiverId: string,
-  message: string
+  message: string,
+  listingName?: string,
+  action?: "rejected" | "deleted"
 ): Promise<void> => {
   return new Promise((resolve, reject) => {
     const senderId = "1"; // Admin ID
     const wsBaseUrl =
       process.env.NEXT_PUBLIC_WS_URL || "ws://localhost:8000/ws/";
     const wsUrl = `${wsBaseUrl}chat/${senderId}/${receiverId}/`;
+
+    let formattedMessage = message;
+
+    console.log("formattedMessage", formattedMessage);
+    console.log("listingName", listingName);
+    console.log("action", action);
+
+    if (listingName && action) {
+      const actionText = action === "rejected" ? "rejected" : "deleted";
+      formattedMessage = `Your skill "${listingName}" has been ${actionText}.\n\nReason: ${message}\n\n--- This is an automated message. Do not reply. ---`;
+    } else {
+      // Add the auto-generated ending if it's not already there
+      if (!message.toLowerCase().includes("do not reply")) {
+        formattedMessage = `${message}\n\n--- This is an automated message. Do not reply. ---`;
+      }
+    }
 
     const ws = new WebSocket(wsUrl);
 
@@ -34,7 +52,8 @@ export const sendAdminMessage = (
     ws.onopen = () => {
       clearTimeout(timeout);
       console.log("WebSocket (admin) connected");
-      ws.send(JSON.stringify({ message }));
+      // ws.send(JSON.stringify({ message }));
+      ws.send(JSON.stringify({ message: formattedMessage }));
       ws.close();
       resolve();
     };
@@ -98,7 +117,7 @@ export const getNextDateForWeekday = (weekday: string): string => {
 };
 
 export async function uploadToS3(file: File): Promise<string> {
-    const res = await fetch(`${window.location.origin}/api/s3-upload`, {
+  const res = await fetch(`${window.location.origin}/api/s3-upload`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
