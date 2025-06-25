@@ -43,6 +43,7 @@ const SignUpLink = dynamic(
 export const SignInView = () => {
   const [redirectUrl, setRedirectUrl] = useState<string>("/");
   const [isLoading, setIsLoading] = useState(true);
+  const [errorMsg, setErrorMsg] = useState<string>("");
   const router = useRouter();
   const { login, isAuthenticated } = useAuth();
 
@@ -80,22 +81,26 @@ export const SignInView = () => {
     mutationFn: loginUser,
     onSuccess: (data: LoginResponse) => {
       try {
-        // Store auth data using context
         login(data);
-
-        // Redirect to the appropriate page
         router.push(redirectUrl);
       } catch (error) {
-        console.error("Error storing user data:", error);
-        alert("Login successful but failed to store user data locally.");
+        setErrorMsg("Login successful but failed to store user data locally.");
       }
     },
-    onError: (error: Error) => {
-      alert(`Login failed: ${error.message}`);
+    onError: (error: any) => {
+      // Show a user-friendly error message
+      if (error?.response?.status === 400 || (typeof error.message === 'string' && error.message.includes('400'))) {
+        setErrorMsg("Email and password do not match.");
+      } else if (error.message.includes("401") || error.message.toLowerCase().includes("unauthorized")) {
+        setErrorMsg("Invalid email or password. Please try again.");
+      } else {
+        setErrorMsg(error.message || "Login failed. Please try again.");
+      }
     },
   });
 
   const onSubmit = (values: z.infer<typeof loginSchema>) => {
+    setErrorMsg(""); // Clear error on new submit
     loginMutation.mutate({
       email: values.email,
       password: values.password,
@@ -178,6 +183,11 @@ export const SignInView = () => {
               >
                 {loginMutation.isPending ? "Logging in..." : "Log In"}
               </Button>
+              {errorMsg && (
+                <div className="rounded-md bg-red-100 border border-red-400 text-red-700 px-4 py-3 mt-2 text-sm" role="alert">
+                  {errorMsg}
+                </div>
+              )}
             </form>
           </Form>
         </div>

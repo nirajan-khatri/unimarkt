@@ -2,7 +2,7 @@
 "use client";
 
 import React, { createContext, useContext, useState, ReactNode, useEffect } from 'react';
-import { LoginResponse, UserProfile, StoredTokens } from '../types/auth';
+import { LoginResponse, UserProfile, StoredTokens, ROLE_MAP, UserRole } from '../types/auth';
 
 // Cookie management utilities
 const setCookie = (name: string, value: string, days: number = 7) => {
@@ -39,6 +39,9 @@ interface AuthContextType {
   getAccessToken: () => string | null;
   getRefreshToken: () => string | null;
   getAuthHeader: () => { Authorization: string } | {};
+
+  // RBAC helper
+  hasRole: (role: UserRole) => boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -87,7 +90,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       refresh: loginResponse.refresh,
       timestamp: Date.now()
     };
-    const userProfile: UserProfile = { ...loginResponse.user };
+    // Map numeric role to string role
+    const userProfile: UserProfile = {
+      ...loginResponse.user,
+      role: ROLE_MAP[(loginResponse.user as any).role as keyof typeof ROLE_MAP] || "user"
+    };
 
     // Update state
     setTokens(newTokens);
@@ -143,6 +150,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     return token ? { Authorization: `Bearer ${token}` } : {};
   };
 
+  // RBAC helper
+  const hasRole = (role: UserRole) => {
+    return user?.role === role;
+  };
+
   const value: AuthContextType = {
     isAuthenticated,
     isInitialized,
@@ -154,6 +166,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     getAccessToken,
     getRefreshToken,
     getAuthHeader,
+    hasRole,
   };
 
   return (

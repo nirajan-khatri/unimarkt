@@ -1,13 +1,18 @@
-export interface UserRole {
-  id: number;
-  name: string;
-}
+// Role mapping for RBAC
+export const ROLE_MAP = {
+  1: "user",
+  2: "faculty",
+  3: "admin",
+  4: "superuser",
+} as const;
+
+export type UserRole = typeof ROLE_MAP[keyof typeof ROLE_MAP];
 
 export interface UserProfile {
   id: number;
   name: string;
   email: string;
-  contact_number: string;
+  contact_number: string | null;
   role: UserRole;
 }
 
