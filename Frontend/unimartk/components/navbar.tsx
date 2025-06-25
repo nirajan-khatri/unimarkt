@@ -70,7 +70,7 @@ export const Navbar = () => {
   const pathname = usePathname();
   const router = useRouter();
   const { setTheme } = useTheme();
-  const { isAuthenticated, user, logout } = useAuth();
+  const { isAuthenticated, user, logout, hasRole } = useAuth();
   useEffect(() => {
     // Check authentication status on the client side
     setUserProfile(user);
@@ -169,7 +169,7 @@ export const Navbar = () => {
               <DropdownMenuItem onClick={handleProfile}>
                 Profile
               </DropdownMenuItem>
-              {userProfile?.role?.name === "admin" && (
+              {hasRole("admin") || hasRole("superuser") && (
                 <DropdownMenuItem onClick={handleAdminDashboard}>
                   Admin Dashboard
                 </DropdownMenuItem>
