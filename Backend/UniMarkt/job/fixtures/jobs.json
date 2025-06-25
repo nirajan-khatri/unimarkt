@@ -3,35 +3,40 @@
     "model": "job.jobcategory",
     "pk": 1,
     "fields": {
-      "name": "Engineering"
+      "name": "Engineering",
+      "slug": "engineering"
     }
   },
   {
     "model": "job.jobcategory",
     "pk": 2,
     "fields": {
-      "name": "Marketing"
+      "name": "Marketing",
+      "slug": "marketing"
     }
   },
   {
     "model": "job.jobcategory",
     "pk": 3,
     "fields": {
-      "name": "Sales"
+      "name": "Sales",
+      "slug": "sales"
     }
   },
   {
     "model": "job.jobcategory",
     "pk": 4,
     "fields": {
-      "name": "Human Resources"
+      "name": "Human Resources",
+      "slug": "human-resources"
     }
   },
   {
     "model": "job.jobcategory",
     "pk": 5,
     "fields": {
-      "name": "Customer Support"
+      "name": "Customer Support",
+      "slug": "customer-support"
     }
   },
   {

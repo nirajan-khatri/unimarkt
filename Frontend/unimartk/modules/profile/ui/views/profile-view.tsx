@@ -1,66 +1,150 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import React from "react";
+import React, { Suspense, useState } from "react";
 import ProfileDetailsCard from "../components/profile-details-card";
 import { useUser } from "../../hooks/useUser";
 import { redirect } from "next/navigation";
 import { useAuth } from "@/modules/auth/contexts/authContext";
-import { skills } from "@/constants/skills";
 import { ProfileServiceGrid } from "../components/profile-skill-grid";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ProfileProductGrid } from "../components/profile-product-grid";
-import { products } from "@/constants/products";
+import { useSuspenseQuery } from '@tanstack/react-query';
+import { fetchUserProducts } from "../../api";
+import { fetchUserSkills } from "../../api";
+import { ProductGridSkeleton, SkillGridSkeleton } from "../components/skeletons";
+import { Pagination } from "@/components/ui/pagination";
+
+// Products Component wrapped in Suspense
+const ProductsSection = ({ userId }: { userId: string }) => {
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(9);
+
+  const { data: userProductsResponse } = useSuspenseQuery({
+    queryKey: ['userProducts', userId, currentPage, pageSize],
+    queryFn: () => fetchUserProducts(userId, currentPage, pageSize),
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    retry: 3,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+  });
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
+  const handlePageSizeChange = (size: number) => {
+    setPageSize(size);
+    setCurrentPage(1); // Reset to first page when changing page size
+  };
+
+  const showPagination = userProductsResponse && userProductsResponse.count > 0;
+
+  return (
+    <div className="flex flex-col gap-4">
+      <ProfileProductGrid
+        products={userProductsResponse.results}
+        error=""
+        isLoading={false}
+      />
+      
+      {showPagination && (
+        <Pagination
+          currentPage={userProductsResponse.currentPage}
+          totalItems={userProductsResponse.count}
+          pageSize={pageSize}
+          hasNext={userProductsResponse.hasNext}
+          hasPrevious={userProductsResponse.hasPrevious}
+          onPageChange={handlePageChange}
+          onPageSizeChange={handlePageSizeChange}
+        />
+      )}
+    </div>
+  );
+};
+
+// Skills Component wrapped in Suspense
+const SkillsSection = ({ userId }: { userId: string }) => {
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(9);
+
+  const { data: userSkillsResponse } = useSuspenseQuery({
+    queryKey: ['userSkills', userId, currentPage, pageSize],
+    queryFn: () => fetchUserSkills(userId, currentPage, pageSize),
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    retry: 3,
+    retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+  });
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
+  const handlePageSizeChange = (size: number) => {
+    setPageSize(size);
+    setCurrentPage(1); // Reset to first page when changing page size
+  };
+
+  const showPagination = userSkillsResponse && userSkillsResponse.count > 0;
+
+  return (
+    <div className="flex flex-col gap-4">
+      <ProfileServiceGrid
+        services={userSkillsResponse.results}
+        error={null}
+        isLoading={false}
+      />
+      
+      {showPagination && (
+        <Pagination
+          currentPage={userSkillsResponse.currentPage}
+          totalItems={userSkillsResponse.count}
+          pageSize={pageSize}
+          hasNext={userSkillsResponse.hasNext}
+          hasPrevious={userSkillsResponse.hasPrevious}
+          onPageChange={handlePageChange}
+          onPageSizeChange={handlePageSizeChange}
+        />
+      )}
+    </div>
+  );
+};
 
 const ProfileView = () => {
-  const { isAuthenticated, user, isInitialized } = useAuth();
+  const { user, loading: userLoading } = useAuth();
+  const { user: userDetails, loading: detailsLoading } = useUser(user?.id);
 
-  if ((!isAuthenticated || !user) && isInitialized) {
+  const [isEditing, setIsEditing] = useState(false);
+
+  if (userLoading || detailsLoading) {
+    return (
+      <div className="px-4 lg:px-12 py-10">
+        <div className="animate-pulse">
+          <div className="h-32 bg-gray-200 rounded-lg mb-8"></div>
+          <div className="h-8 bg-gray-200 rounded w-1/4 mb-4"></div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
     redirect("/sign-in");
   }
-  const { deleteUser, updateUser, isLoading } = useUser("1");
 
-  const [isEditing, setIsEditing] = React.useState(false);
-
-  // const { data, isLoading, error } = useQuery({
-  //   queryKey: ["profileProducts"],
-  //   queryFn: fetchUserProducts(user?.id),
-  //   enabled:user!==null
-  // });
-
-  // const { data, isLoading, error } = useQuery({
-  //   queryKey: ["profileSkills"],
-  //   queryFn: fetchUserSkills(user?.id),
-  //   enabled:user!==null
-  // });
-
-  const handleEdit = () => setIsEditing(true);
-  const handleCancel = () => setIsEditing(false);
-
-  const handleSave = async (updatedData: {
-    name: string;
-    email: string;
-    contact_number?: string;
-  }) => {
-    try {
-      updateUser({ id: "1", data: updatedData });
-      setIsEditing(false);
-    } catch (error) {
-      console.error("Failed to update user:", error);
-    }
+  const handleEdit = () => {
+    setIsEditing(true);
   };
 
-  const handleDelete = async () => {
-    try {
-      deleteUser();
-    } catch (error) {
-      console.error("Failed to delete user:", error);
-    }
+  const handleCancel = () => {
+    setIsEditing(false);
   };
 
-  if ((!isAuthenticated || !user) && isInitialized) {
-    redirect("/sign-in");
-  }
+  const handleSave = () => {
+    setIsEditing(false);
+  };
+
+  const handleDelete = () => {
+    // Handle delete logic
+  };
 
   return (
     <div className="px-4 lg:px-12 py-10 flex flex-col gap-y-8">
@@ -76,14 +160,14 @@ const ProfileView = () => {
           onCancel={handleCancel}
           onSave={handleSave}
           onDelete={handleDelete}
-          loading={isLoading}
+          loading={userLoading}
         />
       )}
       <div className="flex flex-col gap-4">
         <div className="flex justify-between gap-3">
           <p className="text-2xl">Your Listings</p>
           <div className="flex flex-row gap-3">
-            <Button asChild>
+            <Button variant="outline" className="border-primary text-primary" asChild>
               <Link href={"profile/sold"}>Show Sold Listings</Link>
             </Button>
             <Button asChild>
@@ -97,18 +181,18 @@ const ProfileView = () => {
             <TabsTrigger value="services">Services</TabsTrigger>
           </TabsList>
           <TabsContent value="products">
-            <ProfileProductGrid
-              products={products}
-              error={""}
-              isLoading={false}
-            />
+            {user?.id && (
+              <Suspense fallback={<ProductGridSkeleton />}>
+                <ProductsSection userId={user.id} />
+              </Suspense>
+            )}
           </TabsContent>
           <TabsContent value="services">
-            <ProfileServiceGrid
-              services={skills}
-              error={null}
-              isLoading={false}
-            />
+            {user?.id && (
+              <Suspense fallback={<SkillGridSkeleton />}>
+                <SkillsSection userId={user.id} />
+              </Suspense>
+            )}
           </TabsContent>
         </Tabs>
       </div>

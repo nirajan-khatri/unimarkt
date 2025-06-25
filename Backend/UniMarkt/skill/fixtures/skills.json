@@ -1,44 +1,51 @@
 [
+  
   {
     "model": "skill.skillcategory",
     "pk": 1,
     "fields": {
-      "name": "Programming"
+      "name": "Programming",
+      "slug": "programming"
     }
   },
   {
     "model": "skill.skillcategory",
     "pk": 2,
     "fields": {
-      "name": "Language"
+      "name": "Language",
+      "slug": "language"
     }
   },
   {
     "model": "skill.skillcategory",
     "pk": 3,
     "fields": {
-      "name": "Music"
+      "name": "Music",
+      "slug": "music"
     }
   },
   {
     "model": "skill.skillcategory",
     "pk": 4,
     "fields": {
-      "name": "Soft Skills"
+      "name": "Soft Skills",
+      "slug": "soft-skills"
     }
   },
   {
     "model": "skill.skillcategory",
     "pk": 5,
     "fields": {
-      "name": "Creative"
+      "name": "Creative",
+      "slug": "creative"
     }
   },
   {
     "model": "skill.skillcategory",
     "pk": 6,
     "fields": {
-      "name": "Fitness"
+      "name": "Fitness",
+      "slug": "fitness"
     }
   },
   {

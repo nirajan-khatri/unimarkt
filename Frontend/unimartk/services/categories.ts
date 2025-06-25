@@ -25,4 +25,14 @@ export class CategoryService {
     }
     return response.json();
   }
+
+  static async getSkillCategories(): Promise<Category[]> {
+    const response = await fetch(`${API_BASE_URL}skill-categories/`);
+    if (!response.ok) {
+      throw new Error(
+        `Failed to fetch categories: ${response.status} ${response.statusText}`
+      );
+    }
+    return response.json();
+  }
 }

@@ -120,7 +120,7 @@ const CreateJobForm = ({ jobId }: Props) => {
       toast.success(
         jobId ? "Jobs updated successfully!" : "Jobs created successfully!"
       );
-      window.location.href = "/";
+      window.location.href = "/profile";
     },
   });
 
