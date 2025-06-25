@@ -1,51 +1,11 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Skill } from "../../types";
+import { Skill } from "@/modules/skills/types";
 import { useRouter } from "next/navigation";
 import { Calendar, CheckCircle, User } from "lucide-react";
 
 interface ServiceCardProps {
-  // service: {
-  //   skill_id: number;
-  //   status: string;
-  //   module: string;
-  //   description: string;
-  //   charge_per_hour: string;
-  //   department: {
-  //     id: number;
-  //     name: string;
-  //   };
-  //   degree: {
-  //     id: number;
-  //     department: {
-  //       id: number;
-  //       name: string;
-  //     };
-  //     name: string;
-  //   };
-  //   user: {
-  //     id: number;
-  //     name: string;
-  //     email: string;
-  //     contact_number: string;
-  //     role: {
-  //       id: number;
-  //       name: string;
-  //     };
-  //   };
-  //   available_time_week: Array<{
-  //     day: string;
-  //     start_time: string;
-  //     end_time: string;
-  //     status: string;
-  //   }>;
-  //   skill_category: {
-  //     id: number;
-  //     name: string;
-  //   };
-  //   created_at: string;
-  // };
   service: Skill;
 }
 
@@ -68,82 +28,111 @@ export function ServiceCard({ service }: ServiceCardProps) {
     router.push(`/skillDetail/${service.skill_id}`);
   };
 
+  const isApproved = service.status === "approved";
+
   return (
     <Card
-      className="group hover:shadow-lg transition-shadow duration-200 cursor-pointer"
+      className="group bg-white py-0 rounded-xl shadow-sm border border-gray-200 overflow-hidden cursor-pointer transition-all duration-300 hover:shadow-lg hover:-translate-y-1 h-[450px] flex flex-col"
       onClick={handleClick}
     >
-      <CardHeader className="pb-3">
-        <div className="flex items-start justify-between">
+      <CardContent className="p-6 flex flex-col h-full">
+        {/* Header Section - Fixed Height */}
+        <div className="flex items-start justify-between min-h-[80px]">
           <div className="flex-1">
-            <CardTitle className="text-lg font-semibold line-clamp-2 group-hover:text-blue-600 transition-colors">
-              {service.module.charAt(0).toUpperCase() + service.module.slice(1)}{" "}
-              Programming
-            </CardTitle>
-            <div className="flex gap-2 mt-2">
-              <Badge variant="secondary" className="text-xs">
+            <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2 group-hover:text-gray-700 transition-colors">
+              {service.module.charAt(0).toUpperCase() + service.module.slice(1)}
+            </h3>
+            <div className="flex gap-2">
+              <Badge variant="secondary" className="bg-gray-100 text-gray-700 border-gray-200 font-medium">
                 {service.skill_category.name}
               </Badge>
+              {/* {isApproved && (
+                <Badge className="bg-green-50 text-green-700 border-green-200 font-medium flex items-center gap-1">
+                  <CheckCircle size={12} />
+                  Approved
+                </Badge>
+              )} */}
+            </div>
+          </div>
+          
+          {/* Price Badge */}
+          <div className="bg-gray-50 px-4 py-2 rounded-lg border border-gray-200 flex-shrink-0">
+            <span className="text-2xl font-bold text-gray-800">
+              €{hourlyRate}
+            </span>
+            <span className="text-sm text-gray-600 font-medium">/hr</span>
+          </div>
+        </div>
+
+        {/* Description - Fixed Height */}
+        <div className="mb-4 h-[40px] flex items-start">
+          <p className="text-gray-600 text-sm leading-relaxed line-clamp-2">
+            {service.description}
+          </p>
+        </div>
+
+        {/* Provider Info - Fixed Height */}
+        <div className="mb-4 h-[56px]">
+          <div className="flex items-center gap-2 p-3 bg-gray-50 rounded-lg h-full">
+            <div className="w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center flex-shrink-0">
+              <User size={16} className="text-white" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="font-medium text-gray-900 text-sm truncate">{service.user.name}</p>
+              <p className="text-xs text-gray-500 truncate">{service.degree.name}</p>
             </div>
           </div>
         </div>
-      </CardHeader>
 
-      <CardContent className="pt-0">
-        <div className="space-y-3">
-          <p className="text-sm text-gray-600 line-clamp-2">
-            {service.description}
-          </p>
-
-          <div className="flex items-center gap-1 text-sm text-gray-500">
-            <User className="w-4 h-4" />
-            <span>{service.user.name}</span>
-            <span className="text-gray-400">•</span>
-            <span>{service.degree.name}</span>
+        {/* Availability Section - Flexible Height */}
+        <div className="flex-1 mb-4 flex flex-col">
+          <div className="flex items-center gap-2 mb-3">
+            <Calendar size={16} className="text-gray-400" />
+            <span className="text-sm font-medium text-gray-700">Available Times</span>
           </div>
-
-          <div className="text-sm text-gray-500">
-            <div className="flex items-center gap-1 mb-1">
-              <Calendar className="w-4 h-4" />
-              <span>Available Times:</span>
-            </div>
+          
+          <div className="flex-1 flex flex-col justify-start">
             {availableSlots.length > 0 ? (
-              <div className="ml-5 space-y-1">
+              <div className="space-y-2">
                 {availableSlots.slice(0, 2).map((slot, index) => (
-                  <div key={index} className="text-xs">
-                    <span className="font-medium">{slot.day}</span>:{" "}
-                    {formatTime(slot.start_time)} - {formatTime(slot.end_time)}
+                  <div 
+                    key={index} 
+                    className="flex items-center justify-between p-2 bg-gray-50 rounded-lg border border-gray-200"
+                  >
+                    <span className="text-sm font-medium text-gray-800">{slot.day}</span>
+                    <span className="text-xs text-gray-600">
+                      {formatTime(slot.start_time)} - {formatTime(slot.end_time)}
+                    </span>
                   </div>
                 ))}
                 {availableSlots.length > 2 && (
-                  <div className="text-xs text-gray-400">
-                    +{availableSlots.length - 2} more slots
+                  <div className="text-center">
+                    <span className="text-xs text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
+                      +{availableSlots.length - 2} more slots available
+                    </span>
                   </div>
                 )}
               </div>
             ) : (
-              <div className="ml-5 text-xs text-gray-400">
-                No available slots
+              <div className="p-3 bg-red-50 rounded-lg border border-red-100 text-center">
+                <span className="text-sm text-red-600">No available slots</span>
               </div>
             )}
           </div>
-
-          <div className="flex items-center justify-between pt-2 border-t">
-            <div className="flex items-center gap-1">
-              <span className="font-semibold text-lg text-green-600">
-                €{hourlyRate}/hr
-              </span>
-            </div>
-
-            <Button
-              size="sm"
-              className="text-xs"
-              disabled={service.status !== "approved"}
-            >
-              {service.status === "approved" ? "Book Session" : "Not Available"}
-            </Button>
-          </div>
         </div>
+
+        {/* Action Button - Fixed at Bottom */}
+        <Button
+          size="lg"
+          className={`w-full font-medium transition-all duration-200 mt-auto ${
+            isApproved
+              ? "bg-gray-800 hover:bg-gray-900 text-white shadow-sm hover:shadow-md"
+              : "bg-gray-100 text-gray-400 cursor-not-allowed"
+          }`}
+          disabled={!isApproved}
+        >
+          {isApproved ? "Book Session" : "Not Available"}
+        </Button>
       </CardContent>
     </Card>
   );
