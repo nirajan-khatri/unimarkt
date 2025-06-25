@@ -26,6 +26,8 @@ export interface ProductsResponse {
   results: Product[];
 }
 
+const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/";
+
 export const fetchUserProducts = async (
   userId: string,
   page: number = 1,
@@ -36,7 +38,7 @@ export const fetchUserProducts = async (
   }
 
   const response = await fetch(
-    `http://localhost:8000/api/products/?user_id=${userId}&page=${page}&page_size=${pageSize}`,
+    `${baseUrl}products/?user_id=${userId}&page=${page}&page_size=${pageSize}`,
     {
       method: "GET",
       headers: {
@@ -88,7 +90,7 @@ export const fetchUserSkills = async (
   }
 
   const response = await fetch(
-    `http://localhost:8000/api/skills/?user_id=${userId}&page=${page}&page_size=${pageSize}`,
+    `${baseUrl}skills/?user_id=${userId}&page=${page}&page_size=${pageSize}`,
     {
       method: "GET",
       headers: {

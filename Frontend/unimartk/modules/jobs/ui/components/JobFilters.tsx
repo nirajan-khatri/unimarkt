@@ -14,16 +14,16 @@ interface JobFiltersProps {
 export function JobFilters({ filters, onFiltersChange }: JobFiltersProps) {
   // Only keep location, minSalary, maxSalary in local state
   const [localFilters, setLocalFilters] = React.useState<Pick<JobFilters, 'location' | 'minSalary' | 'maxSalary'>>({
-    location: filters.location,
-    minSalary: filters.minSalary,
-    maxSalary: filters.maxSalary,
+    location: filters.location || "",
+    minSalary: filters.minSalary || "",
+    maxSalary: filters.maxSalary || "",
   });
 
   React.useEffect(() => {
     setLocalFilters({
-      location: filters.location,
-      minSalary: filters.minSalary,
-      maxSalary: filters.maxSalary,
+      location: filters.location || "",
+      minSalary: filters.minSalary || "",
+      maxSalary: filters.maxSalary || "",
     });
   }, [filters.location, filters.minSalary, filters.maxSalary]);
 

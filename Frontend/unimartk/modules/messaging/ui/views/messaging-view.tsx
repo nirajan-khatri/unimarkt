@@ -50,7 +50,7 @@ const WhatsAppMessaging = () => {
     };
   };
 
-  if ((!isAuthenticated || !user) && isInitialized) {
+  if (isInitialized && !isAuthenticated) {
     redirect("/sign-in");
   }
 
