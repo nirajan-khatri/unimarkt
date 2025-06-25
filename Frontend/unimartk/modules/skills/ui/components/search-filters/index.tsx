@@ -9,6 +9,9 @@ import { BreadcrumbNavigation } from "./breadcrumb-navigation";
 import { Categories } from "./categories";
 import { SearchInput } from "./search-input";
 import { skillCategories } from "@/constants/skills-categories";
+import { useEffect, useState } from "react";
+import { Category } from "@/modules/home/types";
+import { CategoryService } from "@/services/categories";
 
 export const SearchFilters = () => {
   const params = useParams();
@@ -17,18 +20,31 @@ export const SearchFilters = () => {
 
   const activeCategorySlug = categoryParam || "all";
 
+  const [skillCategories, setSkillCategories] = useState<Category[]>([]);
+
+  const { data } = useSuspenseQuery({
+    queryKey: ["skillCategories"],
+    queryFn: CategoryService.getSkillCategories,
+  });
+
+  useEffect(() => {
+    if (data) {
+      setSkillCategories(data);
+    }
+  }, [data]);
+
   const activeCategoryData = skillCategories.find(
     (category) => category.slug === activeCategorySlug
   );
-  const activeCategoryColor = activeCategoryData?.color || DEFAULT_BG_COLOR;
+  // const activeCategoryColor = activeCategoryData?.color || DEFAULT_BG_COLOR;
   const activeCategoryName = activeCategoryData?.name || "All";
 
-  const activeSubcategory = params.module as string | undefined;
+  // const activeSubcategory = params.module as string | undefined;
 
-  const activeSubcategoryName =
-    activeCategoryData?.subcategories?.find(
-      (subcategory) => subcategory.slug === activeSubcategory
-    )?.name || null;
+  // const activeSubcategoryName =
+  //   activeCategoryData?.subcategories?.find(
+  //     (subcategory) => subcategory.slug === activeSubcategory
+  //   )?.name || null;
 
   return (
     <div className="px-4 lg:px-12 py-8 border-b flex flex-col gap-4 w-full">
@@ -39,7 +55,7 @@ export const SearchFilters = () => {
       <BreadcrumbNavigation
         activeCategorySlug={activeCategorySlug}
         activeCategoryName={activeCategoryName}
-        activeSubcategoryName={activeSubcategoryName}
+        // activeSubcategoryName={activeSubcategoryName}
       />
     </div>
   );

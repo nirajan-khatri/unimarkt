@@ -114,7 +114,7 @@ const UsersTable = () => {
 
   const makeUserFacultyMutation = useMutation({
     mutationFn: async ({ userId }: { userId: string }) => {
-      approveUser({ userId, data: { status: "approved", role_id: "4" } });
+      approveUser({ userId, data: { status: "approved", role_id: "2" } });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["adminUsers"] });

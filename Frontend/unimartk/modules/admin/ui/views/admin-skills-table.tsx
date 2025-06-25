@@ -55,6 +55,7 @@ import {
 } from "@/modules/skills/types";
 import CommentDialog from "../components/comment-dialog";
 import Link from "next/link";
+import { User } from "../../types";
 
 const SkillsTable = () => {
   const router = useRouter();
@@ -206,6 +207,17 @@ const SkillsTable = () => {
       },
     },
     {
+      accessorKey: "user",
+      header: "Posted By",
+      cell: ({ row }) => {
+        return (
+          <div className="lowercase">
+            {(row.getValue("user") as User)?.name}
+          </div>
+        );
+      },
+    },
+    {
       accessorKey: "status",
       header: "Status",
       cell: ({ row }) => (
@@ -245,7 +257,7 @@ const SkillsTable = () => {
                     setDialogOpen(true);
                   }}
                 >
-                  Reject Listing
+                  Reject Skill
                 </DropdownMenuItem>
               )}
 
@@ -258,7 +270,7 @@ const SkillsTable = () => {
                     });
                   }}
                 >
-                  Approve Listing
+                  Approve Skill
                 </DropdownMenuItem>
               )}
 
@@ -324,7 +336,7 @@ const SkillsTable = () => {
         >
           <ArrowLeft className="" />
         </div>
-        <p className="text-3xl font-semibold">Skills Approval</p>
+        <p className="text-3xl font-semibold">Skills</p>
       </div>
       <div className="flex items-center justify-between py-4">
         <Input

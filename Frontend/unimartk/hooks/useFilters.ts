@@ -1,6 +1,11 @@
 import { useQueryState, parseAsString } from "nuqs";
 import { useMemo, useEffect, useState } from "react";
-import { PriceFilters, AllFilters, FilterActions, FilterState } from "@/types/filters";
+import {
+  PriceFilters,
+  AllFilters,
+  FilterActions,
+  FilterState,
+} from "@/types/filters";
 import { useProducts } from "./useProducts";
 import { useCategoryState } from "./useCategoryState";
 import { useSearchState } from "./useSearchState";
@@ -46,7 +51,7 @@ interface UseFiltersReturn {
   error: Error | null;
   currentPage: number;
   pageSize: number;
-  
+
   // Actions
   setFilters: (filters: PriceFilters) => void;
   setSearch: (search: string) => void;
@@ -54,20 +59,20 @@ interface UseFiltersReturn {
   setSubcategory: (subcategory: string) => void;
   onPageChange: (page: number) => void;
   onPageSizeChange: (size: number) => void;
-  
+
   // Clear actions
   clearPriceFilters: () => void;
   clearPickupLocation: () => void;
   clearCategory: () => void;
   clearSubcategory: () => void;
   clearAllFilters: () => void;
-  
+
   // Computed
   hasAnyFilters: boolean;
 
   // Additional state
   isSearching: boolean;
-  
+
   // Debug info
   debug: {
     initialCategory: string | null;
@@ -79,7 +84,10 @@ interface UseFiltersReturn {
   };
 }
 
-export function useFilters({ initialCategory = null, initialSubcategory = null }: UseFiltersProps = {}): UseFiltersReturn {
+export function useFilters({
+  initialCategory = null,
+  initialSubcategory = null,
+}: UseFiltersProps = {}): UseFiltersReturn {
   // URL state management
   const [minPrice, setMinPrice] = useQueryState(
     "minPrice",
@@ -107,30 +115,46 @@ export function useFilters({ initialCategory = null, initialSubcategory = null }
   );
 
   // Category state management
-  const categoryState = useCategoryState({ initialCategory, initialSubcategory });
-  
+  const categoryState = useCategoryState({
+    initialCategory,
+    initialSubcategory,
+  });
+
   // Search state with debouncing
   const { debouncedSearchTerm, isSearching } = useSearchState(search);
-  
+
   // Pagination state
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(9);
 
   // Memoized filters
-  const filters = useMemo((): PriceFilters => ({
-    minPrice: minPrice || "",
-    maxPrice: maxPrice || "",
-    pickupLocation: pickupLocation || "",
-  }), [minPrice, maxPrice, pickupLocation]);
+  const filters = useMemo(
+    (): PriceFilters => ({
+      minPrice: minPrice || "",
+      maxPrice: maxPrice || "",
+      pickupLocation: pickupLocation || "",
+    }),
+    [minPrice, maxPrice, pickupLocation]
+  );
 
   // Determine active and display categories
-  const activeCategory = urlCategory || categoryState.selectedCategory || initialCategory;
-  const activeSubcategory = urlSubcategory || categoryState.selectedSubcategory || initialSubcategory;
+  const activeCategory =
+    urlCategory || categoryState.selectedCategory || initialCategory;
+  const activeSubcategory =
+    urlSubcategory || categoryState.selectedSubcategory || initialSubcategory;
   const displayCategory = categoryState.selectedCategory || initialCategory;
-  const displaySubcategory = categoryState.selectedSubcategory || initialSubcategory;
+  const displaySubcategory =
+    categoryState.selectedSubcategory || initialSubcategory;
+
+  console.log(activeSubcategory?.replace("-", "%20"));
 
   // Products query
-  const { data: products, isLoading, isError, error } = useProducts(
+  const {
+    data: products,
+    isLoading,
+    isError,
+    error,
+  } = useProducts(
     currentPage,
     debouncedSearchTerm,
     categoryState.selectedCategory,
@@ -142,7 +166,12 @@ export function useFilters({ initialCategory = null, initialSubcategory = null }
   // Reset page when filters change
   useEffect(() => {
     setCurrentPage(1);
-  }, [debouncedSearchTerm, categoryState.selectedCategory, categoryState.selectedSubcategory, filters]);
+  }, [
+    debouncedSearchTerm,
+    categoryState.selectedCategory,
+    categoryState.selectedSubcategory,
+    filters,
+  ]);
 
   // Filter actions
   const actions: FilterActions = {
@@ -235,20 +264,20 @@ export function useFilters({ initialCategory = null, initialSubcategory = null }
     error: error as Error | null,
     currentPage,
     pageSize,
-    
+
     // Actions
     ...actions,
-    
+
     // Pagination handlers
     onPageChange,
     onPageSizeChange,
-    
+
     // Computed
     ...computed,
-    
+
     // Additional state
     isSearching,
-    
+
     // Debug info
     debug: {
       initialCategory,
@@ -257,6 +286,6 @@ export function useFilters({ initialCategory = null, initialSubcategory = null }
       activeSubcategory,
       displayCategory,
       displaySubcategory,
-    }
+    },
   };
-} 
+}

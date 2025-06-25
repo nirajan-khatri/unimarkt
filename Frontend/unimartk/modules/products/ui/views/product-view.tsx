@@ -23,6 +23,15 @@ const dummyImages = [
 ];
 import ProductMessageWindow from "../components/messaging-window";
 import { useAuth } from "@/modules/auth/contexts/authContext"; // Updated import
+import dynamic from "next/dynamic";
+import { Button } from "@/components/ui/button";
+
+const ClientLink = dynamic(
+  () => import("@/components/client-link").then((m) => m.default),
+  {
+    ssr: false,
+  }
+);
 
 interface Props {
   productId: string;
@@ -159,11 +168,13 @@ export const ProductView = ({ productId }: Props) => {
 
   const images = useMemo(() => {
     if (data.images?.length > 0) {
-      return dummyImages;
+      return data.images;
     } else {
       return dummyImages;
     }
   }, [isLoading, data]);
+
+  console.log(data);
 
   return (
     <>
@@ -267,19 +278,17 @@ export const ProductView = ({ productId }: Props) => {
               ) : (
                 // Non-authenticated User View
                 <div className="text-center">
-                  <div className="mb-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                  <div className="mb-4 p-4 bg-primary/10 rounded-lg border border-blue-200">
                     <MessageCircle className="w-8 h-8 text-blue-500 mx-auto mb-2" />
-                    <h3 className="font-semibold text-gray-900 mb-1">
-                      Contact the Seller
-                    </h3>
-                    <p className="text-sm text-gray-600">
+                    <h3 className="font-semibold mb-1">Contact the Seller</h3>
+                    <p className="text-sm text-muted-foreground">
                       Sign in to send messages and get contact details
                     </p>
                   </div>
 
-                  <button className="w-full bg-blue-500 hover:bg-blue-600 text-white py-3 px-4 rounded-lg font-medium transition-colors mb-4">
-                    Log in to Contact Seller
-                  </button>
+                  <ClientLink basePath="/sign-in">
+                    <Button className="w-full mb-2">Log in</Button>
+                  </ClientLink>
 
                   <p className="text-xs text-gray-500">
                     By signing in, you can message sellers directly and access

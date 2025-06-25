@@ -98,7 +98,7 @@ export const getNextDateForWeekday = (weekday: string): string => {
 };
 
 export async function uploadToS3(file: File): Promise<string> {
-  const res = await fetch("http://localhost:3000/api/s3-upload", {
+    const res = await fetch(`${window.location.origin}/api/s3-upload`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({

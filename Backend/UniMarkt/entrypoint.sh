@@ -48,7 +48,8 @@ python manage.py makemigrations
 python manage.py migrate
 
 echo "Loading initial data fixtures..."
-python manage.py loaddata users.json products.json skills.json initial_job_postings.json setup_data.json
+python manage.py loaddata users.json products.json skills.json jobs.json
+
 
 touch /app/.fixtures_loaded
 

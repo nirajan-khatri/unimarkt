@@ -1,0 +1,132 @@
+[
+  {
+    "model": "job.jobcategory",
+    "pk": 1,
+    "fields": {
+      "name": "Engineering",
+      "slug": "engineering"
+    }
+  },
+  {
+    "model": "job.jobcategory",
+    "pk": 2,
+    "fields": {
+      "name": "Marketing",
+      "slug": "marketing"
+    }
+  },
+  {
+    "model": "job.jobcategory",
+    "pk": 3,
+    "fields": {
+      "name": "Sales",
+      "slug": "sales"
+    }
+  },
+  {
+    "model": "job.jobcategory",
+    "pk": 4,
+    "fields": {
+      "name": "Human Resources",
+      "slug": "human-resources"
+    }
+  },
+  {
+    "model": "job.jobcategory",
+    "pk": 5,
+    "fields": {
+      "name": "Customer Support",
+      "slug": "customer-support"
+    }
+  },
+  {
+    "model": "job.job",
+    "pk": 1,
+    "fields": {
+      "title": "Backend Developer",
+      "location": "Remote",
+      "status": "approved",
+      "isArchived": false,
+      "user": 1,
+      "category": 1,
+      "description": "Develop and maintain backend services.",
+      "qualifications": "Python, Django, REST APIs",
+      "degree": "Bachelor's in Computer Science",
+      "contact_email": "hr@example.com",
+      "salary_per_hour": "50.00",
+      "created_at": "2024-06-01T12:00:00Z"
+    }
+  },
+  {
+    "model": "job.job",
+    "pk": 2,
+    "fields": {
+      "title": "Marketing Specialist",
+      "location": "New York",
+      "status": "pending",
+      "isArchived": false,
+      "user": 1,
+      "category": 2,
+      "description": "Plan and execute marketing campaigns.",
+      "qualifications": "SEO, Social Media, Analytics",
+      "degree": "any",
+      "contact_email": "marketing@example.com",
+      "salary_per_hour": "35.00",
+      "created_at": "2024-06-02T08:30:00Z"
+    }
+  },
+  {
+    "model": "job.job",
+    "pk": 3,
+    "fields": {
+      "title": "Sales Executive",
+      "location": "San Francisco",
+      "status": "approved",
+      "isArchived": false,
+      "user": 2,
+      "category": 3,
+      "description": "Drive sales and manage client relationships.",
+      "qualifications": "Negotiation, CRM, Communication",
+      "degree": "Bachelor's in Business",
+      "contact_email": "sales@example.com",
+      "salary_per_hour": "40.00",
+      "created_at": "2024-06-03T09:15:00Z"
+    }
+  },
+  {
+    "model": "job.job",
+    "pk": 4,
+    "fields": {
+      "title": "HR Manager",
+      "location": "Chicago",
+      "status": "approved",
+      "isArchived": false,
+      "user": 3,
+      "category": 4,
+      "description": "Manage recruitment and employee relations.",
+      "qualifications": "HR policies, Recruitment, Conflict resolution",
+      "degree": "Master's in HR Management",
+      "contact_email": "hr@example.com",
+      "salary_per_hour": "45.00",
+      "created_at": "2024-06-04T10:00:00Z"
+    }
+  },
+  {
+    "model": "job.job",
+    "pk": 5,
+    "fields": {
+      "title": "Customer Support Specialist",
+      "location": "Remote",
+      "status": "pending",
+      "isArchived": false,
+      "user": 4,
+      "category": 5,
+      "description": "Provide technical support to customers.",
+      "qualifications": "Communication, Troubleshooting",
+      "degree": "any",
+      "contact_email": "support@example.com",
+      "salary_per_hour": "30.00",
+      "created_at": "2024-06-05T11:00:00Z"
+    }
+  }
+]

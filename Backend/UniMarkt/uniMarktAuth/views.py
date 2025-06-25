@@ -4,9 +4,15 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.permissions import IsAuthenticated
+from rest_framework_simplejwt.authentication import JWTAuthentication
+from rest_framework_simplejwt.tokens import AccessToken, TokenError
+from drf_yasg import openapi
+
+
 
 from .models import Role, User
-from .serializers import LoginSerializer, UserSerializer, RegisterSerializer, RoleSerializer
+from .serializers import LoginSerializer, UserSerializer, RegisterSerializer, RoleSerializer, PasswordResetSerializer
 
 
 class LoginAPIView(APIView):
@@ -70,3 +76,51 @@ class SecurityQuestionChoiceView(APIView):
         choices = User.SECURITY_QUESTION_CHOICES
         data = [{"key": key, "question": question} for key, question in choices]
         return Response(data, status=status.HTTP_200_OK)
+
+
+class PasswordResetAPIView(APIView):
+    @swagger_auto_schema(
+        request_body=PasswordResetSerializer,
+        responses={200: 'Password reset successful', 400: 'Validation error'},
+        tags=['Auth']
+    )
+    def post(self, request):
+        serializer = PasswordResetSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"detail": "Password reset successful."}, status=200)
+        return Response(serializer.errors, status=400)
+    
+class CurrentUserAPIView(APIView):
+
+    @swagger_auto_schema(
+        operation_description="Get current user info using access token (passed in body)",
+        tags=["Auth"],
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            required=["token"],
+            properties={
+                'token': openapi.Schema(type=openapi.TYPE_STRING, description='Access token')
+            },
+        ),
+        responses={
+            200: UserSerializer,
+            400: "Token not provided",
+            401: "Invalid token",
+        }
+    )
+    def post(self, request):
+        token_str = request.data.get("token")
+
+        if not token_str:
+            return Response({"detail": "Token not provided."}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            token = AccessToken(token_str)
+            user_id = token['user_id']
+            user = User.objects.get(id=user_id)
+        except (TokenError, User.DoesNotExist):
+            return Response({"detail": "Invalid token."}, status=status.HTTP_401_UNAUTHORIZED)
+
+        serializer = UserSerializer(user)
+        return Response(serializer.data, status=status.HTTP_200_OK)

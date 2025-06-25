@@ -11,3 +11,8 @@ export const fetchProductSubcategories = async (): Promise<Category[]> => {
   const response = await axios.get(`/subcategories/`);
   return response.data;
 };
+export const fetchJobCategories = async (): Promise<Category[]> => {
+  // add logic to ckeck if user is actually superadmin
+  const response = await axios.get(`/job-categories/`);
+  return response.data;
+};

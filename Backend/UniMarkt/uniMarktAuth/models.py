@@ -22,8 +22,7 @@ class UserManager(BaseUserManager):
         email = self.normalize_email(email)
 
         # Set default role to 'user' if not provided
-        if 'role' not in extra_fields or extra_fields['role'] is None:
-            extra_fields['role'] = Role.objects.get_or_create(name='user')[0]
+        extra_fields['role'] = Role.objects.get_or_create(name='user')[0]
 
         is_admin = extra_fields.get('is_admin', False)
         is_staff = extra_fields.get('is_staff', False)

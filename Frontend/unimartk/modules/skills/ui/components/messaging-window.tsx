@@ -1,18 +1,22 @@
 // components/ProductMessageWindow.tsx
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { X, Send, MessageCircle } from "lucide-react";
 import {
   Message,
   SkillMessageWindowProps,
   WebSocketMessage,
 } from "../../types";
+import { WeekdayDatePicker } from "./weekday-date-picker";
+import { generateTimeSlots } from "@/lib/utils";
+import { format, formatDate } from "date-fns";
+import { Button } from "@/components/ui/button";
 
 const SkillMessageWindow: React.FC<SkillMessageWindowProps> = ({
   senderId,
   receiverId,
   productName,
   sellerName,
-  initialMessage,
+  data,
 }) => {
   const [socket, setSocket] = useState<WebSocket | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
@@ -20,7 +24,31 @@ const SkillMessageWindow: React.FC<SkillMessageWindowProps> = ({
   const [isConnected, setIsConnected] = useState<boolean>(false);
   const [connectionError, setConnectionError] = useState<string>("");
   const [connectionAttempts, setConnectionAttempts] = useState<number>(0);
+  const [selectedDay, setSelectedDay] = useState("");
+  const [selectedTime, setSelectedTime] = useState("");
+  const [selectedDate, setSelectedDate] = useState<Date>();
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [hasSentFirstMessage, setHasSentFirstMessage] = useState(false);
+
+  const initialMessage = useMemo(() => {
+    console.log("hasSentFirstMessage", hasSentFirstMessage);
+    console.log("selectedDay", selectedDay);
+    console.log("selectedTime", selectedTime);
+    console.log("selectedDate", selectedDate);
+    if (hasSentFirstMessage && selectedDay && selectedTime && selectedDate)
+      return `Is it possible to change the schedule to ${selectedDay}, ${formatDate(selectedDate, "MMMM do")} at ${selectedTime}.`;
+    if (hasSentFirstMessage) return "";
+    return selectedDay && selectedTime && selectedDate
+      ? `Hi ${data.user.name}, I'm interested in your "${data.module}" skill. Could we schedule on ${selectedDay}, ${formatDate(selectedDate, "MMMM do")} at ${selectedTime}?`
+      : `Hi ${data.user.name}, I'm interested in your "${data.module}" skill.`;
+  }, [
+    selectedDay,
+    selectedTime,
+    selectedDate,
+    data.user.name,
+    data.module,
+    hasSentFirstMessage,
+  ]);
 
   // Debug: Log when component mounts
   useEffect(() => {
@@ -170,6 +198,9 @@ const SkillMessageWindow: React.FC<SkillMessageWindowProps> = ({
           })
         );
         setNewMessage("");
+        setSelectedDate(undefined);
+        setSelectedTime("");
+        setSelectedDay("");
       } catch (error) {
         // console.error("Error sending message:", error);
         setConnectionError("Failed to send message");
@@ -198,241 +229,204 @@ const SkillMessageWindow: React.FC<SkillMessageWindowProps> = ({
   };
 
   useEffect(() => {
+    console.log("called");
     if (messages.length === 0) {
       setNewMessage(initialMessage);
     } else {
-      setNewMessage("");
+      setHasSentFirstMessage(true);
+      setNewMessage(initialMessage);
     }
-  }, [initialMessage, messages]);
+  }, [messages, initialMessage]);
 
-  // return (
-  //   <div className="bg-white border overflow-hidden rounded-lg shadow-xl w-full h-96 flex flex-col z-50">
-  //     {/* Header */}
-  //     <div className="flex justify-between items-center p-3 border-b bg-gray-50 rounded-t-lg">
-  //       <div>
-  //         <h3 className="font-semibold text-sm">Message {sellerName}</h3>
-  //         <p className="text-xs text-gray-500 truncate">{productName}</p>
-  //       </div>
-  //       {!isConnected && (
-  //         <div className="px-3 py-2 bg-yellow-50 border-b">
-  //           {connectionError ? (
-  //             <div className="space-y-1">
-  //               <p className="text-[10px] text-red-600">{connectionError}</p>
-  //               {connectionAttempts < 3 && (
-  //                 <button
-  //                   onClick={retryConnection}
-  //                   className="text-[10px] text-blue-600 hover:text-blue-800 underline"
-  //                 >
-  //                   Retry connection
-  //                 </button>
-  //               )}
-  //             </div>
-  //           ) : (
-  //             <p className="text-[10px] text-yellow-600">
-  //               Connecting... (Attempt {connectionAttempts + 1})
-  //             </p>
-  //           )}
-  //         </div>
-  //       )}
-  //       {isConnected && (
-  //         <div className="px-3 py-1 bg-green-50 border-green-600 border rounded-md">
-  //           <p className="text-[10px] text-green-600">Connected</p>
-  //         </div>
-  //       )}
-  //     </div>
+  console.log(hasSentFirstMessage);
 
-  //     {/* Messages */}
-  //     <div
-  //       className="flex-1 overflow-y-auto p-3 space-y-2"
-  //       style={{ scrollbarWidth: "none" }}
-  //     >
-  //       {messages.length === 0 ? (
-  //         <div className="text-center text-gray-500 text-sm mt-8">
-  //           <p>Start a conversation about this product</p>
-  //         </div>
-  //       ) : (
-  //         messages.map((msg, index) => (
-  //           <div
-  //             key={index}
-  //             className={`flex ${msg.sender_id.toString() === senderId ? "justify-end" : "justify-start"}`}
-  //           >
-  //             <div
-  //               className={`max-w-3/4 px-3 py-2 rounded-lg text-xs ${
-  //                 msg.sender_id.toString() === senderId
-  //                   ? "bg-blue-500 text-white"
-  //                   : "bg-gray-100 text-gray-800"
-  //               }`}
-  //             >
-  //               <p>{msg.message}</p>
-  //             </div>
-  //           </div>
-  //         ))
-  //       )}
-  //       <div ref={messagesEndRef} />
-  //     </div>
-
-  //     {/* Input */}
-  //     <div className="p-3 border-t">
-  //       <div className="flex space-x-2 items-end">
-  //         <textarea
-  //           value={newMessage}
-  //           onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
-  //             setNewMessage(e.target.value)
-  //           }
-  //           onKeyDown={handleKeyPress}
-  //           placeholder="Type a message..."
-  //           style={{ scrollbarWidth: "none" }}
-  //           className="flex-1 px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs"
-  //           disabled={!isConnected}
-  //         />
-  //         <button
-  //           onClick={sendMessage}
-  //           disabled={!newMessage.trim() || !isConnected}
-  //           className="bg-blue-500 hover:bg-blue-600 disabled:bg-gray-300 text-white p-2 rounded-lg transition-colors h-10 w-10 flex items-center justify-center"
-  //           aria-label="Send message"
-  //         >
-  //           <Send size={16} />
-  //         </button>
-  //       </div>
-  //       <div className="mt-1 text-center">
-  //         <button
-  //           onClick={handleOpenFullConversation}
-  //           className="text-xs text-blue-500 hover:text-blue-600"
-  //         >
-  //           Open full conversation →
-  //         </button>
-  //       </div>
-  //     </div>
-
-  //     {/* Debug Info (remove in production) */}
-  //     {process.env.NODE_ENV === "development" && (
-  //       <div className="p-2 bg-gray-100 text-[8px]">
-  //         <p>
-  //           Debug: senderId={senderId}, receiverId={receiverId}
-  //         </p>
-  //         <p>Socket state: {socket?.readyState ?? "null"}</p>
-  //         <p>Connected: {isConnected.toString()}</p>
-  //       </div>
-  //     )}
-  //   </div>
-  // );
   return (
-    <div className="bg-white dark:bg-gray-900 border dark:border-gray-700 overflow-hidden rounded-lg shadow-xl w-full h-96 flex flex-col z-50">
-      {/* Header */}
-      <div className="flex justify-between items-center p-3 border-b dark:border-gray-700 bg-gray-50 dark:bg-gray-800 rounded-t-lg">
-        <div>
-          <h3 className="font-semibold text-sm text-gray-800 dark:text-gray-100">
-            Message {sellerName}
-          </h3>
-          <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
-            {productName}
-          </p>
-        </div>
-        {!isConnected && (
-          <div className="px-3 py-2 bg-yellow-50 dark:bg-yellow-900 border-b dark:border-yellow-800">
-            {connectionError ? (
-              <div className="space-y-1">
-                <p className="text-[10px] text-red-600 dark:text-red-400">
-                  {connectionError}
-                </p>
-                {connectionAttempts < 3 && (
-                  <button
-                    onClick={retryConnection}
-                    className="text-[10px] text-blue-600 dark:text-blue-400 hover:underline"
-                  >
-                    Retry connection
-                  </button>
-                )}
-              </div>
-            ) : (
-              <p className="text-[10px] text-yellow-600 dark:text-yellow-300">
-                Connecting... (Attempt {connectionAttempts + 1})
-              </p>
-            )}
-          </div>
-        )}
-        {isConnected && (
-          <div className="px-3 py-1 bg-green-50 dark:bg-green-900 border-green-600 dark:border-green-500 border rounded-md">
-            <p className="text-[10px] text-green-600 dark:text-green-300">
-              Connected
-            </p>
-          </div>
-        )}
-      </div>
-
-      {/* Messages */}
-      <div
-        className="flex-1 overflow-y-auto p-3 space-y-2"
-        style={{ scrollbarWidth: "none" }}
-      >
-        {messages.length === 0 ? (
-          <div className="text-center text-gray-500 dark:text-gray-400 text-sm mt-8">
-            <p>Start a conversation about this product</p>
-          </div>
-        ) : (
-          messages.map((msg, index) => (
-            <div
-              key={index}
-              className={`flex ${msg.sender_id.toString() === senderId ? "justify-end" : "justify-start"}`}
-            >
-              <div
-                className={`max-w-3/4 px-3 py-2 rounded-lg text-xs ${
-                  msg.sender_id.toString() === senderId
-                    ? "bg-blue-500 text-white"
-                    : "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-100"
+    <div className="flex flex-col gap-4 p-2 w-full">
+      <div className="space-y-2">
+        <label className="font-medium">Choose a Day:</label>
+        <div className="flex gap-2 flex-wrap">
+          {Array.from(new Set(data.available_time_week.map((t) => t.day))).map(
+            (day) => (
+              <Button
+                key={day}
+                variant={"outline"}
+                className={`px-3 py-2 rounded-md ${
+                  selectedDay === day
+                    ? "bg-primary/10 border-primary text-primary"
+                    : ""
                 }`}
+                onClick={() => {
+                  setSelectedDay(day);
+                  setSelectedTime("");
+                  setSelectedDate(undefined);
+                }}
               >
-                <p>{msg.message}</p>
-              </div>
-            </div>
-          ))
-        )}
-        <div ref={messagesEndRef} />
-      </div>
-
-      {/* Input */}
-      <div className="p-3 border-t dark:border-gray-700">
-        <div className="flex space-x-2 items-end">
-          <textarea
-            value={newMessage}
-            onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
-              setNewMessage(e.target.value)
-            }
-            onKeyDown={handleKeyPress}
-            placeholder="Type a message..."
-            style={{ scrollbarWidth: "none" }}
-            className="flex-1 px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs dark:bg-gray-800 dark:border-gray-600 dark:text-white"
-            disabled={!isConnected}
-          />
-          <button
-            onClick={sendMessage}
-            disabled={!newMessage.trim() || !isConnected}
-            className="bg-blue-500 hover:bg-blue-600 disabled:bg-gray-300 dark:disabled:bg-gray-600 text-white p-2 rounded-lg transition-colors h-10 w-10 flex items-center justify-center"
-            aria-label="Send message"
-          >
-            <Send size={16} />
-          </button>
-        </div>
-        <div className="mt-1 text-center">
-          <button
-            onClick={handleOpenFullConversation}
-            className="text-xs text-blue-500 dark:text-blue-400 hover:text-blue-600 dark:hover:text-blue-300"
-          >
-            Open full conversation →
-          </button>
+                {day}
+              </Button>
+            )
+          )}
         </div>
       </div>
 
-      {/* Debug Info (remove in production) */}
-      {process.env.NODE_ENV === "development" && (
-        <div className="p-2 bg-gray-100 dark:bg-gray-800 text-[8px] text-gray-700 dark:text-gray-300">
-          <p>
-            Debug: senderId={senderId}, receiverId={receiverId}
-          </p>
-          <p>Socket state: {socket?.readyState ?? "null"}</p>
-          <p>Connected: {isConnected.toString()}</p>
+      {selectedDay && (
+        <div>
+          <h4 className="font-semibold text-sm mb-2">Choose Time</h4>
+          <div className="flex flex-wrap gap-2">
+            {(() => {
+              const slot = data.available_time_week.find(
+                (s) => s.day === selectedDay
+              );
+              if (!slot) return null;
+              const times = generateTimeSlots(
+                slot.start_time,
+                slot.end_time,
+                30
+              );
+              return times.map((t) => (
+                <button
+                  key={t}
+                  onClick={() => setSelectedTime(t)}
+                  className={`px-3 py-2 rounded-md border text-sm ${
+                    selectedTime === t
+                      ? "bg-primary/10 border-primary text-primary"
+                      : "border-border hover:bg-accent"
+                  }`}
+                >
+                  {t}
+                </button>
+              ));
+            })()}
+          </div>
         </div>
       )}
+
+      {selectedDay && selectedTime && (
+        <div>
+          <label className="font-medium block mb-2">Pick a Date:</label>
+          <WeekdayDatePicker
+            selected={selectedDate}
+            onSelect={(date) => setSelectedDate(date)}
+            allowedWeekday={selectedDay}
+          />
+        </div>
+      )}
+      <div className="bg-white dark:bg-gray-900 border dark:border-gray-700 overflow-hidden rounded-lg shadow-xl w-full h-96 flex flex-col z-50">
+        {/* Header */}
+        <div className="flex justify-between items-center p-3 border-b dark:border-gray-700 bg-gray-50 dark:bg-gray-800 rounded-t-lg">
+          <div>
+            <h3 className="font-semibold text-sm text-gray-800 dark:text-gray-100">
+              Message {sellerName}
+            </h3>
+            <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+              {productName}
+            </p>
+          </div>
+          {!isConnected && (
+            <div className="px-3 py-2 bg-yellow-50 dark:bg-yellow-900 border-b dark:border-yellow-800">
+              {connectionError ? (
+                <div className="space-y-1">
+                  <p className="text-[10px] text-red-600 dark:text-red-400">
+                    {connectionError}
+                  </p>
+                  {connectionAttempts < 3 && (
+                    <button
+                      onClick={retryConnection}
+                      className="text-[10px] text-blue-600 dark:text-blue-400 hover:underline"
+                    >
+                      Retry connection
+                    </button>
+                  )}
+                </div>
+              ) : (
+                <p className="text-[10px] text-yellow-600 dark:text-yellow-300">
+                  Connecting... (Attempt {connectionAttempts + 1})
+                </p>
+              )}
+            </div>
+          )}
+          {isConnected && (
+            <div className="px-3 py-1 bg-green-50 dark:bg-green-900 border-green-600 dark:border-green-500 border rounded-md">
+              <p className="text-[10px] text-green-600 dark:text-green-300">
+                Connected
+              </p>
+            </div>
+          )}
+        </div>
+
+        {/* Messages */}
+        <div
+          className="flex-1 overflow-y-auto p-3 space-y-2"
+          style={{ scrollbarWidth: "none" }}
+        >
+          {messages.length === 0 ? (
+            <div className="text-center text-gray-500 dark:text-gray-400 text-sm mt-8">
+              <p>Start a conversation about this product</p>
+            </div>
+          ) : (
+            messages.map((msg, index) => (
+              <div
+                key={index}
+                className={`flex ${msg.sender_id.toString() === senderId ? "justify-end" : "justify-start"}`}
+              >
+                <div
+                  className={`max-w-3/4 px-3 py-2 rounded-lg text-xs ${
+                    msg.sender_id.toString() === senderId
+                      ? "bg-blue-500 text-white"
+                      : "bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-100"
+                  }`}
+                >
+                  <p>{msg.message}</p>
+                </div>
+              </div>
+            ))
+          )}
+          <div ref={messagesEndRef} />
+        </div>
+
+        {/* Input */}
+        <div className="p-3 border-t dark:border-gray-700">
+          <div className="flex space-x-2 items-end">
+            <textarea
+              value={newMessage}
+              onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
+                setNewMessage(e.target.value)
+              }
+              onKeyDown={handleKeyPress}
+              placeholder="Type a message..."
+              style={{ scrollbarWidth: "none" }}
+              className="flex-1 px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-xs dark:bg-gray-800 dark:border-gray-600 dark:text-white"
+              disabled={!isConnected}
+            />
+            <button
+              onClick={sendMessage}
+              disabled={!newMessage.trim() || !isConnected}
+              className="bg-blue-500 hover:bg-blue-600 disabled:bg-gray-300 dark:disabled:bg-gray-600 text-white p-2 rounded-lg transition-colors h-10 w-10 flex items-center justify-center"
+              aria-label="Send message"
+            >
+              <Send size={16} />
+            </button>
+          </div>
+          <div className="mt-1 text-center">
+            <button
+              onClick={handleOpenFullConversation}
+              className="text-xs text-blue-500 dark:text-blue-400 hover:text-blue-600 dark:hover:text-blue-300"
+            >
+              Open full conversation →
+            </button>
+          </div>
+        </div>
+
+        {/* Debug Info (remove in production) */}
+        {process.env.NODE_ENV === "development" && (
+          <div className="p-2 bg-gray-100 dark:bg-gray-800 text-[8px] text-gray-700 dark:text-gray-300">
+            <p>
+              Debug: senderId={senderId}, receiverId={receiverId}
+            </p>
+            <p>Socket state: {socket?.readyState ?? "null"}</p>
+            <p>Connected: {isConnected.toString()}</p>
+          </div>
+        )}
+      </div>
     </div>
   );
 };

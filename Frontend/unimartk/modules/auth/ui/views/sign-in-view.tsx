@@ -47,22 +47,24 @@ export const SignInView = () => {
   const { login, isAuthenticated } = useAuth();
 
   useEffect(() => {
-    // Check if user is already authenticated
+    const urlParams = new URLSearchParams(window.location.search);
+    const redirect = urlParams.get("redirect");
+
     if (isAuthenticated) {
-      router.push("/");
+      if (redirect) {
+        router.push(redirect);
+      } else {
+        router.push("/"); // fallback if no redirect provided
+      }
       return;
     }
 
-    // Get redirect URL from query parameters
-    const urlParams = new URLSearchParams(window.location.search);
-    const redirect = urlParams.get("redirect");
     if (redirect) {
       setRedirectUrl(decodeURIComponent(redirect));
     }
 
-    // Mark loading as complete since we've checked authentication
     setIsLoading(false);
-  }, [router, isAuthenticated]);
+  }, [isAuthenticated, router]);
 
   const form = useForm<z.infer<typeof loginSchema>>({
     resolver: zodResolver(loginSchema),
@@ -116,16 +118,16 @@ export const SignInView = () => {
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-5">
-      <div className="bg-[#f4f4f0] h-screen w-full lg:col-span-3 overflow-y-auto">
+      <div className="bg-background text-foreground h-screen w-full lg:col-span-3 overflow-y-auto">
         <div className="flex flex-col gap-6 p-4 lg:p-16">
           <div className="flex items-center justify-between mb-8">
             <Link href={"/"}>
-              <span className={"text-2xl font-black"}>UniMarkt</span>
+              <span className="text-2xl font-black">UniMarkt</span>
             </Link>
             <SignUpLink>
               <Button
                 className="text-base border-none underline"
-                variant={"ghost"}
+                variant="ghost"
               >
                 Sign Up
               </Button>
@@ -161,15 +163,18 @@ export const SignInView = () => {
                   </FormItem>
                 )}
               />
-              <Link prefetch href={"/forgot-password"}>
-                forgot password?
+              <Link
+                className="text-sm text-muted-foreground hover:underline"
+                prefetch
+                href={"/forgot-password"}
+              >
+                Forgot password?
               </Link>
               <Button
                 disabled={loginMutation.isPending}
                 type="submit"
-                size={"lg"}
-                variant={"default"}
-                className="bg-black text-white hover:bg-pink-400 hover:text-primary"
+                size="lg"
+                className="bg-primary text-primary-foreground hover:bg-primary/85"
               >
                 {loginMutation.isPending ? "Logging in..." : "Log In"}
               </Button>
@@ -183,8 +188,8 @@ export const SignInView = () => {
           backgroundSize: "cover",
           backgroundPosition: "center",
         }}
-        className="h-screen w-full lg:col-span-2 hidden lg:block"
-      ></div>
+        className="h-screen w-full lg:col-span-2 hidden lg:block dark:brightness-[0.6]"
+      />
     </div>
   );
 };

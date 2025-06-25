@@ -95,7 +95,7 @@ const CreateSkillForm = ({ skillId }: Props) => {
         skill_category_id: skill.skill_category?.id?.toString() || "",
         module: skill.module || "",
         description: skill.description || "",
-        charge_per_hour: skill.charge_per_hour || "",
+        charge_per_hour: skill.charge_per_hour.toString() || "",
         available_time_week:
           skill.available_time_week?.length > 0
             ? skill.available_time_week.map((slot) => ({
@@ -147,7 +147,7 @@ const CreateSkillForm = ({ skillId }: Props) => {
       toast.success(
         skillId ? "Skill updated successfully!" : "Skill created successfully!"
       );
-      // window.location.href = "/";
+      window.location.href = "/profile";
     },
   });
 
@@ -207,7 +207,9 @@ const CreateSkillForm = ({ skillId }: Props) => {
           name="name"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Skill Name</FormLabel>
+              <FormLabel>
+                Skill Name<span className="text-red-500 -ml-1.5">*</span>
+              </FormLabel>
               <FormControl>
                 <Input placeholder="Enter product name" {...field} />
               </FormControl>
@@ -216,99 +218,81 @@ const CreateSkillForm = ({ skillId }: Props) => {
           )}
         />
 
-        {/* Category */}
-        <FormField
-          control={form.control}
-          name="department_id"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Department</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a department" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  {departments.map((department) => (
-                    <SelectItem
-                      key={department.id}
-                      value={department.id.toString()}
-                    >
-                      {department.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+        <div className="flex gap-3">
+          <FormField
+            control={form.control}
+            name="department_id"
+            render={({ field }) => (
+              <FormItem className="flex-1">
+                <FormLabel>
+                  Department<span className="text-red-500 -ml-1.5">*</span>
+                </FormLabel>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
+                  <FormControl className="w-full">
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a department" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {departments.map((department) => (
+                      <SelectItem
+                        key={department.id}
+                        value={department.id.toString()}
+                      >
+                        {department.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-        {/* Sub Category */}
-        <FormField
-          control={form.control}
-          name="degree_id"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Degree</FormLabel>
-              <Select
-                onValueChange={field.onChange}
-                defaultValue={field.value}
-                disabled={form.watch("department_id") === ""}
-              >
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a degree" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  {filteredDegrees.map((degree) => (
-                    <SelectItem key={degree.id} value={degree.id.toString()}>
-                      {degree.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        {/* <FormField
-          control={form.control}
-          name="skill_category_id"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Category </FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select a category" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  {categories.map((category) => (
-                    <SelectItem
-                      key={category.category_id}
-                      value={category.category_id.toString()}
-                    >
-                      {category.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <FormMessage />
-            </FormItem>
-          )}
-        /> */}
+          {/* Sub Category */}
+          <FormField
+            control={form.control}
+            name="degree_id"
+            render={({ field }) => (
+              <FormItem className="flex-1">
+                <FormLabel>
+                  Degree<span className="text-red-500 -ml-1.5">*</span>
+                </FormLabel>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                  disabled={form.watch("department_id") === ""}
+                >
+                  <FormControl className="w-full">
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a degree" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {filteredDegrees.map((degree) => (
+                      <SelectItem key={degree.id} value={degree.id.toString()}>
+                        {degree.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </div>
 
         <FormField
           control={form.control}
           name="module"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Module</FormLabel>
+              <FormLabel>
+                Module<span className="text-red-500 -ml-1.5">*</span>
+              </FormLabel>
               <FormControl>
                 <Input placeholder="Enter module" {...field} />
               </FormControl>
@@ -323,7 +307,9 @@ const CreateSkillForm = ({ skillId }: Props) => {
           name="description"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Description </FormLabel>
+              <FormLabel>
+                Description<span className="text-red-500 -ml-1.5">*</span>
+              </FormLabel>
               <FormControl>
                 <Textarea
                   placeholder="Enter product description"
@@ -342,14 +328,16 @@ const CreateSkillForm = ({ skillId }: Props) => {
           name="charge_per_hour"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Price (€/hr)</FormLabel>
+              <FormLabel>
+                Price (€/hr)<span className="text-red-500 -ml-1.5">*</span>
+              </FormLabel>
               <FormControl>
                 <div className="relative">
                   <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm">
                     €
                   </span>
                   <Input
-                    type="text"
+                    type="number"
                     placeholder="0.00"
                     {...field}
                     className="pl-7"
@@ -360,69 +348,80 @@ const CreateSkillForm = ({ skillId }: Props) => {
             </FormItem>
           )}
         />
-        {fields.map((field, index) => (
-          <div
-            key={field.id}
-            className="flex items-end gap-3 border p-3 rounded-md"
-          >
-            {/* Day */}
-            <FormField
-              control={form.control}
-              name={`available_time_week.${index}.day`}
-              render={({ field }) => (
-                <FormItem className="flex-1">
-                  <FormLabel className="text-sm">Day</FormLabel>
-                  <Select onValueChange={field.onChange} value={field.value}>
+        <div className="">
+          <label className="block text-sm font-medium text-gray-900 mb-2">
+            Availability
+            <span className="text-red-500 ml-1">*</span>
+          </label>
+          {fields.map((field, index) => (
+            <div
+              key={field.id}
+              className="flex items-end gap-3 border border-border p-3 rounded-md"
+            >
+              {/* Day */}
+              <FormField
+                control={form.control}
+                name={`available_time_week.${index}.day`}
+                render={({ field }) => (
+                  <FormItem className="flex-1">
+                    <FormLabel className="text-sm">
+                      Day<span className="text-red-500 -ml-1.5">*</span>
+                    </FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value}>
+                      <FormControl className="w-full">
+                        <SelectTrigger className="text-sm">
+                          <SelectValue placeholder="Day" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {DayEnum.options.map((day) => (
+                          <SelectItem key={day} value={day}>
+                            {day}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* Start */}
+              <FormField
+                control={form.control}
+                name={`available_time_week.${index}.start_time`}
+                render={({ field }) => (
+                  <FormItem className="flex-1">
+                    <FormLabel className="text-sm">
+                      Start<span className="text-red-500 -ml-1.5">*</span>
+                    </FormLabel>
                     <FormControl>
-                      <SelectTrigger className="text-sm">
-                        <SelectValue placeholder="Day" />
-                      </SelectTrigger>
+                      <Input type="time" className="text-sm" {...field} />
                     </FormControl>
-                    <SelectContent>
-                      {DayEnum.options.map((day) => (
-                        <SelectItem key={day} value={day}>
-                          {day}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                    {/* <FormMessage /> */}
+                  </FormItem>
+                )}
+              />
 
-            {/* Start */}
-            <FormField
-              control={form.control}
-              name={`available_time_week.${index}.start_time`}
-              render={({ field }) => (
-                <FormItem className="flex-1">
-                  <FormLabel className="text-sm">Start</FormLabel>
-                  <FormControl>
-                    <Input type="time" className="text-sm" {...field} />
-                  </FormControl>
-                  {/* <FormMessage /> */}
-                </FormItem>
-              )}
-            />
+              {/* End */}
+              <FormField
+                control={form.control}
+                name={`available_time_week.${index}.end_time`}
+                render={({ field }) => (
+                  <FormItem className="flex-1">
+                    <FormLabel className="text-sm">
+                      End<span className="text-red-500 -ml-1.5">*</span>
+                    </FormLabel>
+                    <FormControl>
+                      <Input type="time" className="text-sm" {...field} />
+                    </FormControl>
+                    {/* <FormMessage /> */}
+                  </FormItem>
+                )}
+              />
 
-            {/* End */}
-            <FormField
-              control={form.control}
-              name={`available_time_week.${index}.end_time`}
-              render={({ field }) => (
-                <FormItem className="flex-1">
-                  <FormLabel className="text-sm">End</FormLabel>
-                  <FormControl>
-                    <Input type="time" className="text-sm" {...field} />
-                  </FormControl>
-                  {/* <FormMessage /> */}
-                </FormItem>
-              )}
-            />
-
-            {/* Status */}
-            {/* <FormField
+              {/* Status */}
+              {/* <FormField
               control={form.control}
               name={`available_time_week.${index}.status`}
               render={({ field }) => (
@@ -444,40 +443,42 @@ const CreateSkillForm = ({ skillId }: Props) => {
               )}
             /> */}
 
-            {/* Remove */}
-            <div className="flex items-center justify-end">
-              <Button
-                type="button"
-                size="icon"
-                variant="ghost"
-                onClick={() => remove(index)}
-              >
-                <Trash2 className="h-4 w-4 text-red-500" />
-              </Button>
+              {/* Remove */}
+              <div className="flex items-center justify-end">
+                <Button
+                  type="button"
+                  size="icon"
+                  variant="ghost"
+                  onClick={() => remove(index)}
+                >
+                  <Trash2 className="h-4 w-4 text-red-500" />
+                </Button>
+              </div>
             </div>
-          </div>
-        ))}
-        {/* Add Slot Button */}
-        <div className="flex items-center gap-4">
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={addNewSlot}
-          >
-            <Plus className="h-4 w-4 mr-1" /> Add Availability
-          </Button>
-          {form.formState.errors.available_time_week && (
-            <p className="text-sm text-red-500 mt-1">
-              {form.formState.errors.available_time_week?.root?.message}
-            </p>
-          )}
+          ))}
+          {/* Add Slot Button */}
+          <div className="flex items-center gap-4 mt-2">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="border-border"
+              onClick={addNewSlot}
+            >
+              <Plus className="h-4 w-4 mr-1" /> Add Availability
+            </Button>
+            {form.formState.errors.available_time_week && (
+              <p className="text-sm text-red-500 mt-1">
+                {form.formState.errors.available_time_week?.root?.message}
+              </p>
+            )}
 
-          {fields.length === 0 && (
-            <span className="text-sm text-muted-foreground">
-              No availability added yet.
-            </span>
-          )}
+            {fields.length === 0 && (
+              <span className="text-sm text-muted-foreground">
+                No availability added yet.
+              </span>
+            )}
+          </div>
         </div>
 
         <FormField
@@ -485,7 +486,9 @@ const CreateSkillForm = ({ skillId }: Props) => {
           name="skill_category_id"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Skill Cover</FormLabel>
+              <FormLabel>
+                Skill Cover<span className="text-red-500 -ml-1.5">*</span>
+              </FormLabel>
               <FormControl>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                   {skillCovers.map((cover) => (

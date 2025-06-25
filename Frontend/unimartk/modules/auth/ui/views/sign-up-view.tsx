@@ -29,13 +29,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-import { RegisterData } from "../../types/auth";
 import { registerSchema } from "../../schemas";
 import {
   fetchSecurityQuestions,
   fetchRoles,
   registerUser,
 } from "../../services/api";
+import { Checkbox } from "@/components/ui/checkbox";
+import { toast } from "sonner";
 
 const SignInLink = dynamic(
   () =>
@@ -50,6 +51,8 @@ const SignInLink = dynamic(
     }),
   { ssr: false }
 );
+
+type RegisterFormData = z.infer<typeof registerSchema>;
 
 export const SignUpView = () => {
   const [redirectUrl, setRedirectUrl] = useState<string>("/");
@@ -76,25 +79,45 @@ export const SignUpView = () => {
   });
 
   // Mutation for user registration
+  // const registerMutation = useMutation({
+  //   mutationFn: registerUser,
+  //   onSuccess: (data) => {
+  //     console.log("Registration successful:", data);
+  //     // Show success alert
+  //     alert("Registration successful! Welcome to UniMarkt!");
+
+  //     // Construct sign-in URL with redirect parameter if it exists
+  //     const urlParams = new URLSearchParams(window.location.search);
+  //     const redirect = urlParams.get("redirect");
+  //     const signInUrl = redirect ? `/sign-in?redirect=${redirect}` : "/sign-in";
+
+  //     // Redirect to sign-in page
+  //     router.push(signInUrl);
+  //   },
+  //   onError: (error: Error) => {
+  //     console.error("Registration failed:", error.message);
+  //     // Show error alert
+  //     alert(`Registration failed: ${error.message}`);
+  //   },
+  // });
+
   const registerMutation = useMutation({
     mutationFn: registerUser,
     onSuccess: (data) => {
-      console.log("Registration successful:", data);
-      // Show success alert
-      alert("Registration successful! Welcome to UniMarkt!");
+      toast.success("Registration successful! Welcome to UniMarkt!");
 
-      // Construct sign-in URL with redirect parameter if it exists
       const urlParams = new URLSearchParams(window.location.search);
       const redirect = urlParams.get("redirect");
-      const signInUrl = redirect ? `/sign-in?redirect=${redirect}` : "/sign-in";
 
-      // Redirect to sign-in page
+      // Use encodeURIComponent to make sure the redirect URL is preserved properly
+      const signInUrl = redirect
+        ? `/sign-in?redirect=${encodeURIComponent(redirect)}`
+        : "/sign-in";
+
       router.push(signInUrl);
     },
     onError: (error: Error) => {
-      console.error("Registration failed:", error.message);
-      // Show error alert
-      alert(`Registration failed: ${error.message}`);
+      toast.error(`Registration failed: ${error.message}`);
     },
   });
 
@@ -106,7 +129,7 @@ export const SignUpView = () => {
     }
   }, []);
 
-  const form = useForm<z.infer<typeof registerSchema>>({
+  const form = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
     mode: "all",
     defaultValues: {
@@ -115,20 +138,21 @@ export const SignUpView = () => {
       password: "",
       confirmPassword: "",
       contact_number: "",
-      role: "",
+      is_admin: false,
+      is_staff: false,
       securityQuestion: "",
       answer: "",
     },
   });
 
-  const onSubmit = (values: z.infer<typeof registerSchema>) => {
-    const registerData: RegisterData = {
+  const onSubmit = (values: RegisterFormData) => {
+    const registerData = {
       name: values.name,
       email: values.email,
       password: values.password,
       contact_number: values.contact_number || undefined,
-      role: values.role ? parseInt(values.role) : undefined,
-      // Send the same security question and answer to all three fields
+      is_admin: values.is_admin,
+      is_staff: values.is_staff,
       security_question1: values.securityQuestion,
       answer1: values.answer,
       security_question2: values.securityQuestion,
@@ -137,32 +161,33 @@ export const SignUpView = () => {
       answer3: values.answer,
     };
 
+    console.log(registerData);
+
     registerMutation.mutate(registerData);
   };
 
   return (
     <div className="grid grid-cols-1 lg:grid-cols-5">
-      <div className="bg-[#f4f4f0] h-screen w-full lg:col-span-3 overflow-y-auto">
+      <div className="bg-background text-foreground h-screen w-full lg:col-span-3 overflow-y-auto">
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(onSubmit)}
             className="flex flex-col gap-6 p-4 lg:p-16"
           >
             <div className="flex items-center justify-between mb-8">
-              <Link href={"/"}>
-                <span className={"text-2xl font-black"}>UniMarkt</span>
+              <Link href="/">
+                <span className="text-2xl font-black">UniMarkt</span>
               </Link>
               <SignInLink>
-                <Button
-                  className="text-base border-none underline"
-                  variant={"ghost"}
-                >
+                <Button className="text-base underline" variant="ghost">
                   Sign In
                 </Button>
               </SignInLink>
             </div>
+
             <h1 className="text-4xl font-medium">Join the Community.</h1>
 
+            {/* Name */}
             <FormField
               name="name"
               render={({ field }) => (
@@ -176,6 +201,7 @@ export const SignUpView = () => {
               )}
             />
 
+            {/* Email */}
             <FormField
               name="email"
               render={({ field }) => (
@@ -189,6 +215,7 @@ export const SignUpView = () => {
               )}
             />
 
+            {/* Contact Number */}
             <FormField
               name="contact_number"
               render={({ field }) => (
@@ -202,6 +229,7 @@ export const SignUpView = () => {
               )}
             />
 
+            {/* Password */}
             <FormField
               name="password"
               render={({ field }) => (
@@ -215,6 +243,7 @@ export const SignUpView = () => {
               )}
             />
 
+            {/* Confirm Password */}
             <FormField
               name="confirmPassword"
               render={({ field }) => (
@@ -230,50 +259,47 @@ export const SignUpView = () => {
               )}
             />
 
-            <FormField
-              control={form.control}
-              name="role"
-              render={({ field }) => (
-                <FormItem className="space-y-3">
-                  <FormLabel className="text-base">Role</FormLabel>
-                  {isLoadingRoles ? (
-                    <div className="text-sm text-muted-foreground">
-                      Loading roles...
-                    </div>
-                  ) : rolesError ? (
-                    <div className="text-sm text-red-500">
-                      Error loading roles. Please try again.
-                    </div>
-                  ) : (
-                    <FormControl>
-                      <RadioGroup
-                        onValueChange={field.onChange}
-                        value={field.value}
-                        className="flex flex-col space-y-2"
-                      >
-                        {roles?.map((role) => (
-                          <FormItem
-                            key={role.id}
-                            className="flex items-center space-x-3 space-y-0"
-                          >
-                            <FormControl>
-                              <RadioGroupItem value={role.id.toString()} />
-                            </FormControl>
-                            <FormLabel className="font-normal cursor-pointer">
-                              {role.name.charAt(0).toUpperCase() +
-                                role.name.slice(1)}
-                            </FormLabel>
-                          </FormItem>
-                        ))}
-                      </RadioGroup>
-                    </FormControl>
+            <div className="flex flex-col gap-2">
+              <div className="flex gap-5">
+                <FormField
+                  control={form.control}
+                  name="is_admin"
+                  render={({ field }) => (
+                    <FormItem className="flex items-center space-x-1">
+                      <FormControl>
+                        <Checkbox
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                      <FormLabel className="!m-0">Admin</FormLabel>
+                      <FormMessage />
+                    </FormItem>
                   )}
-                  <FormDescription>Select your role (optional)</FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
+                />
+                <FormField
+                  control={form.control}
+                  name="is_staff"
+                  render={({ field }) => (
+                    <FormItem className="flex items-center space-x-1">
+                      <FormControl>
+                        <Checkbox
+                          checked={field.value}
+                          onCheckedChange={field.onChange}
+                        />
+                      </FormControl>
+                      <FormLabel className="!m-0">Staff</FormLabel>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+              <p className="text-sm text-muted-foreground">
+                Requires approval.
+              </p>
+            </div>
 
+            {/* Security Question */}
             <div className="space-y-4">
               <h2 className="text-xl font-medium">Security Question</h2>
               <p className="text-sm text-muted-foreground">
@@ -320,6 +346,7 @@ export const SignUpView = () => {
                 )}
               />
 
+              {/* Security Answer */}
               <FormField
                 control={form.control}
                 name="answer"
@@ -336,38 +363,40 @@ export const SignUpView = () => {
             </div>
 
             {questionsError && (
-              <p className="text-sm text-red-500">
+              <p className="text-sm text-destructive">
                 Failed to load security questions. Please refresh the page.
               </p>
             )}
 
+            {/* Submit Button */}
             <Button
               disabled={registerMutation.isPending}
               type="submit"
-              size={"lg"}
-              variant={"default"}
-              className="bg-black text-white hover:bg-pink-400 hover:text-primary"
+              size="lg"
+              variant="default"
+              className="bg-primary text-primary-foreground hover:bg-primary/85"
             >
               {registerMutation.isPending
                 ? "Creating account..."
                 : "Create account"}
             </Button>
 
+            {/* Registration Error */}
             {registerMutation.isError && (
-              <p className="text-sm text-red-500 text-center">
+              <p className="text-sm text-destructive text-center">
                 Registration failed. Please try again.
               </p>
             )}
           </form>
         </Form>
       </div>
+
+      {/* Right side image section */}
       <div
+        className="h-screen w-full lg:col-span-2 hidden lg:block bg-cover bg-center"
         style={{
           backgroundImage: "url('/auth-bg.png')",
-          backgroundSize: "cover",
-          backgroundPosition: "center",
         }}
-        className="h-screen w-full lg:col-span-2 hidden lg:block"
       ></div>
     </div>
   );

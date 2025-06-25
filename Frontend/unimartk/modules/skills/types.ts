@@ -2,7 +2,7 @@ import { User } from "../admin/types";
 import { Category } from "../home/types";
 
 export type Skill = {
-  id: number;
+  skill_id: string;
   description: string;
   price: number;
   module: string;
@@ -13,6 +13,23 @@ export type Skill = {
   isArchived: boolean;
   created_at: string;
   updated_at: string;
+};
+
+export type SkillDetail = {
+  id: number;
+  description: string;
+  module: string;
+  skill_category: Category;
+  sub_category: Category;
+  user: User;
+  status: "pending" | "approved" | "rejected";
+  isArchived: boolean;
+  created_at: string;
+  updated_at: string;
+  available_time_week: AvailableTimeWeekEntity[];
+  degree: Degree;
+  department: DepartmentOrRoleOrSkillCategory;
+  charge_per_hour: string;
 };
 
 export interface PaginatedSkillsResponse {
@@ -68,5 +85,5 @@ export interface SkillMessageWindowProps {
   receiverId: string;
   productName: string;
   sellerName: string;
-  initialMessage: string;
+  data: SkillDetail;
 }

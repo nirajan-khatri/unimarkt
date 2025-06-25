@@ -2,7 +2,7 @@ import { User } from "../admin/types";
 import { Category } from "../home/types";
 
 export type Product = {
-  id: number;
+  product_id: string;
   name: string;
   description: string;
   price: number;
@@ -27,11 +27,10 @@ export interface PaginatedProductsResponse {
 
 export interface Message {
   id: number;
-  content: string;
+  message: string;
   timestamp: string;
-  sender: User;
-  receiver: User;
-  product: Product;
+  sender_id: string;
+  receiver_id: string;
 }
 
 export interface WebSocketMessage {

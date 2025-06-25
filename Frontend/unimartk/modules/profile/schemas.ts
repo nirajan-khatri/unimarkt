@@ -10,6 +10,14 @@ export const DayEnum = z.enum([
   "Sunday",
 ]);
 
+export const JobEnum = z.enum([
+  "research",
+  "hiwi",
+  "tutoring",
+  "administrative",
+  "other",
+]);
+
 export const productSchema = z.object({
   name: z
     .string()
@@ -65,6 +73,19 @@ export const skillSchema = z.object({
       })
     )
     .min(1, "At least one availability slot is required"),
+});
+
+export const jobSchema = z.object({
+  title: z
+    .string()
+    .min(1, "Job title is required")
+    .max(100, "job title must not exceed 200 characters"),
+  location: z.string().min(1, "Location is required"),
+  description: z.string().min(1, "Description is required"),
+  qualifications: z.string().min(1, "Qualification is required"),
+  salary_per_hour: z.string().min(1, "Price is required"),
+  category_id: z.string().min(1, "Please select a category"),
+  contact_email: z.string().min(1, "Contact Email is required"),
 });
 
 export const profileSchema = z.object({

@@ -25,11 +25,11 @@ import {
   CheckIcon,
   ArrowLeft,
 } from "lucide-react";
-import { fetchSkillById } from "@/modules/skills/api";
+
 import { sortedAvailability, sendAdminMessage } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { approveSkill, deleteSkill } from "../../api";
+import { approveSkill, deleteSkill, fetchSkillById } from "../../api";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import CommentDialog from "../components/comment-dialog";
