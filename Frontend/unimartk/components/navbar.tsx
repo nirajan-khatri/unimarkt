@@ -23,6 +23,7 @@ import { useTheme } from "next-themes";
 import { useAuth } from "@/modules/auth/contexts/authContext";
 import { UserProfile } from "@/modules/auth/types/auth";
 import dynamic from "next/dynamic";
+import path from "path";
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -107,10 +108,12 @@ export const Navbar = () => {
                 ? pathname.startsWith("/skillDetail") ||
                   pathname.startsWith("/skills")
                 : item.slug === "jobs"
-                  ? pathname.startsWith("/jobs")
+                  ? pathname.startsWith("/jobs") ||
+                    pathname.startsWith("/jobDetail")
                   : !pathname.startsWith("/skills") &&
                     !pathname.startsWith("/jobs") &&
-                    !pathname.startsWith("/skillDetail")
+                    !pathname.startsWith("/skillDetail") &&
+                    !pathname.startsWith("/jobDetail")
             }
           >
             {item.children}
