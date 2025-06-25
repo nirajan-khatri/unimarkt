@@ -13,6 +13,8 @@ class JobFilter(django_filters.FilterSet):
     title = django_filters.CharFilter(lookup_expr='icontains')
     status = django_filters.CharFilter()
     user_id = django_filters.NumberFilter(field_name='user__id')
+    exclude_user_id = django_filters.NumberFilter(field_name="user_id", exclude=True)
+
     isArchived = django_filters.BooleanFilter()
 
     class Meta:

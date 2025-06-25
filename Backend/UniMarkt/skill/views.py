@@ -71,6 +71,7 @@ class SkillViewSet(viewsets.ModelViewSet):
             openapi.Parameter("module", openapi.IN_QUERY, type=openapi.TYPE_STRING, description="Module name"),
             openapi.Parameter("status", openapi.IN_QUERY, type=openapi.TYPE_STRING, description="Status (pending/approved/rejected)"),
             openapi.Parameter("user_id", openapi.IN_QUERY, type=openapi.TYPE_INTEGER, description="Filter by user ID"),
+            openapi.Parameter("exclude_user_id", openapi.IN_QUERY, type=openapi.TYPE_INTEGER, description="Filter by excluding user ID"),
             openapi.Parameter("isArchived", openapi.IN_QUERY, type=openapi.TYPE_BOOLEAN, description="Archived flag"),
             openapi.Parameter("page", openapi.IN_QUERY, type=openapi.TYPE_INTEGER, description="Page number"),
             openapi.Parameter("page_size", openapi.IN_QUERY, type=openapi.TYPE_INTEGER, description="Items per page"),
