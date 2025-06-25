@@ -86,6 +86,7 @@ export const jobSchema = z.object({
   salary_per_hour: z.string().min(1, "Price is required"),
   category_id: z.string().min(1, "Please select a category"),
   contact_email: z.string().min(1, "Contact Email is required"),
+  degree_id: z.string().min(1, "Degree is required"),
 });
 
 export const profileSchema = z.object({
