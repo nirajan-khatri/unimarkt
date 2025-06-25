@@ -36,6 +36,7 @@ import { useAuth } from "@/modules/auth/contexts/authContext";
 import { redirect, useRouter } from "next/navigation";
 import { fetchJobById } from "@/services/products";
 import { departments } from "@/constants/departments";
+import { fetchDegrees } from "../../api";
 
 interface Props {
   jobId?: string;
@@ -73,10 +74,9 @@ const CreateJobForm = ({ jobId }: Props) => {
       location: "",
       category_id: "",
       contact_email: "",
+      degree_id: "",
     },
   });
-
-  console.log(form.formState.errors);
 
   const {
     data: categoryData,
@@ -85,6 +85,15 @@ const CreateJobForm = ({ jobId }: Props) => {
   } = useQuery({
     queryKey: ["jobCategories"],
     queryFn: fetchJobCategories,
+  });
+
+  const {
+    data: degreeData,
+    isLoading: degreeIsLoading,
+    error: degreeError,
+  } = useQuery({
+    queryKey: ["degrees"],
+    queryFn: fetchDegrees,
   });
 
   // Update form and preview images when product data is loaded
@@ -215,6 +224,38 @@ const CreateJobForm = ({ jobId }: Props) => {
                               {category.name}
                             </SelectItem>
                           ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="degree_id"
+                render={({ field }) => (
+                  <FormItem className="flex-1">
+                    <FormLabel>
+                      Degree<span className="text-red-500 -ml-1.5">*</span>
+                    </FormLabel>
+                    <Select
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                    >
+                      <FormControl className="w-full">
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select a degree" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {degreeData?.map((degree) => (
+                          <SelectItem
+                            key={degree.id}
+                            value={degree.id.toString()}
+                          >
+                            {degree.name}
+                          </SelectItem>
+                        ))}
                       </SelectContent>
                     </Select>
                     <FormMessage />

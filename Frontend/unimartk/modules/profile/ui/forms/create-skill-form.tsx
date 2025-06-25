@@ -39,10 +39,12 @@ import {
   Plus,
   Trash2,
 } from "lucide-react";
-import { degrees, departments } from "@/constants/departments";
 import { useAuth } from "@/modules/auth/contexts/authContext";
 import { redirect } from "next/navigation";
 import { fetchSkillById } from "@/services/products";
+import { fetchDegrees, fetchDepartments } from "../../api";
+import LoadingPage from "@/app/(admin)/admin/loader";
+import ErrorPage from "@/app/(admin)/admin/error";
 
 type SkillFormData = z.infer<typeof skillSchema>;
 
@@ -57,6 +59,8 @@ const CreateSkillForm = ({ skillId }: Props) => {
     redirect("/sign-in");
   }
 
+  const queryClient = useQueryClient();
+
   const {
     data: skill,
     isLoading,
@@ -67,7 +71,23 @@ const CreateSkillForm = ({ skillId }: Props) => {
     enabled: !!skillId, // Only run when skillId exists
   });
 
-  const queryClient = useQueryClient();
+  const {
+    data: departmentData,
+    isLoading: departmentIsLoading,
+    error: departmentError,
+  } = useQuery({
+    queryKey: ["departments"],
+    queryFn: fetchDepartments,
+  });
+
+  const {
+    data: degreeData,
+    isLoading: degreeIsLoading,
+    error: degreeError,
+  } = useQuery({
+    queryKey: ["degrees"],
+    queryFn: fetchDegrees,
+  });
 
   const form = useForm<SkillFormData>({
     resolver: zodResolver(skillSchema),
@@ -118,20 +138,6 @@ const CreateSkillForm = ({ skillId }: Props) => {
     }
   }, [skill, form]);
 
-  // const mutation = useMutation({
-  //   mutationFn: (newSkill: SkillFormData) => {
-  //     return axios.post("/skills/", newSkill);
-  //   },
-  //   onError: () => {
-  //     // An error happened!
-  //     toast.error("Something went wrong!");
-  //   },
-  //   onSuccess: () => {
-  //     toast.success("Skill created successfully!");
-  //     window.location.href = "/";
-  //   },
-  // });
-
   const mutation = useMutation({
     mutationFn: (newSkill: SkillFormData) => {
       if (skillId) {
@@ -151,6 +157,38 @@ const CreateSkillForm = ({ skillId }: Props) => {
     },
   });
 
+  console.log(degreeData);
+  const filteredDegrees = useMemo(() => {
+    return (degreeData || []).filter(
+      (degree) =>
+        degree.department.id.toString() === form.getValues("department_id")
+    );
+  }, [form.watch("department_id")]);
+
+  console.log(filteredDegrees);
+
+  const { fields, append, remove } = useFieldArray({
+    control: form.control,
+    name: "available_time_week",
+  });
+
+  // Loading state for edit mode
+  if (skillId && isLoading) {
+    return <LoadingPage />;
+  }
+
+  if (degreeIsLoading || departmentIsLoading) {
+    return <LoadingPage />;
+  }
+
+  if (error) {
+    return <ErrorPage />;
+  }
+
+  if (degreeError || departmentError) {
+    return <ErrorPage />;
+  }
+
   const skillCovers = [
     { category_id: 1, value: "academic", label: "Academic", icon: Book },
     { category_id: 2, value: "programming", label: "Programming", icon: Code },
@@ -159,18 +197,6 @@ const CreateSkillForm = ({ skillId }: Props) => {
     { category_id: 5, value: "finance", label: "Finance", icon: DollarSign },
     { category_id: 6, value: "music", label: "Music", icon: Music },
   ];
-
-  const filteredDegrees = useMemo(() => {
-    return degrees.filter(
-      (degree) =>
-        degree.department_id === parseInt(form.getValues("department_id"))
-    );
-  }, [form.watch("department_id")]);
-
-  const { fields, append, remove } = useFieldArray({
-    control: form.control,
-    name: "available_time_week",
-  });
 
   const onSubmit = async (data: SkillFormData) => {
     try {
@@ -237,7 +263,7 @@ const CreateSkillForm = ({ skillId }: Props) => {
                     </SelectTrigger>
                   </FormControl>
                   <SelectContent>
-                    {departments.map((department) => (
+                    {departmentData?.map((department) => (
                       <SelectItem
                         key={department.id}
                         value={department.id.toString()}

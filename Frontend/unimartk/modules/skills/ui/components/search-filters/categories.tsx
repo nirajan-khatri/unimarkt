@@ -26,7 +26,7 @@ export const Categories = ({ data }: Props) => {
   const [isAnyHovered, setIsAnyHovered] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-  const categoryParam = params.category as string | undefined;
+  const categoryParam = params.department as string | undefined;
   const activeCategory = categoryParam || "all";
 
   const activeCategoryIndex = data.findIndex(
@@ -103,6 +103,17 @@ export const Categories = ({ data }: Props) => {
         onMouseLeave={() => setIsAnyHovered(false)}
         className="flex flex-nowrap items-center"
       >
+        <CategoryDropdown
+          category={{
+            name: "All",
+            slug: "all",
+            category_id: null,
+            id: "11",
+            subcategories: [],
+          }}
+          isActive={activeCategory === "all"}
+          isNavigationHovered={isAnyHovered}
+        />
         {data.slice(0, visibleCount).map((category) => {
           return (
             <div className="" key={category.id}>

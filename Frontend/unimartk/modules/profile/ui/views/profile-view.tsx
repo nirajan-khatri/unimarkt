@@ -9,10 +9,13 @@ import { useAuth } from "@/modules/auth/contexts/authContext";
 import { ProfileServiceGrid } from "../components/profile-skill-grid";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ProfileProductGrid } from "../components/profile-product-grid";
-import { useSuspenseQuery } from '@tanstack/react-query';
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { fetchUserProducts } from "../../api";
 import { fetchUserSkills } from "../../api";
-import { ProductGridSkeleton, SkillGridSkeleton } from "../components/skeletons";
+import {
+  ProductGridSkeleton,
+  SkillGridSkeleton,
+} from "../components/skeletons";
 import { Pagination } from "@/components/ui/pagination";
 
 // Products Component wrapped in Suspense
@@ -21,7 +24,7 @@ const ProductsSection = ({ userId }: { userId: string }) => {
   const [pageSize, setPageSize] = useState(9);
 
   const { data: userProductsResponse } = useSuspenseQuery({
-    queryKey: ['userProducts', userId, currentPage, pageSize],
+    queryKey: ["userProducts", userId, currentPage, pageSize],
     queryFn: () => fetchUserProducts(userId, currentPage, pageSize),
     staleTime: 5 * 60 * 1000, // 5 minutes
     retry: 3,
@@ -46,7 +49,7 @@ const ProductsSection = ({ userId }: { userId: string }) => {
         error=""
         isLoading={false}
       />
-      
+
       {showPagination && (
         <Pagination
           currentPage={userProductsResponse.currentPage}
@@ -68,7 +71,7 @@ const SkillsSection = ({ userId }: { userId: string }) => {
   const [pageSize, setPageSize] = useState(9);
 
   const { data: userSkillsResponse } = useSuspenseQuery({
-    queryKey: ['userSkills', userId, currentPage, pageSize],
+    queryKey: ["userSkills", userId, currentPage, pageSize],
     queryFn: () => fetchUserSkills(userId, currentPage, pageSize),
     staleTime: 5 * 60 * 1000, // 5 minutes
     retry: 3,
@@ -93,7 +96,7 @@ const SkillsSection = ({ userId }: { userId: string }) => {
         error={null}
         isLoading={false}
       />
-      
+
       {showPagination && (
         <Pagination
           currentPage={userSkillsResponse.currentPage}
@@ -110,26 +113,25 @@ const SkillsSection = ({ userId }: { userId: string }) => {
 };
 
 const ProfileView = () => {
-  const { user, loading: userLoading } = useAuth();
-  const { user: userDetails, loading: detailsLoading } = useUser(user?.id);
+  const { user, isInitialized, isAuthenticated } = useAuth();
+  const { user: userDetails, isLoading } = useUser(user?.id.toString() ?? "");
 
   const [isEditing, setIsEditing] = useState(false);
 
-  if (userLoading || detailsLoading) {
-    return (
-      <div className="px-4 lg:px-12 py-10">
-        <div className="animate-pulse">
-          <div className="h-32 bg-gray-200 rounded-lg mb-8"></div>
-          <div className="h-8 bg-gray-200 rounded w-1/4 mb-4"></div>
-        </div>
-      </div>
-    );
-  }
+  // if (userLoading || detailsLoading) {
+  //   return (
+  //     <div className="px-4 lg:px-12 py-10">
+  //       <div className="animate-pulse">
+  //         <div className="h-32 bg-gray-200 rounded-lg mb-8"></div>
+  //         <div className="h-8 bg-gray-200 rounded w-1/4 mb-4"></div>
+  //       </div>
+  //     </div>
+  //   );
+  // }
 
-  if (!user) {
+  if ((!isAuthenticated || !user) && isInitialized) {
     redirect("/sign-in");
   }
-
   const handleEdit = () => {
     setIsEditing(true);
   };
@@ -160,14 +162,18 @@ const ProfileView = () => {
           onCancel={handleCancel}
           onSave={handleSave}
           onDelete={handleDelete}
-          loading={userLoading}
+          loading={isLoading}
         />
       )}
       <div className="flex flex-col gap-4">
         <div className="flex justify-between gap-3">
           <p className="text-2xl">Your Listings</p>
           <div className="flex flex-row gap-3">
-            <Button variant="outline" className="border-primary text-primary" asChild>
+            <Button
+              variant="outline"
+              className="border-primary text-primary"
+              asChild
+            >
               <Link href={"profile/sold"}>Show Sold Listings</Link>
             </Button>
             <Button asChild>
@@ -183,14 +189,14 @@ const ProfileView = () => {
           <TabsContent value="products">
             {user?.id && (
               <Suspense fallback={<ProductGridSkeleton />}>
-                <ProductsSection userId={user.id} />
+                <ProductsSection userId={user.id.toString()} />
               </Suspense>
             )}
           </TabsContent>
           <TabsContent value="services">
             {user?.id && (
               <Suspense fallback={<SkillGridSkeleton />}>
-                <SkillsSection userId={user.id} />
+                <SkillsSection userId={user.id.toString()} />
               </Suspense>
             )}
           </TabsContent>

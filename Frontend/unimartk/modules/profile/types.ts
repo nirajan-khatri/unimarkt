@@ -6,3 +6,9 @@ export type User = {
   role: string;
   avatarUrl?: string;
 };
+
+export type SkillCategory = {
+  id: string;
+  name: string;
+  slug: string;
+};

@@ -1,9 +1,11 @@
 import { JobCard } from "./JobCard";
 import type { JobPosting } from '@/modules/jobs/hooks/useJobs';
 import { JobGridSkeleton } from "@/modules/profile/ui/components/skeletons";
+import { Loader2 } from "lucide-react";
+import { Job } from "../../types";
 
 interface JobGridProps {
-  jobs: JobPosting[];
+  jobs: Job[];
   isLoading: boolean;
   error: Error | null;
 }
@@ -29,7 +31,9 @@ export function JobGrid({ jobs, isLoading, error }: JobGridProps) {
       <div className="lg:col-span-4 xl:col-span-6">
         <div className="text-center py-12 text-gray-500">
           <p className="text-lg font-semibold mb-2">No jobs found</p>
-          <p className="text-sm">Try adjusting your search criteria or filters</p>
+          <p className="text-sm">
+            Try adjusting your search criteria or filters
+          </p>
         </div>
       </div>
     );
@@ -44,4 +48,4 @@ export function JobGrid({ jobs, isLoading, error }: JobGridProps) {
       </div>
     </div>
   );
-} 
+}
