@@ -169,7 +169,7 @@ export const Navbar = () => {
               <DropdownMenuItem onClick={handleProfile}>
                 Profile
               </DropdownMenuItem>
-              {hasRole("admin") || hasRole("superuser") && (
+              {(hasRole("admin") || hasRole("superuser")) && (
                 <DropdownMenuItem onClick={handleAdminDashboard}>
                   Admin Dashboard
                 </DropdownMenuItem>

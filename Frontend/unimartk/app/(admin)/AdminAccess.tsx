@@ -8,20 +8,20 @@ export default function AdminAccess({ children }: { children: React.ReactNode })
   const router = useRouter();
 
   const unauthorized =
-    isInitialized && (!isAuthenticated || (user?.role !== "admin" && user?.role !== "superuser"));
+    isInitialized &&
+    (!isAuthenticated || (user !== null && user.role !== "admin" && user.role !== "superuser"));
 
   useEffect(() => {
-    if (unauthorized) {
-      // Try to go back, but if there's no history, go home
+    if (isInitialized && (!isAuthenticated || (user !== null && (user.role !== "admin" && user.role !== "superuser")))) {
       router.back();
       const timeout = setTimeout(() => {
         router.replace("/");
       }, 500);
       return () => clearTimeout(timeout);
     }
-  }, [unauthorized, router]);
+  }, [isInitialized, isAuthenticated, user, router]);
 
-  if (!isInitialized) return null;
-  if (unauthorized) return null;
+  if (!isInitialized || !isAuthenticated || user === null) return null;
+  if (user.role !== "admin" && user.role !== "superuser") return null;
   return <>{children}</>;
 } 
