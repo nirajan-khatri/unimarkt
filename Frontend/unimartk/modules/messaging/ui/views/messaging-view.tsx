@@ -33,6 +33,23 @@ const WhatsAppMessaging = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { isAuthenticated, user, isInitialized } = useAuth();
 
+  const isAdminMessage = (message: string): boolean => {
+    return message.includes(
+      "--- This is an automated message. Do not reply. ---"
+    );
+  };
+
+  // Helper function to parse admin message
+  const parseAdminMessage = (message: string) => {
+    const parts = message.split(
+      "--- This is an automated message. Do not reply. ---"
+    );
+    return {
+      mainMessage: parts[0].trim(),
+      isAdmin: parts.length > 1,
+    };
+  };
+
   if ((!isAuthenticated || !user) && isInitialized) {
     redirect("/sign-in");
   }
@@ -320,26 +337,43 @@ const WhatsAppMessaging = () => {
                     </p>
                   </div>
                 ) : (
-                  messages.map((message, index) => (
-                    <div
-                      key={index}
-                      className={`flex ${
-                        message.sender_id.toString() === user?.id.toString()
-                          ? "justify-end"
-                          : "justify-start"
-                      }`}
-                    >
+                  messages.map((message, index) => {
+                    const { mainMessage, isAdmin } = parseAdminMessage(
+                      message.message
+                    );
+                    const isOwnMessage =
+                      message.sender_id.toString() === user?.id.toString();
+
+                    return (
                       <div
-                        className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
-                          message.sender_id.toString() === user?.id.toString()
-                            ? "bg-primary text-primary-foreground"
-                            : "bg-accent text-accent-foreground"
-                        }`}
+                        key={index}
+                        className={`flex ${isOwnMessage ? "justify-end" : "justify-start"}`}
                       >
-                        <p className="break-words">{message.message}</p>
+                        <div
+                          className={`max-w-xs lg:max-w-md px-4 py-2 rounded-lg ${
+                            isOwnMessage
+                              ? "bg-primary text-primary-foreground"
+                              : isAdmin
+                                ? "bg-orange-50 border border-orange-200 text-orange-900"
+                                : "bg-accent text-accent-foreground"
+                          }`}
+                        >
+                          <div className="break-words">
+                            {isAdmin ? (
+                              <div className="space-y-2">
+                                <p className="font-medium">{mainMessage}</p>
+                                <p className="text-xs text-orange-600 italic border-t border-orange-200 pt-2">
+                                  This is an automated message. Do not reply.
+                                </p>
+                              </div>
+                            ) : (
+                              <p>{message.message}</p>
+                            )}
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  ))
+                    );
+                  })
                 )}
                 <div ref={messagesEndRef} />
               </div>

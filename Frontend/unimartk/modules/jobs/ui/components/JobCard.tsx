@@ -1,24 +1,33 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import type { JobPosting } from '@/modules/jobs/hooks/useJobs';
-import { format } from 'date-fns';
-import { CalendarDays, MapPin, DollarSign, Mail, Phone, User } from "lucide-react";
+import type { JobPosting } from "@/modules/jobs/hooks/useJobs";
+import { format } from "date-fns";
+import {
+  CalendarDays,
+  MapPin,
+  DollarSign,
+  Mail,
+  Phone,
+  User,
+} from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-
+import { Job } from "../../types";
 
 interface JobCardProps {
-  job: JobPosting;
+  job: Job;
 }
 
 export function JobCard({ job }: JobCardProps) {
   const router = useRouter();
-  const salary = job.salary_per_hour ? parseFloat(job.salary_per_hour) : "Negotiable";
+  const salary = job.salary_per_hour
+    ? parseFloat(job.salary_per_hour.toString())
+    : "Negotiable";
 
   return (
     <Card
       className="group bg-white rounded-xl py-0 shadow-sm border border-gray-200 overflow-hidden cursor-pointer transition-all duration-300 hover:shadow-lg hover:-translate-y-1 h-full flex flex-col"
-      onClick={() => router.push(`/jobs/job-details/${job.job_id}`)}
+      onClick={() => router.push(`/jobDetail/${job.job_id}`)}
     >
       <CardContent className="p-6 flex flex-col h-full">
         {/* Header Section */}
@@ -28,7 +37,10 @@ export function JobCard({ job }: JobCardProps) {
               {job.title}
             </h3>
             {job.location && (
-              <Badge variant="secondary" className="bg-gray-100 text-gray-700 border-gray-200 font-medium">
+              <Badge
+                variant="secondary"
+                className="bg-gray-100 text-gray-700 border-gray-200 font-medium"
+              >
                 <MapPin size={12} className="mr-1" />
                 {job.location}
               </Badge>
@@ -50,8 +62,12 @@ export function JobCard({ job }: JobCardProps) {
               <User size={16} className="text-white" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="font-medium text-gray-900 text-sm truncate">{job.user.name}</p>
-              <p className="text-xs text-gray-500 truncate">{job.contact_email}</p>
+              <p className="font-medium text-gray-900 text-sm truncate">
+                {job.user.name}
+              </p>
+              <p className="text-xs text-gray-500 truncate">
+                {job.contact_email}
+              </p>
             </div>
           </div>
 
@@ -70,16 +86,18 @@ export function JobCard({ job }: JobCardProps) {
         <div className="mt-auto">
           <div className="flex items-center gap-2 mb-2">
             <CalendarDays size={16} className="text-gray-400" />
-            <span className="text-sm font-medium text-gray-700">Posted Date</span>
+            <span className="text-sm font-medium text-gray-700">
+              Posted Date
+            </span>
           </div>
 
           <div className="p-2 bg-gray-50 rounded-lg border border-gray-200 mb-4">
             <span className="text-sm text-gray-800">
-              {new Date(job.created_at).toLocaleDateString('en-US', {
-                weekday: 'long',
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'
+              {new Date(job.created_at).toLocaleDateString("en-US", {
+                weekday: "long",
+                year: "numeric",
+                month: "long",
+                day: "numeric",
               })}
             </span>
           </div>
@@ -95,4 +113,4 @@ export function JobCard({ job }: JobCardProps) {
       </CardContent>
     </Card>
   );
-} 
+}

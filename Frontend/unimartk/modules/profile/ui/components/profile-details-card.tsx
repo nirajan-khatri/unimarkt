@@ -105,22 +105,34 @@ const ProfileDetailsCard = ({
             />
             <FormField
               name="contact_number"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-base">
-                    Contact Number (Optional)
-                  </FormLabel>
-                  <FormControl>
-                    <Input {...field} disabled={!isEditing} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
+              render={({ field }) => {
+                console.log(field);
+                return (
+                  <FormItem>
+                    <FormLabel className="text-base">
+                      Contact Number (Optional)
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        {...field}
+                        value={field.value ?? ""}
+                        disabled={!isEditing}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                );
+              }}
             />
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Role</label>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Role
+              </label>
               <div className="h-10 flex items-center">
-                <Badge variant="secondary" className="bg-gray-100 text-gray-700 h-10 px-8">
+                <Badge
+                  variant="secondary"
+                  className="bg-gray-100 text-gray-700 h-10 px-8"
+                >
                   {role}
                 </Badge>
               </div>
@@ -146,7 +158,12 @@ const ProfileDetailsCard = ({
             )}
             {!isEditing && (
               <div className="flex justify-end gap-4 pt-2 col-span-1 md:col-span-2">
-                <Button variant="outline" className="border-red-600 text-red-600 hover:bg-red-600 hover:text-white" onClick={onDelete} disabled={loading}>
+                <Button
+                  variant="outline"
+                  className="border-red-600 text-red-600 hover:bg-red-600 hover:text-white"
+                  onClick={onDelete}
+                  disabled={loading}
+                >
                   Delete Account
                 </Button>
                 <Button
