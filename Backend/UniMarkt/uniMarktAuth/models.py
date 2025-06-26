@@ -44,7 +44,7 @@ class UserManager(BaseUserManager):
         extra_fields.setdefault("is_staff", True)
         extra_fields.setdefault("is_superuser", True)
         extra_fields.setdefault("is_admin", True)
-        extra_fields.setdefault("role", Role.objects.get_or_create(name='superuser')[0])
+        extra_fields.setdefault("role_id", 4)
         return self.create_user(email, password, **extra_fields)
 
 
