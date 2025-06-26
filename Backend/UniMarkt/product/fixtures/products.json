@@ -258,7 +258,7 @@
       "sub_category": 6,
       "description": "Apple MacBook Pro with M2 chip",
       "price": "1899.00",
-      "images": ["s3://unimarkt-bucket/uploads/macbook.jpg"],
+      "images": ["https://unimarkt-bucket.s3.eu-central-1.amazonaws.com/uploads/macbook.jpg"],
       "user": 2,
       "status": "approved",
       "pickup_location": "Berlin, Germany",
