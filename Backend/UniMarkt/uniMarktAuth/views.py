@@ -10,9 +10,15 @@ from rest_framework_simplejwt.tokens import AccessToken, TokenError
 from drf_yasg import openapi
 
 
-
 from .models import Role, User
-from .serializers import LoginSerializer, UserSerializer, RegisterSerializer, RoleSerializer, PasswordResetSerializer
+from .serializers import (
+    LoginSerializer,
+    UserSerializer,
+    RegisterSerializer,
+    RoleSerializer,
+    PasswordResetSerializer,
+    UpdateUserSerializer,
+)
 
 
 class LoginAPIView(APIView):
@@ -23,23 +29,30 @@ class LoginAPIView(APIView):
         responses={
             200: "JWT token and user data",
             400: "Validation error",
-        }
+        },
     )
     def post(self, request):
-        serializer = LoginSerializer(data=request.data, context={'request': request})
+        serializer = LoginSerializer(data=request.data, context={"request": request})
         if serializer.is_valid():
-            user = serializer.validated_data['user']
+            user = serializer.validated_data["user"]
             refresh = RefreshToken.for_user(user)
             user_data = UserSerializer(user).data
-            return Response({
-                'user': user_data,
-                'refresh': str(refresh),
-                'access': str(refresh.access_token)
-            })
+            return Response(
+                {
+                    "user": user_data,
+                    "refresh": str(refresh),
+                    "access": str(refresh.access_token),
+                }
+            )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
 class RegisterAPIView(APIView):
-    @swagger_auto_schema(tags=["Auth"], request_body=RegisterSerializer, responses={201: "User registered"})
+    @swagger_auto_schema(
+        tags=["Auth"],
+        request_body=RegisterSerializer,
+        responses={201: "User registered"},
+    )
     def post(self, request):
         serializer = RegisterSerializer(data=request.data)
         if serializer.is_valid():
@@ -47,20 +60,20 @@ class RegisterAPIView(APIView):
 
             user = serializer.save()
 
-           
-
             # Set status based on is_admin and is_staff flags
             if not user.is_admin and not user.is_staff:
-                user.status = 'approved'
+                user.status = "approved"
             else:
-                user.status = 'pending'
+                user.status = "pending"
 
             user.save()
-            return Response({"message": "User registered successfully"}, status=status.HTTP_201_CREATED)
+            return Response(
+                {"message": "User registered successfully"},
+                status=status.HTTP_201_CREATED,
+            )
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-        
 
 class RoleListView(APIView):
 
@@ -69,6 +82,7 @@ class RoleListView(APIView):
         roles = Role.objects.all()
         serializer = RoleSerializer(roles, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
 
 class SecurityQuestionChoiceView(APIView):
     @swagger_auto_schema(tags=["Auth"])
@@ -81,8 +95,8 @@ class SecurityQuestionChoiceView(APIView):
 class PasswordResetAPIView(APIView):
     @swagger_auto_schema(
         request_body=PasswordResetSerializer,
-        responses={200: 'Password reset successful', 400: 'Validation error'},
-        tags=['Auth']
+        responses={200: "Password reset successful", 400: "Validation error"},
+        tags=["Auth"],
     )
     def post(self, request):
         serializer = PasswordResetSerializer(data=request.data)
@@ -90,7 +104,8 @@ class PasswordResetAPIView(APIView):
             serializer.save()
             return Response({"detail": "Password reset successful."}, status=200)
         return Response(serializer.errors, status=400)
-    
+
+
 class CurrentUserAPIView(APIView):
 
     @swagger_auto_schema(
@@ -100,27 +115,68 @@ class CurrentUserAPIView(APIView):
             type=openapi.TYPE_OBJECT,
             required=["token"],
             properties={
-                'token': openapi.Schema(type=openapi.TYPE_STRING, description='Access token')
+                "token": openapi.Schema(
+                    type=openapi.TYPE_STRING, description="Access token"
+                )
             },
         ),
         responses={
             200: UserSerializer,
             400: "Token not provided",
             401: "Invalid token",
-        }
+        },
     )
     def post(self, request):
         token_str = request.data.get("token")
 
         if not token_str:
-            return Response({"detail": "Token not provided."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"detail": "Token not provided."}, status=status.HTTP_400_BAD_REQUEST
+            )
 
         try:
             token = AccessToken(token_str)
-            user_id = token['user_id']
+            user_id = token["user_id"]
             user = User.objects.get(id=user_id)
         except (TokenError, User.DoesNotExist):
-            return Response({"detail": "Invalid token."}, status=status.HTTP_401_UNAUTHORIZED)
+            return Response(
+                {"detail": "Invalid token."}, status=status.HTTP_401_UNAUTHORIZED
+            )
 
         serializer = UserSerializer(user)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class UpdateUserAPIView(APIView):
+    @swagger_auto_schema(
+        operation_description="Get current user info using access token (passed in body)",
+        tags=["Auth"],
+        request_body=UpdateUserSerializer,
+        responses={
+            200: UserSerializer,
+            400: "Token not provided",
+            401: "Invalid token",
+        },
+    )
+    def put(self, request):
+        token_str = request.data.get("token")
+        if not token_str:
+            return Response(
+                {"detail": "Token not provided."}, status=status.HTTP_400_BAD_REQUEST
+            )
+
+        try:
+            token = AccessToken(token_str)
+            user_id = token["user_id"]
+            user = User.objects.get(id=user_id)
+            serializer = UpdateUserSerializer(user, data=request.data, partial=True)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(
+                    {"message": "User updated successfully"},
+                    status=status.HTTP_200_OK,
+                )
+        except (TokenError, User.DoesNotExist):
+            return Response(
+                {"detail": "Invalid token."}, status=status.HTTP_401_UNAUTHORIZED
+            )
