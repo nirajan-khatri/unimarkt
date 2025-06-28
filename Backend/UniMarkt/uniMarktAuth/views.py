@@ -180,3 +180,24 @@ class UpdateUserAPIView(APIView):
             return Response(
                 {"detail": "Invalid token."}, status=status.HTTP_401_UNAUTHORIZED
             )
+
+
+class DeleteUserAPIView(APIView):
+    @swagger_auto_schema(
+        operation_description="Delete the currently authenticated user.",
+        tags=["Auth"],
+        responses={
+            204: "User deleted successfully",
+            401: "Unauthorized",
+            404: "User not found",
+        },
+    )
+    def delete(self, request):
+        user = request.user
+        if user:
+            user.delete()
+            return Response(
+                {"detail": "User deleted successfully."},
+                status=status.HTTP_204_NO_CONTENT,
+            )
+        return Response({"detail": "User not found."}, status=status.HTTP_404_NOT_FOUND)
