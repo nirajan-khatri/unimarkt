@@ -206,7 +206,7 @@ export const fetchDashboardStats = async (): Promise<DashboardStats> => {
     // Calculate user statistics
     const totalUsersWithSuperUser = users.length;
     const totalUsersWithoutSuperUser = users.filter(
-      (u: User) => u.role?.name !== "superuser"
+      (u: User) => u.role !== "superuser"
     ).length;
     const activeUsers = users.filter((u: any) => u.is_active === true).length;
     const inactiveUsers = users.filter(
@@ -222,32 +222,28 @@ export const fetchDashboardStats = async (): Promise<DashboardStats> => {
 
     // Count users per role
     users.forEach((user) => {
-      const roleId = user.role?.name || "unknown";
+      const roleId = user.role || "unknown";
       if (roleCounts.hasOwnProperty(roleId)) {
         roleCounts[roleId]++;
       }
     });
 
     const pendingAdmins = users.filter(
-      (u: User) =>
-        u.status === "pending" && u.is_admin && u.role.name !== "admin"
+      (u: User) => u.status === "pending" && u.is_admin && u.role !== "admin"
     ).length;
 
     const rejectedAdmins = users.filter(
-      (u: User) =>
-        u.status === "rejected" && u.is_admin && u.role.name !== "admin"
+      (u: User) => u.status === "rejected" && u.is_admin && u.role !== "admin"
     ).length;
 
     const totalUnapprovedAdmins = pendingAdmins + rejectedAdmins;
 
     const pendingFaculty = users.filter(
-      (u: User) =>
-        u.status === "pending" && u.is_staff && u.role.name !== "faculty"
+      (u: User) => u.status === "pending" && u.is_staff && u.role !== "faculty"
     ).length;
 
     const rejectedFaculty = users.filter(
-      (u: User) =>
-        u.status === "rejected" && u.is_staff && u.role.name !== "faculty"
+      (u: User) => u.status === "rejected" && u.is_staff && u.role !== "faculty"
     ).length;
 
     const totalUnapprovedFaculty = pendingFaculty + rejectedFaculty;

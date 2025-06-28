@@ -1,6 +1,10 @@
 "use client";
 
-import { useSuspenseQuery } from "@tanstack/react-query";
+import {
+  useMutation,
+  useQueryClient,
+  useSuspenseQuery,
+} from "@tanstack/react-query";
 
 import Image from "next/image";
 import React, { useState } from "react";
@@ -14,9 +18,6 @@ import {
   Lightbulb,
   Music,
   Palette,
-  MapPinIcon,
-  MessageCircle,
-  Building,
   GraduationCapIcon,
   SchoolIcon,
   CalendarDaysIcon,
@@ -27,17 +28,14 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/modules/auth/contexts/authContext"; // Updated import
 
-import {
-  generateTimeSlots,
-  getNextDateForWeekday,
-  sortedAvailability,
-} from "@/lib/utils";
+import { sortedAvailability } from "@/lib/utils";
 
 import { Button } from "@/components/ui/button";
-import { format, formatDate } from "date-fns";
 import { fetchSkillById } from "@/modules/skills/api";
-import { WeekdayDatePicker } from "@/modules/skills/ui/components/weekday-date-picker";
 import { useRouter } from "next/navigation";
+import { archiveSkill, deleteSkill } from "../../api";
+import { toast } from "sonner";
+import ConfirmDeleteDialog from "@/components/confirm-delete-dialog";
 
 interface Props {
   skillId: string;
@@ -56,12 +54,59 @@ const skillCovers = [
 
 export const ProfileSkillView = ({ skillId }: Props) => {
   const router = useRouter();
+  const queryClient = useQueryClient();
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [confirmName, setConfirmName] = useState("");
   const { isAuthenticated, user, isInitialized } = useAuth();
 
   const { data, error, isLoading } = useSuspenseQuery({
     queryKey: ["skill", skillId],
     queryFn: () => fetchSkillById(skillId),
   });
+
+  const deleteSkillMutation = useMutation({
+    mutationFn: async () => {
+      return deleteSkill(skillId);
+    },
+    onSuccess: () => {
+      toast.success("Skill deleted successfully!");
+      queryClient.invalidateQueries({
+        queryKey: ["userSkills"],
+        exact: false,
+      });
+      queryClient.invalidateQueries({ queryKey: ["skill", skillId] });
+      router.push("/profile?tab=services");
+    },
+    onError: (error) => {
+      console.error("Delete error:", error);
+      toast.error("Failed to delete skill. Please try again.");
+    },
+  });
+
+  const archiveSkillMutation = useMutation({
+    mutationFn: () => {
+      return archiveSkill({
+        skillId,
+        data: { isArchived: !data.isArchived },
+      });
+    },
+    onSuccess: () => {
+      toast.success("Skill archived successfully!");
+      queryClient.invalidateQueries({
+        queryKey: ["userSkills"],
+        exact: false,
+      });
+      queryClient.invalidateQueries({ queryKey: ["skill", skillId] });
+    },
+    onError: (error) => {
+      console.error("Skill Archive error:", error);
+      toast.error("Failed to archive skill. Please try again.");
+    },
+  });
+
+  const handleArchive = () => {
+    archiveSkillMutation.mutate();
+  };
 
   return (
     <>
@@ -168,24 +213,23 @@ export const ProfileSkillView = ({ skillId }: Props) => {
                 <Button
                   variant="outline"
                   className="flex flex-row gap-2 hover:bg-red-50 hover:border-red-300"
-                  onClick={() => {}}
-                  // disabled={deleteProductMutation.isPending}
+                  onClick={() => setShowDeleteDialog(true)}
                 >
                   <Trash2Icon className="w-4 h-4" />
                   {false ? "Deleting..." : "Delete"}
                 </Button>
 
-                <Button
-                  variant="outline"
-                  className="flex flex-row gap-2"
-                  // onClick={handleReject}
-                  // disabled={
-                  //    rejectProductMutation.isPending
-                  // }
-                >
-                  <ArchiveIcon className="w-4 h-4" />
-                  Mark as Sold
-                </Button>
+                {data.status === "approved" && (
+                  <Button
+                    variant="outline"
+                    className="flex flex-row gap-2"
+                    onClick={handleArchive}
+                    disabled={archiveSkillMutation.isPending}
+                  >
+                    <ArchiveIcon className="w-4 h-4" />
+                    {data.isArchived ? "Unarchive" : "Archive Product"}
+                  </Button>
+                )}
 
                 <Button
                   variant="outline"
@@ -204,6 +248,14 @@ export const ProfileSkillView = ({ skillId }: Props) => {
           </div>
         </div>
       </div>
+      <ConfirmDeleteDialog
+        confirmName={confirmName}
+        setConfirmName={setConfirmName}
+        showDeleteDialog={showDeleteDialog}
+        setShowDeleteDialog={setShowDeleteDialog}
+        deleteMutation={deleteSkillMutation}
+        itemName={data.module}
+      />
     </>
   );
 };

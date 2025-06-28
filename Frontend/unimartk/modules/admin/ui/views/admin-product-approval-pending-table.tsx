@@ -91,7 +91,14 @@ const ProductTable = () => {
         (product: Product) => product.product_id === selectedProductId
       )[0].user.id;
       approveProduct({ productId, data: { status: "rejected" } });
-      await sendAdminMessage(userId, comment);
+      await sendAdminMessage(
+        userId,
+        comment,
+        data.filter(
+          (product: Product) => product.product_id === selectedProductId
+        )[0].name,
+        "rejected"
+      );
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["adminProducts"] });
@@ -112,7 +119,14 @@ const ProductTable = () => {
         (product: Product) => product.product_id === selectedProductId
       )[0].user.id;
       deleteProduct(productId);
-      await sendAdminMessage(userId, comment);
+      await sendAdminMessage(
+        userId,
+        comment,
+        data.filter(
+          (product: Product) => product.product_id === selectedProductId
+        )[0].name,
+        "deleted"
+      );
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["adminProducts"] });

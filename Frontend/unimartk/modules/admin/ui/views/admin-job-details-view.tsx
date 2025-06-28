@@ -68,7 +68,7 @@ export const AdminJobDetailsView = ({ jobId }: Props) => {
       comment: string;
     }) => {
       if (data?.user?.id && comment.trim()) {
-        await sendAdminMessage(data.user.id, comment);
+        await sendAdminMessage(data.user.id, comment, data.title, "deleted");
       }
       return deleteJob(jobId);
     },
@@ -112,7 +112,7 @@ export const AdminJobDetailsView = ({ jobId }: Props) => {
     }) => {
       // Send admin message first if comment exists
       if (data?.user?.id && comment.trim()) {
-        await sendAdminMessage(data.user.id, comment);
+        await sendAdminMessage(data.user.id, comment, data.title, "deleted");
       }
 
       return approveJob({ jobId, data: { status: "rejected" } });

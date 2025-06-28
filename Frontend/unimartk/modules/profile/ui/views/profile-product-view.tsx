@@ -1,6 +1,10 @@
 "use client";
 
-import { useSuspenseQuery } from "@tanstack/react-query";
+import {
+  useMutation,
+  useQueryClient,
+  useSuspenseQuery,
+} from "@tanstack/react-query";
 import {
   MapPinIcon,
   XIcon,
@@ -29,6 +33,18 @@ const dummyImages = [
 import { useAuth } from "@/modules/auth/contexts/authContext"; // Updated import
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { archiveProduct, deleteProduct } from "../../api";
+import ConfirmDeleteDialog from "@/components/confirm-delete-dialog";
 
 interface Props {
   productId: string;
@@ -71,7 +87,6 @@ const ImageModal = ({
       tabIndex={0}
     >
       <div className="relative w-full h-full max-w-4xl max-h-4xl mx-4 my-4">
-        {/* Close button */}
         <button
           onClick={onClose}
           className="absolute top-4 right-4 z-10 bg-black bg-opacity-50 text-white p-2 rounded-full hover:bg-opacity-70 transition-colors"
@@ -79,7 +94,6 @@ const ImageModal = ({
           <XIcon className="w-6 h-6" />
         </button>
 
-        {/* Navigation buttons */}
         <button
           onClick={(e) => {
             e.stopPropagation();
@@ -100,7 +114,6 @@ const ImageModal = ({
           <ChevronRightIcon className="w-6 h-6" />
         </button>
 
-        {/* Main image */}
         <div
           className="relative w-full h-full flex items-center justify-center"
           onClick={(e) => e.stopPropagation()}
@@ -116,7 +129,6 @@ const ImageModal = ({
           </div>
         </div>
 
-        {/* Image counter */}
         <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black bg-opacity-50 text-white px-3 py-1 rounded-full text-sm">
           {currentIndex + 1} / {images.length}
         </div>
@@ -154,7 +166,11 @@ export const ProfileProductView = ({ productId }: Props) => {
   const router = useRouter();
   const [selectedImage, setSelectedImage] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [confirmName, setConfirmName] = useState("");
   const { isAuthenticated, user, isInitialized } = useAuth();
+
+  const queryClient = useQueryClient();
 
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
@@ -163,6 +179,7 @@ export const ProfileProductView = ({ productId }: Props) => {
     queryKey: ["product", productId],
     queryFn: () => fetchProductById(productId),
   });
+  console.log(data);
 
   const images = useMemo(() => {
     if (data.images?.length > 0) {
@@ -171,6 +188,50 @@ export const ProfileProductView = ({ productId }: Props) => {
       return dummyImages;
     }
   }, [isLoading, data]);
+
+  const deleteProductMutation = useMutation({
+    mutationFn: async () => {
+      return deleteProduct(productId);
+    },
+    onSuccess: () => {
+      toast.success("Product deleted successfully!");
+      queryClient.invalidateQueries({
+        queryKey: ["userProducts"],
+        exact: false,
+      });
+      queryClient.invalidateQueries({ queryKey: ["product", productId] });
+      router.push("/profile");
+    },
+    onError: (error) => {
+      console.error("Delete error:", error);
+      toast.error("Failed to delete product. Please try again.");
+    },
+  });
+
+  const archiveProductMutation = useMutation({
+    mutationFn: () => {
+      return archiveProduct({
+        productId,
+        data: { isArchived: !data.isArchived },
+      });
+    },
+    onSuccess: () => {
+      toast.success("Product archived successfully!");
+      queryClient.invalidateQueries({
+        queryKey: ["userProducts"],
+        exact: false,
+      });
+      queryClient.invalidateQueries({ queryKey: ["product", productId] });
+    },
+    onError: (error) => {
+      console.error("Product Archive error:", error);
+      toast.error("Failed to archive product. Please try again.");
+    },
+  });
+
+  const handleArchive = () => {
+    archiveProductMutation.mutate();
+  };
 
   return (
     <>
@@ -266,24 +327,23 @@ export const ProfileProductView = ({ productId }: Props) => {
                 <Button
                   variant="outline"
                   className="flex flex-row gap-2 hover:bg-red-50 hover:border-red-300"
-                  onClick={() => {}}
-                  // disabled={deleteProductMutation.isPending}
+                  onClick={() => setShowDeleteDialog(true)}
                 >
                   <Trash2Icon className="w-4 h-4" />
                   {false ? "Deleting..." : "Delete"}
                 </Button>
 
-                <Button
-                  variant="outline"
-                  className="flex flex-row gap-2"
-                  // onClick={handleReject}
-                  // disabled={
-                  //    rejectProductMutation.isPending
-                  // }
-                >
-                  <ArchiveIcon className="w-4 h-4" />
-                  Mark as Sold
-                </Button>
+                {data.status === "approved" && (
+                  <Button
+                    variant="outline"
+                    className="flex flex-row gap-2"
+                    onClick={handleArchive}
+                    disabled={archiveProductMutation.isPending}
+                  >
+                    <ArchiveIcon className="w-4 h-4" />
+                    {data.isArchived ? "Unarchive" : "Archive Product"}
+                  </Button>
+                )}
 
                 <Button
                   variant="outline"
@@ -291,8 +351,6 @@ export const ProfileProductView = ({ productId }: Props) => {
                   onClick={() => {
                     router.push(`/profile/edit/product/${productId}`);
                   }}
-                  // onClick={handleApprove}
-                  // disabled={approveProductMutation.isPending}
                 >
                   <PencilIcon className="w-4 h-4" />
                   Edit
@@ -310,6 +368,15 @@ export const ProfileProductView = ({ productId }: Props) => {
         images={images}
         currentIndex={selectedImage}
         onIndexChange={setSelectedImage}
+      />
+
+      <ConfirmDeleteDialog
+        confirmName={confirmName}
+        setConfirmName={setConfirmName}
+        showDeleteDialog={showDeleteDialog}
+        setShowDeleteDialog={setShowDeleteDialog}
+        deleteMutation={deleteProductMutation}
+        itemName={data.name}
       />
     </>
   );
