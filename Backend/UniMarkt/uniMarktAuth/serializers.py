@@ -67,7 +67,7 @@ class RegisterSerializer(serializers.ModelSerializer):
 class UpdateUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ["name", "email", "contact_number"]
+        fields = ["user_id", "name", "email", "contact_number"]
 
     def update(self, instance, validated_data):
 

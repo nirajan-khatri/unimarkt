@@ -147,39 +147,96 @@ class CurrentUserAPIView(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
+# class UpdateUserAPIView(APIView):
+#     @swagger_auto_schema(
+#         operation_description="Get current user info using access token (passed in body)",
+#         tags=["Auth"],
+#         request_body=UpdateUserSerializer,
+#         responses={
+#             200: UserSerializer,
+#             400: "Token not provided",
+#             401: "Invalid token",
+#         },
+#     )
+#     def put(self, request):
+#         token_str = request.data.get("token")
+#         if not token_str:
+#             return Response(
+#                 {"detail": "Token not provided."}, status=status.HTTP_400_BAD_REQUEST
+#             )
+
+#         try:
+#             token = AccessToken(token_str)
+#             user_id = token["user_id"]
+#             user = User.objects.get(id=user_id)
+#             serializer = UpdateUserSerializer(user, data=request.data, partial=True)
+#             if serializer.is_valid():
+#                 serializer.save()
+#                 return Response(
+#                     {"message": "User updated successfully"},
+#                     status=status.HTTP_200_OK,
+#                 )
+#         except (TokenError, User.DoesNotExist):
+#             return Response(
+#                 {"detail": "Invalid token."}, status=status.HTTP_401_UNAUTHORIZED
+#             )
+
+
+# class DeleteUserAPIView(APIView):
+#     @swagger_auto_schema(
+#         operation_description="Delete the currently authenticated user.",
+#         tags=["Auth"],
+#         responses={
+#             204: "User deleted successfully",
+#             401: "Unauthorized",
+#             404: "User not found",
+#         },
+#     )
+#     def delete(self, request):
+#         user = request.user
+#         if user:
+#             user.delete()
+#             return Response(
+#                 {"detail": "User deleted successfully."},
+#                 status=status.HTTP_204_NO_CONTENT,
+#             )
+#         return Response({"detail": "User not found."}, status=status.HTTP_404_NOT_FOUND)
+
+
 class UpdateUserAPIView(APIView):
     @swagger_auto_schema(
-        operation_description="Get current user info using access token (passed in body)",
+        operation_description="Update a user's information by user ID.",
         tags=["Auth"],
         request_body=UpdateUserSerializer,
+        required=["user_id"],
         responses={
             200: UserSerializer,
-            400: "Token not provided",
-            401: "Invalid token",
+            400: "Invalid request data",
+            404: "User not found",
         },
     )
-    def put(self, request):
-        token_str = request.data.get("token")
-        if not token_str:
+    def put(self, request, user_id):
+        user_id = request.data.get("user_id")
+        if not user_id:
             return Response(
-                {"detail": "Token not provided."}, status=status.HTTP_400_BAD_REQUEST
+                {"detail": "User ID not provided."}, status=status.HTTP_400_BAD_REQUEST
             )
 
         try:
-            token = AccessToken(token_str)
-            user_id = token["user_id"]
             user = User.objects.get(id=user_id)
-            serializer = UpdateUserSerializer(user, data=request.data, partial=True)
-            if serializer.is_valid():
-                serializer.save()
-                return Response(
-                    {"message": "User updated successfully"},
-                    status=status.HTTP_200_OK,
-                )
-        except (TokenError, User.DoesNotExist):
+        except User.DoesNotExist:
             return Response(
-                {"detail": "Invalid token."}, status=status.HTTP_401_UNAUTHORIZED
+                {"detail": "User not found."}, status=status.HTTP_404_NOT_FOUND
             )
+
+        serializer = UpdateUserSerializer(user, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(
+                {"message": "User updated successfully."}, status=status.HTTP_200_OK
+            )
+
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class DeleteUserAPIView(APIView):
@@ -192,8 +249,14 @@ class DeleteUserAPIView(APIView):
             404: "User not found",
         },
     )
-    def delete(self, request):
-        user = request.user
+    def delete(self, request, user_id):
+        try:
+            user = User.objects.get(id=user_id)
+        except:
+            return Response(
+                {"detail": "User not found."}, status=status.HTTP_404_NOT_FOUND
+            )
+
         if user:
             user.delete()
             return Response(
