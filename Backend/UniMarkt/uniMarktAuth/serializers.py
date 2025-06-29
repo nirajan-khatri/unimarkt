@@ -65,6 +65,8 @@ class RegisterSerializer(serializers.ModelSerializer):
 
 
 class UpdateUserSerializer(serializers.ModelSerializer):
+    user_id = serializers.IntegerField()
+
     class Meta:
         model = User
         fields = ["user_id", "name", "email", "contact_number"]
