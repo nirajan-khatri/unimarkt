@@ -4,10 +4,10 @@ import { Button } from "@/components/ui/button";
 
 import { useRouter } from "next/navigation";
 import { Calendar, CheckCircle, User } from "lucide-react";
-import { Skill } from "@/modules/skills/types";
+import { Skill, SkillDetail } from "@/modules/skills/types";
 
 interface ServiceCardProps {
-  service: Skill;
+  service: SkillDetail;
 }
 
 export function ProfileServiceCard({ service }: ServiceCardProps) {
@@ -44,7 +44,7 @@ export function ProfileServiceCard({ service }: ServiceCardProps) {
       className="group hover:shadow-lg transition-shadow duration-200 cursor-pointer"
       onClick={handleClick}
     >
-      <CardHeader className="pb-3">
+      <CardHeader className="">
         <div className="flex items-start justify-between">
           <div className="flex-1">
             <CardTitle className="text-lg font-semibold line-clamp-2 group-hover:text-blue-600 transition-colors">

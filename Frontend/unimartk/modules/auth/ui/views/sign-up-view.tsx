@@ -20,7 +20,6 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
   Select,
   SelectContent,
@@ -30,13 +29,11 @@ import {
 } from "@/components/ui/select";
 
 import { registerSchema } from "../../schemas";
-import {
-  fetchSecurityQuestions,
-  fetchRoles,
-  registerUser,
-} from "../../services/api";
+import { fetchSecurityQuestions, registerUser } from "../../services/api";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
+import { PasswordStrengthIndicator } from "../components/password-strength-indicator";
+import { EyeIcon, EyeOffIcon } from "lucide-react";
 
 const SignInLink = dynamic(
   () =>
@@ -55,10 +52,12 @@ const SignInLink = dynamic(
 type RegisterFormData = z.infer<typeof registerSchema>;
 
 export const SignUpView = () => {
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
   const [redirectUrl, setRedirectUrl] = useState<string>("/");
   const router = useRouter();
 
-  // TanStack Query to fetch security questions
   const {
     data: securityQuestions,
     isLoading: isLoadingQuestions,
@@ -67,39 +66,6 @@ export const SignUpView = () => {
     queryKey: ["security-questions"],
     queryFn: fetchSecurityQuestions,
   });
-
-  // TanStack Query to fetch roles
-  const {
-    data: roles,
-    isLoading: isLoadingRoles,
-    error: rolesError,
-  } = useQuery({
-    queryKey: ["roles"],
-    queryFn: fetchRoles,
-  });
-
-  // Mutation for user registration
-  // const registerMutation = useMutation({
-  //   mutationFn: registerUser,
-  //   onSuccess: (data) => {
-  //     console.log("Registration successful:", data);
-  //     // Show success alert
-  //     alert("Registration successful! Welcome to UniMarkt!");
-
-  //     // Construct sign-in URL with redirect parameter if it exists
-  //     const urlParams = new URLSearchParams(window.location.search);
-  //     const redirect = urlParams.get("redirect");
-  //     const signInUrl = redirect ? `/sign-in?redirect=${redirect}` : "/sign-in";
-
-  //     // Redirect to sign-in page
-  //     router.push(signInUrl);
-  //   },
-  //   onError: (error: Error) => {
-  //     console.error("Registration failed:", error.message);
-  //     // Show error alert
-  //     alert(`Registration failed: ${error.message}`);
-  //   },
-  // });
 
   const registerMutation = useMutation({
     mutationFn: registerUser,
@@ -116,8 +82,8 @@ export const SignUpView = () => {
 
       router.push(signInUrl);
     },
-    onError: (error: Error) => {
-      toast.error(`Registration failed: ${error.message}`);
+    onError: (error) => {
+      toast.error(`${Object.values(error)[0][0] as string}`);
     },
   });
 
@@ -187,12 +153,13 @@ export const SignUpView = () => {
 
             <h1 className="text-4xl font-medium">Join the Community.</h1>
 
-            {/* Name */}
             <FormField
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-base">Name *</FormLabel>
+                  <FormLabel className="text-base">
+                    Name<span className="text-red-500 -ml-1.5">*</span>
+                  </FormLabel>
                   <FormControl>
                     <Input {...field} />
                   </FormControl>
@@ -201,12 +168,13 @@ export const SignUpView = () => {
               )}
             />
 
-            {/* Email */}
             <FormField
               name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-base">Email *</FormLabel>
+                  <FormLabel className="text-base">
+                    Email<span className="text-red-500 -ml-1.5">*</span>
+                  </FormLabel>
                   <FormControl>
                     <Input {...field} type="email" />
                   </FormControl>
@@ -215,12 +183,14 @@ export const SignUpView = () => {
               )}
             />
 
-            {/* Contact Number */}
             <FormField
               name="contact_number"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-base">Contact Number</FormLabel>
+                  <FormLabel className="text-base">
+                    Contact Number
+                    <span className="text-red-500 -ml-1.5">*</span>
+                  </FormLabel>
                   <FormControl>
                     <Input {...field} placeholder="Optional" />
                   </FormControl>
@@ -229,30 +199,69 @@ export const SignUpView = () => {
               )}
             />
 
-            {/* Password */}
             <FormField
               name="password"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-base">Password *</FormLabel>
+                  <FormLabel className="text-base">
+                    Password<span className="text-red-500 -ml-1.5">*</span>
+                  </FormLabel>
                   <FormControl>
-                    <Input {...field} type="password" />
+                    <div className="relative">
+                      <Input
+                        {...field}
+                        type={showPassword ? "text" : "password"}
+                        className="pr-10"
+                      />
+                      <button
+                        type="button"
+                        className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600 focus:outline-none"
+                        onClick={() => setShowPassword(!showPassword)}
+                      >
+                        {showPassword ? (
+                          <EyeOffIcon className="h-4 w-4" />
+                        ) : (
+                          <EyeIcon className="h-4 w-4" />
+                        )}
+                      </button>
+                    </div>
                   </FormControl>
+                  <PasswordStrengthIndicator
+                    password={field.value}
+                    className="mt-2"
+                  />
                   <FormMessage />
                 </FormItem>
               )}
             />
 
-            {/* Confirm Password */}
             <FormField
               name="confirmPassword"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-base">
-                    Confirm Password *
+                    Confirm Password
+                    <span className="text-red-500 -ml-1.5">*</span>
                   </FormLabel>
                   <FormControl>
-                    <Input {...field} type="password" />
+                    <div className="relative">
+                      <Input
+                        {...field}
+                        type={showConfirmPassword ? "text" : "password"}
+                        className="pr-10"
+                      />
+                      <button
+                        type="button"
+                        className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600 focus:outline-none"
+                        onClick={() => setShowConfirmPassword(!showPassword)}
+                      >
+                        {showPassword ? (
+                          <EyeOffIcon className="h-4 w-4" />
+                        ) : (
+                          <EyeIcon className="h-4 w-4" />
+                        )}
+                      </button>
+                    </div>
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -299,7 +308,6 @@ export const SignUpView = () => {
               </p>
             </div>
 
-            {/* Security Question */}
             <div className="space-y-4">
               <h2 className="text-xl font-medium">Security Question</h2>
               <p className="text-sm text-muted-foreground">
@@ -311,17 +319,18 @@ export const SignUpView = () => {
                 control={form.control}
                 name="securityQuestion"
                 render={({ field }) => (
-                  <FormItem>
+                  <FormItem className="flex-1">
                     <FormLabel className="text-base">
-                      Security Question *
+                      Security Question
+                      <span className="text-red-500 -ml-1.5">*</span>
                     </FormLabel>
                     <Select
                       onValueChange={field.onChange}
                       defaultValue={field.value}
                       disabled={isLoadingQuestions}
                     >
-                      <FormControl>
-                        <SelectTrigger>
+                      <FormControl className="w-full">
+                        <SelectTrigger className="">
                           <SelectValue
                             placeholder={
                               isLoadingQuestions
@@ -346,13 +355,14 @@ export const SignUpView = () => {
                 )}
               />
 
-              {/* Security Answer */}
               <FormField
                 control={form.control}
                 name="answer"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel className="text-base">Answer *</FormLabel>
+                    <FormLabel className="text-base">
+                      Answer<span className="text-red-500 -ml-1.5">*</span>
+                    </FormLabel>
                     <FormControl>
                       <Input {...field} placeholder="Your answer..." />
                     </FormControl>
@@ -368,7 +378,6 @@ export const SignUpView = () => {
               </p>
             )}
 
-            {/* Submit Button */}
             <Button
               disabled={registerMutation.isPending}
               type="submit"
@@ -391,7 +400,6 @@ export const SignUpView = () => {
         </Form>
       </div>
 
-      {/* Right side image section */}
       <div
         className="h-screen w-full lg:col-span-2 hidden lg:block bg-cover bg-center"
         style={{

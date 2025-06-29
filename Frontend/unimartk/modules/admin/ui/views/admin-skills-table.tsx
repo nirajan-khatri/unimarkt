@@ -95,7 +95,13 @@ const SkillsTable = () => {
         (skill: Skill) => skill.skill_id === selectedSkillId
       )[0].user.id;
       approveSkill({ skillId, data: { status: "rejected" } });
-      await sendAdminMessage(userId, comment);
+      await sendAdminMessage(
+        userId,
+        comment,
+        data.filter((skill: Skill) => skill.skill_id === selectedSkillId)[0]
+          .module,
+        "rejected"
+      );
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["adminSkills"] });
@@ -116,7 +122,13 @@ const SkillsTable = () => {
         (skill: Skill) => skill.skill_id === selectedSkillId
       )[0].user.id;
       deleteSkill(skillId);
-      await sendAdminMessage(userId, comment);
+      await sendAdminMessage(
+        userId,
+        comment,
+        data.filter((skill: Skill) => skill.skill_id === selectedSkillId)[0]
+          .module,
+        "deleted"
+      );
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["adminSkills"] });

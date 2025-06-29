@@ -15,7 +15,7 @@ export interface Product {
   user_id: string;
   created_at: string;
   updated_at: string;
-  is_sold?: boolean;
+  isArchived?: boolean;
 }
 
 export interface ProductsResponse {
@@ -70,6 +70,7 @@ export interface Skill {
   created_at: string;
   updated_at: string;
   is_available?: boolean;
+  isArchived?: boolean;
 }
 
 export interface SkillsResponse {
@@ -121,5 +122,49 @@ export const fetchDepartments = async (): Promise<
 export const fetchDegrees = async (): Promise<Degree[]> => {
   // add logic to ckeck if user is actually superadmin
   const response = await axios.get(`/degrees/`);
+  return response.data;
+};
+
+export const deleteUserProfile = async (userId: string) => {
+  const response = await axios.delete(`/user/${userId}/`);
+  return response.data;
+};
+
+export const updateUserProfile = async (userId: string) => {
+  const response = await axios.put(`/user/${userId}/`);
+  return response.data;
+};
+
+export const archiveProduct = async ({
+  productId,
+  data,
+}: {
+  productId: string;
+  data: Partial<Product>;
+}) => {
+  const response = await axios.put(`/products/${productId}/`, data);
+  return response.data;
+};
+
+// Delete product
+export const deleteProduct = async (productId: string) => {
+  const response = await axios.delete(`/products/${productId}/`);
+  return response.data;
+};
+
+export const archiveSkill = async ({
+  skillId,
+  data,
+}: {
+  skillId: string;
+  data: Partial<Skill>;
+}) => {
+  const response = await axios.put(`/skills/${skillId}/`, data);
+  return response.data;
+};
+
+// Delete product
+export const deleteSkill = async (skillId: string) => {
+  const response = await axios.delete(`/skills/${skillId}/`);
   return response.data;
 };

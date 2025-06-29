@@ -17,6 +17,7 @@ import {
   SkillGridSkeleton,
 } from "../components/skeletons";
 import { Pagination } from "@/components/ui/pagination";
+import { parseAsStringEnum, useQueryState } from "nuqs";
 
 // Products Component wrapped in Suspense
 const ProductsSection = ({ userId }: { userId: string }) => {
@@ -115,8 +116,10 @@ const SkillsSection = ({ userId }: { userId: string }) => {
 const ProfileView = () => {
   const { user, isInitialized, isAuthenticated } = useAuth();
   const { user: userDetails, isLoading } = useUser(user?.id.toString() ?? "");
-
-  const [isEditing, setIsEditing] = useState(false);
+  const [tab, setTab] = useQueryState<"jobs" | "services" | "products">(
+    "tab",
+    parseAsStringEnum(["products", "services", "jobs"]).withDefault("products")
+  );
 
   // if (userLoading || detailsLoading) {
   //   return (
@@ -132,36 +135,17 @@ const ProfileView = () => {
   if (isInitialized && !isAuthenticated) {
     redirect("/sign-in");
   }
-  const handleEdit = () => {
-    setIsEditing(true);
-  };
-
-  const handleCancel = () => {
-    setIsEditing(false);
-  };
-
-  const handleSave = () => {
-    setIsEditing(false);
-  };
-
-  const handleDelete = () => {
-    // Handle delete logic
-  };
 
   return (
     <div className="px-4 lg:px-12 py-10 flex flex-col gap-y-8">
       {user && (
         <ProfileDetailsCard
           // avatarUrl={user?.}
+          id={user.id}
           name={user.name}
           email={user.email}
           contact_number={user.contact_number || undefined}
           role={user.role || "User"}
-          isEditing={isEditing}
-          onEdit={handleEdit}
-          onCancel={handleCancel}
-          onSave={handleSave}
-          onDelete={handleDelete}
           loading={isLoading}
         />
       )}
@@ -181,7 +165,13 @@ const ProfileView = () => {
             </Button>
           </div>
         </div>
-        <Tabs defaultValue="services" className="">
+        <Tabs
+          defaultValue="products"
+          value={tab}
+          onValueChange={(value) =>
+            setTab(value as "products" | "services" | "jobs")
+          }
+        >
           <TabsList>
             <TabsTrigger value="products">Products</TabsTrigger>
             <TabsTrigger value="services">Services</TabsTrigger>

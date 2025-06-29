@@ -192,9 +192,11 @@ export const ProductDetailsView = ({ productId }: Props) => {
       productId: string;
       comment: string;
     }) => {
-      const userId = data.user.id;
+      // Send admin message first if comment exists
+      if (data.user.id && comment.trim()) {
+        await sendAdminMessage(data.user.id, comment, data.name, "rejected");
+      }
       await approveProduct({ productId, data: { status: "rejected" } });
-      await sendAdminMessage(userId, comment);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["adminProducts"] });
@@ -217,9 +219,10 @@ export const ProductDetailsView = ({ productId }: Props) => {
       productId: string;
       comment: string;
     }) => {
-      const userId = data.user.id;
+      if (data.user.id && comment.trim()) {
+        await sendAdminMessage(data.user.id, comment, data.name, "deleted");
+      }
       await deleteProduct(productId);
-      await sendAdminMessage(userId, comment);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["adminProducts"] });

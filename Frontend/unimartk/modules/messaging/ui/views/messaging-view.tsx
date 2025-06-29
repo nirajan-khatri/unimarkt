@@ -354,7 +354,7 @@ const WhatsAppMessaging = () => {
                             isOwnMessage
                               ? "bg-primary text-primary-foreground"
                               : isAdmin
-                                ? "bg-orange-50 border border-orange-200 text-orange-900"
+                                ? "bg-orange-50 border border-orange-200 text-orange-900 dark:bg-orange-950 dark:border-orange-800 dark:text-orange-100"
                                 : "bg-accent text-accent-foreground"
                           }`}
                         >
@@ -362,7 +362,7 @@ const WhatsAppMessaging = () => {
                             {isAdmin ? (
                               <div className="space-y-2">
                                 <p className="font-medium">{mainMessage}</p>
-                                <p className="text-xs text-orange-600 italic border-t border-orange-200 pt-2">
+                                <p className="text-xs text-orange-600 dark:text-orange-300 italic border-t border-orange-200 pt-2">
                                   This is an automated message. Do not reply.
                                 </p>
                               </div>

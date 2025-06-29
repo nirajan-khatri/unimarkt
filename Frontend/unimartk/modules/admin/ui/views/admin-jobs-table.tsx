@@ -87,7 +87,12 @@ const JobsTable = () => {
       const userId = data.filter((job: Job) => job.job_id === selectedJobId)[0]
         .user.id;
       approveJob({ jobId, data: { status: "rejected" } });
-      await sendAdminMessage(userId, comment);
+      await sendAdminMessage(
+        userId,
+        comment,
+        data.filter((job: Job) => job.job_id === selectedJobId)[0].title,
+        "rejected"
+      );
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["adminJobs"] });
@@ -107,7 +112,12 @@ const JobsTable = () => {
       const userId = data.filter((job: Job) => job.job_id === selectedJobId)[0]
         .user.id;
       deleteJob(jobId);
-      await sendAdminMessage(userId, comment);
+      await sendAdminMessage(
+        userId,
+        comment,
+        data.filter((job: Job) => job.job_id === selectedJobId)[0].title,
+        "deleted"
+      );
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["adminJobs"] });

@@ -247,7 +247,7 @@ const CreateProductForm = ({ productId }: Props) => {
           ? "Product updated successfully!"
           : "Product created successfully!"
       );
-      window.location.href = "/";
+      window.location.href = "/profile";
     },
   });
 

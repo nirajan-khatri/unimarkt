@@ -74,7 +74,7 @@ export const AdminSkillDetailsView = ({ skillId }: Props) => {
       comment: string;
     }) => {
       if (data?.user?.id && comment.trim()) {
-        await sendAdminMessage(data.user.id, comment);
+        await sendAdminMessage(data.user.id, comment, data.module, "deleted");
       }
       return deleteSkill(skillId);
     },
@@ -118,7 +118,7 @@ export const AdminSkillDetailsView = ({ skillId }: Props) => {
     }) => {
       // Send admin message first if comment exists
       if (data?.user?.id && comment.trim()) {
-        await sendAdminMessage(data.user.id, comment);
+        await sendAdminMessage(data.user.id, comment, data.module, "deleted");
       }
 
       return approveSkill({ skillId, data: { status: "rejected" } });

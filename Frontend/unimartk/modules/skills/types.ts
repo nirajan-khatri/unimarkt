@@ -16,7 +16,7 @@ export type Skill = {
 };
 
 export type SkillDetail = {
-  id: number;
+  skill_id: string;
   description: string;
   module: string;
   skill_category: Category;
