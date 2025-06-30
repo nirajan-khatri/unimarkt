@@ -293,3 +293,47 @@ class VerifyUserByEmailAPIView(APIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
         except User.DoesNotExist:
             return Response({"error": "User does not exist."}, status=status.HTTP_404_NOT_FOUND)
+
+
+class UserSecurityQuestionsAPIView(APIView):
+    @swagger_auto_schema(
+        operation_description="Get the first security question selected by the user during registration.",
+        tags=["Auth"],
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            required=["id"],
+            properties={
+                "id": openapi.Schema(type=openapi.TYPE_INTEGER, description="User ID")
+            },
+        ),
+        responses={
+            200: openapi.Response(
+                description="User's first security question",
+                schema=openapi.Schema(
+                    type=openapi.TYPE_OBJECT,
+                    properties={
+                        "key": openapi.Schema(type=openapi.TYPE_STRING, description="Security question key"),
+                        "question": openapi.Schema(type=openapi.TYPE_STRING, description="Security question text"),
+                    },
+                ),
+            ),
+            404: "User does not exist",
+            400: "ID is required or security question not set"
+        },
+    )
+    def post(self, request):
+        user_id = request.data.get("id")
+        if not user_id:
+            return Response({"error": "ID is required."}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            user = User.objects.get(id=user_id)
+            key = user.security_question1
+            if not key:
+                return Response({"error": "Security question not set for this user."}, status=status.HTTP_400_BAD_REQUEST)
+            # Find the question text from SECURITY_QUESTION_CHOICES
+            question = dict(User.SECURITY_QUESTION_CHOICES).get(key)
+            if not question:
+                return Response({"error": "Invalid security question key."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"key": key, "question": question}, status=status.HTTP_200_OK)
+        except User.DoesNotExist:
+            return Response({"error": "User does not exist."}, status=status.HTTP_404_NOT_FOUND)
