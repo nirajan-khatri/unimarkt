@@ -264,3 +264,32 @@ class DeleteUserAPIView(APIView):
                 status=status.HTTP_204_NO_CONTENT,
             )
         return Response({"detail": "User not found."}, status=status.HTTP_404_NOT_FOUND)
+
+
+class VerifyUserByEmailAPIView(APIView):
+    @swagger_auto_schema(
+        operation_description="Verify user by email. Returns user object if exists, else error message.",
+        tags=["Auth"],
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            required=["email"],
+            properties={
+                "email": openapi.Schema(type=openapi.TYPE_STRING, format="email", description="User email")
+            },
+        ),
+        responses={
+            200: UserSerializer,
+            404: "User does not exist",
+            400: "Email is required"
+        },
+    )
+    def post(self, request):
+        email = request.data.get("email")
+        if not email:
+            return Response({"error": "Email is required."}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            user = User.objects.get(email=email)
+            serializer = UserSerializer(user)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except User.DoesNotExist:
+            return Response({"error": "User does not exist."}, status=status.HTTP_404_NOT_FOUND)

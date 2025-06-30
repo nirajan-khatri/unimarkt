@@ -8,6 +8,7 @@ from .views import (
     CurrentUserAPIView,
     UpdateUserAPIView,
     DeleteUserAPIView,
+    VerifyUserByEmailAPIView,
 )
 
 urlpatterns = [
@@ -23,4 +24,5 @@ urlpatterns = [
     path("current-user/", CurrentUserAPIView.as_view(), name="current-user"),
     path("update-user/<int:user_id>/", UpdateUserAPIView.as_view(), name="update-user"),
     path("delete-user/<int:user_id>/", DeleteUserAPIView.as_view(), name="delete-user"),
+    path("verify-user-by-email/", VerifyUserByEmailAPIView.as_view(), name="verify-user-by-email"),
 ]
