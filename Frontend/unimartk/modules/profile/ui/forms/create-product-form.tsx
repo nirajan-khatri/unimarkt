@@ -98,9 +98,7 @@ const useAIDescriptionGeneration = () => {
       const chatHistory = [{ role: "user", parts: [{ text: prompt }] }];
       const payload = { contents: chatHistory };
 
-      const apiKey =
-        process.env.NEXT_PUBLIC_GEMINI_API_KEY ||
-        "AIzaSyAkWbT_GM0CdAb13rMdfU_UcSmFharCOCs";
+      const apiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
       const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
 
       const response = await fetch(apiUrl, {
