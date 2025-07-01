@@ -60,19 +60,19 @@ export const ResetPasswordView = () => {
             </div>
             <h1 className="text-4xl font-medium">Set new password</h1>
             <FormField
-              name="email"
+              name="password"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-base">Password</FormLabel>
                   <FormControl>
-                    <Input {...field} />
+                    <Input {...field} type="password" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
             <FormField
-              name="password"
+              name="confirmPassword"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="text-base">Confirm Password</FormLabel>

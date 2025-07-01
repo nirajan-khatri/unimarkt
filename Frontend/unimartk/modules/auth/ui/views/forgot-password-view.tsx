@@ -34,6 +34,7 @@ const ForgotPasswordView = () => {
     defaultValues: {
       securityQuestion: "",
       answer: "",
+      email: "",
     },
   });
 
@@ -65,6 +66,19 @@ const ForgotPasswordView = () => {
               </Button>
             </div>
             <h1 className="text-4xl font-medium">Retreive your password</h1>
+            <FormField
+              control={form.control}
+              name="email"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel className="text-base">Email</FormLabel>
+                  <FormControl>
+                    <Input placeholder="Your email address..." {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <FormField
               control={form.control}
               name="securityQuestion"
@@ -117,7 +131,7 @@ const ForgotPasswordView = () => {
               variant={"default"}
               className="bg-black text-white hover:bg-pink-400 hover:text-primary"
             >
-              Reset Password
+              Continue
             </Button>
           </form>
         </Form>
