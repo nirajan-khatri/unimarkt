@@ -31,6 +31,7 @@ export const loginSchema = z.object({
 export const forgotPasswordSchema = z.object({
   securityQuestion: z.string().min(1, "Security question must be selected"),
   answer: z.string().min(1, "Answer is required"),
+  email: z.string().min(1, "Email is required"),
 });
 
 export const resetPasswordSchema = z
