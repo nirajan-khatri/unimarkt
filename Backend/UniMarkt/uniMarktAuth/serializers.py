@@ -131,3 +131,27 @@ class PasswordResetSerializer(serializers.Serializer):
         user.set_password(new_password)
         user.save()
         return user
+
+
+class PasswordResetByIdSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    new_password = serializers.CharField(write_only=True)
+
+    def validate(self, data):
+        user_id = data.get("id")
+        new_password = data.get("new_password")
+        try:
+            user = User.objects.get(id=user_id)
+        except User.DoesNotExist:
+            raise serializers.ValidationError("User not found.")
+        if user.check_password(new_password):
+            raise serializers.ValidationError("New password must be different from the old password.")
+        data["user"] = user
+        return data
+
+    def save(self):
+        user = self.validated_data["user"]
+        new_password = self.validated_data["new_password"]
+        user.set_password(new_password)
+        user.save()
+        return user

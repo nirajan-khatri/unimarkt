@@ -121,14 +121,7 @@ export const SignUpView = () => {
       is_staff: values.is_staff,
       security_question1: values.securityQuestion,
       answer1: values.answer,
-      security_question2: values.securityQuestion,
-      answer2: values.answer,
-      security_question3: values.securityQuestion,
-      answer3: values.answer,
     };
-
-    console.log(registerData);
-
     registerMutation.mutate(registerData);
   };
 

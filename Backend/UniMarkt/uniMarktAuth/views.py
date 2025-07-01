@@ -18,6 +18,7 @@ from .serializers import (
     RoleSerializer,
     PasswordResetSerializer,
     UpdateUserSerializer,
+    PasswordResetByIdSerializer,
 )
 
 
@@ -94,15 +95,22 @@ class SecurityQuestionChoiceView(APIView):
 
 class PasswordResetAPIView(APIView):
     @swagger_auto_schema(
-        request_body=PasswordResetSerializer,
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            required=["id", "new_password"],
+            properties={
+                "id": openapi.Schema(type=openapi.TYPE_INTEGER, description="User ID"),
+                "new_password": openapi.Schema(type=openapi.TYPE_STRING, description="New password"),
+            },
+        ),
         responses={200: "Password reset successful", 400: "Validation error"},
         tags=["Auth"],
     )
     def post(self, request):
-        serializer = PasswordResetSerializer(data=request.data)
+        serializer = PasswordResetByIdSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response({"detail": "Password reset successful."}, status=200)
+            return Response({"success": True, "detail": "Password reset successful."}, status=200)
         return Response(serializer.errors, status=400)
 
 
@@ -264,3 +272,125 @@ class DeleteUserAPIView(APIView):
                 status=status.HTTP_204_NO_CONTENT,
             )
         return Response({"detail": "User not found."}, status=status.HTTP_404_NOT_FOUND)
+
+
+class VerifyUserByEmailAPIView(APIView):
+    @swagger_auto_schema(
+        operation_description="Verify user by email. Returns user object if exists, else error message.",
+        tags=["Auth"],
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            required=["email"],
+            properties={
+                "email": openapi.Schema(type=openapi.TYPE_STRING, format="email", description="User email")
+            },
+        ),
+        responses={
+            200: UserSerializer,
+            404: "User does not exist",
+            400: "Email is required"
+        },
+    )
+    def post(self, request):
+        email = request.data.get("email")
+        if not email:
+            return Response({"error": "Email is required."}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            user = User.objects.get(email=email)
+            serializer = UserSerializer(user)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except User.DoesNotExist:
+            return Response({"error": "User does not exist."}, status=status.HTTP_404_NOT_FOUND)
+
+
+class UserSecurityQuestionsAPIView(APIView):
+    @swagger_auto_schema(
+        operation_description="Get the first security question selected by the user during registration.",
+        tags=["Auth"],
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            required=["id"],
+            properties={
+                "id": openapi.Schema(type=openapi.TYPE_INTEGER, description="User ID")
+            },
+        ),
+        responses={
+            200: openapi.Response(
+                description="User's first security question",
+                schema=openapi.Schema(
+                    type=openapi.TYPE_OBJECT,
+                    properties={
+                        "key": openapi.Schema(type=openapi.TYPE_STRING, description="Security question key"),
+                        "question": openapi.Schema(type=openapi.TYPE_STRING, description="Security question text"),
+                    },
+                ),
+            ),
+            404: "User does not exist",
+            400: "ID is required or security question not set"
+        },
+    )
+    def post(self, request):
+        user_id = request.data.get("id")
+        if not user_id:
+            return Response({"error": "ID is required."}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            user = User.objects.get(id=user_id)
+            key = user.security_question1
+            if not key:
+                return Response({"error": "Security question not set for this user."}, status=status.HTTP_400_BAD_REQUEST)
+            # Find the question text from SECURITY_QUESTION_CHOICES
+            question = dict(User.SECURITY_QUESTION_CHOICES).get(key)
+            if not question:
+                return Response({"error": "Invalid security question key."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"key": key, "question": question}, status=status.HTTP_200_OK)
+        except User.DoesNotExist:
+            return Response({"error": "User does not exist."}, status=status.HTTP_404_NOT_FOUND)
+
+
+class VerifySecurityQuestionAPIView(APIView):
+    @swagger_auto_schema(
+        operation_description="Verify a user's security question and answer.",
+        tags=["Auth"],
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            required=["id", "key", "answer"],
+            properties={
+                "id": openapi.Schema(type=openapi.TYPE_INTEGER, description="User ID"),
+                "key": openapi.Schema(type=openapi.TYPE_STRING, description="Security question key"),
+                "answer": openapi.Schema(type=openapi.TYPE_STRING, description="Answer to the security question"),
+            },
+        ),
+        responses={
+            200: openapi.Response(
+                description="Verification result",
+                schema=openapi.Schema(
+                    type=openapi.TYPE_OBJECT,
+                    properties={
+                        "success": openapi.Schema(type=openapi.TYPE_BOOLEAN),
+                        "message": openapi.Schema(type=openapi.TYPE_STRING),
+                    },
+                ),
+            ),
+            400: "Invalid input or mismatch",
+            404: "User does not exist"
+        },
+    )
+    def post(self, request):
+        user_id = request.data.get("id")
+        key = request.data.get("key")
+        answer = request.data.get("answer")
+        if not user_id or not key or not answer:
+            return Response({"success": False, "message": "id, key, and answer are required."}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            user = User.objects.get(id=user_id)
+            for idx in range(1, 4):
+                q_key = getattr(user, f"security_question{idx}")
+                q_ans = getattr(user, f"answer{idx}")
+                if q_key == key:
+                    if q_ans == answer:
+                        return Response({"success": True, "message": "Security question and answer verified."}, status=status.HTTP_200_OK)
+                    else:
+                        return Response({"success": False, "message": "Incorrect answer."}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"success": False, "message": "Security question key does not match user's records."}, status=status.HTTP_400_BAD_REQUEST)
+        except User.DoesNotExist:
+            return Response({"success": False, "message": "User does not exist."}, status=status.HTTP_404_NOT_FOUND)
