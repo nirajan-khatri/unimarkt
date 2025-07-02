@@ -13,7 +13,7 @@ from .models import Product,Category,SubCategory
 from .serializers import ProductSerializer, SubCategorySerializer, CategorySerializer, ProductCreateSerializer, \
     ProductUpdateSerializer
 
-
+# Suggestion: Use constants instead of hardcoded values for pagination
 class StandardResultsSetPagination(PageNumberPagination):
     page_size = 9
     page_size_query_param = 'page_size'
@@ -28,7 +28,9 @@ class StandardResultsSetPagination(PageNumberPagination):
             'results': data
         })
 
-
+# Suggestion: To avoid repeating tags on every method, apply the swagger_auto_schema
+# decorator with tags at the class level. Then only use method-level decorators for
+# additional parameters or descriptions beyond the default.
 class ProductViewSet(viewsets.ModelViewSet):
     http_method_names = ['get', 'post', 'put', 'delete']
     queryset = Product.objects.filter()
@@ -156,7 +158,7 @@ class ProductViewSet(viewsets.ModelViewSet):
     @action(
         detail=True,
         methods=['post'],
-        permission_classes=[],  # No auth required
+        permission_classes=[],  # Suggestion: Change to [IsAuthenticated] to ensure only logged-in users can archive/unarchive products.
         url_path='archive-toggle',
         url_name='archive_toggle'
     )
