@@ -4,7 +4,6 @@ export default defineConfig({
   testDir: './tests',
   timeout: 30 * 1000,
 
-  // ✅ This is the correct place for timeouts per action
   use: {
     baseURL: 'http://localhost:3000',
     headless: true,
