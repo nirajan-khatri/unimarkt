@@ -75,3 +75,52 @@ export async function fetchCurrentUser(accessToken: string) {
   }
   return response.json();
 }
+
+export async function verifyUserEmail(email: string) {
+  const response = await fetch(`${API_BASE_URL}verify-user-by-email/`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ email }),
+  });
+  if (!response.ok) {
+    throw new Error("Failed to verify user by email");
+  }
+  return response.json();
+}
+
+export async function verifyUserSecurityQuestion(data: {
+  id: number;
+  key: string;
+  answer: string;
+}) {
+  const response = await fetch(`${API_BASE_URL}verify-security-question/`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ id: data.id, key: data.key, answer: data.answer }),
+  });
+  if (!response.ok) {
+    throw new Error("Failed to verify user security question");
+  }
+  return response.json();
+}
+
+export async function resetPassword(data: {
+  id: number;
+  new_password: string;
+}) {
+  const response = await fetch(`${API_BASE_URL}password-reset/`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ id: data.id, new_password: data.new_password}),
+  });
+  if (!response.ok) {
+    throw new Error("Failed to reset user password");
+  }
+  return response.json();
+}

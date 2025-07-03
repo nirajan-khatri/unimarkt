@@ -21,7 +21,7 @@ export const ProductCard = ({ product }: ProductCardProps) => {
 
   return (
     <Card
-      className="group bg-white gap-0 rounded-xl py-0 shadow-sm border border-gray-200 overflow-hidden cursor-pointer transition-all duration-300 hover:shadow-xl hover:-translate-y-2 h-full flex flex-col"
+      className="group bg-white dark:bg-accent dard:text-white gap-0 rounded-xl py-0 shadow-sm border border-gray-200 overflow-hidden cursor-pointer transition-all duration-300 hover:shadow-xl hover:-translate-y-2 h-full flex flex-col"
       onClick={handleClick}
     >
       {/* Image Container */}
@@ -35,15 +35,15 @@ export const ProductCard = ({ product }: ProductCardProps) => {
 
         {/* Category Badge */}
         <div className="absolute top-3 right-3">
-          <Badge className="bg-white/90 text-gray-700 border-0 font-medium backdrop-blur-sm shadow-sm">
+          <Badge className="bg-white/90 text-gray-700 dark:bg-accent dark:text-white border-0 font-medium backdrop-blur-sm shadow-sm">
             {product.category?.name || 'Electronics'}
           </Badge>
         </div>
 
         {/* Price Badge - Floating */}
         <div className="absolute bottom-3 left-3">
-          <div className="bg-white/95 px-3 py-1.5 rounded-lg shadow-md backdrop-blur-sm border border-white/20">
-            <span className="text-lg font-bold text-gray-900">
+          <div className="bg-white/95 dark:bg-accent px-3 py-1.5 rounded-lg shadow-md backdrop-blur-sm border border-white/20">
+            <span className="text-lg font-bold text-gray-900  dark:text-white">
               €{price.toFixed(2)}
             </span>
           </div>
@@ -53,14 +53,14 @@ export const ProductCard = ({ product }: ProductCardProps) => {
       <CardContent className="p-5 flex flex-col flex-grow">
         {/* Header Section */}
         <div className="">
-          <h3 className="text-lg font-bold text-gray-900 line-clamp-1 leading-tight min-h-[1.5rem]">
+          <h3 className="text-lg font-bold text-gray-900 dark:text-white line-clamp-1 leading-tight min-h-[1.5rem]">
             {product.name || 'Sample Product'}
           </h3>
         </div>
 
         {/* Description - Fixed height */}
         <div className="mb-4 flex-grow">
-          <p className="text-gray-600 text-sm leading-relaxed line-clamp-2 h-[2.5rem] overflow-hidden">
+          <p className="text-gray-600 dark:text-white/80 text-sm leading-relaxed line-clamp-2 h-[2.5rem] overflow-hidden">
             {product.description || 'High-quality product with excellent features and modern design. Perfect for everyday use with premium materials.'}
           </p>
         </div>
@@ -68,24 +68,24 @@ export const ProductCard = ({ product }: ProductCardProps) => {
         {/* Details Section */}
         <div className="space-y-3 mb-4">
           {/* Location Info */}
-          <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-            <div className="w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center flex-shrink-0">
+          <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-accent dark:border dark:border-gray-100 rounded-lg">
+            <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center flex-shrink-0">
               <MapPin size={14} className="text-white" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="font-medium text-gray-900 text-sm">Pickup Location</p>
-              <p className="text-xs text-gray-600 truncate">{product.pickup_location || 'Amsterdam, Netherlands'}</p>
+              <p className="font-medium text-gray-900 dark:text-white text-sm">Pickup Location</p>
+              <p className="text-xs text-gray-600 dark:text-white/90 truncate">{product.pickup_location || 'Amsterdam, Netherlands'}</p>
             </div>
           </div>
 
           {/* Date Section */}
-          <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-100">
-            <div className="w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center flex-shrink-0">
+          <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-100 dark:bg-accent dark:border dark:border-gray-100">
+            <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center flex-shrink-0">
               <Calendar size={14} className="text-white" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="font-medium text-gray-900 text-sm">Listed</p>
-              <p className="text-xs text-gray-600">
+              <p className="font-medium text-gray-900 dark:text-white text-sm">Listed</p>
+              <p className="text-xs text-gray-600 dark:text-white/90">
                 {product.created_at
                   ? new Date(product.created_at).toLocaleDateString('en-US', {
                     month: 'short',
@@ -103,7 +103,7 @@ export const ProductCard = ({ product }: ProductCardProps) => {
         <div className="mt-auto">
           <Button
             size="lg"
-            className="w-full font-medium bg-gray-800 hover:bg-gray-900 text-white shadow-sm hover:shadow-md transition-all duration-200"
+            className="w-full font-medium bg-primary text-white shadow-sm hover:shadow-md transition-all duration-200"
           >
             <ShoppingBag size={16} className="mr-2" />
             View Details
