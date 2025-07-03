@@ -12,6 +12,24 @@ import { useSearchState } from "./useSearchState";
 import { usePagination } from "./usePagination";
 import { PaginatedProductsResponse } from "@/modules/products/types";
 
+// Features:
+
+// Centralized filter state management: Combines URL state, local state, and derived values for filters, search, category, subcategory, and pagination.
+// URL synchronization: Uses useQueryState for syncing filter/search params with the URL, enabling shareable/filterable URLs.
+// Debounced search: Integrates debounced search state to avoid unnecessary API calls.
+// Clear and reset actions: Includes utility functions for clearing individual or all filters and resetting pagination.
+// Computed helpers: Exposes booleans like hasAnyFilters, hasFilters, etc., for easy UI logic.
+// Debug info: Returns debug data for easier troubleshooting and development.
+
+// Issues / Suggestions:
+
+// Remove unused inports and variables.
+// Console.log: There’s a console.log on line 149, which should be removed in production code.
+// Inconsistent naming: The return type uses hasAnyFilters, but computed also contains hasFilters, hasPriceFilters, etc., which are not all exposed in the return—consider consistency or exposing all for clarity.
+// Error typing: The error is cast as Error | null, but the original error type from useProducts might not always be Error. Ensure proper error typing.
+// Pagination reset: setCurrentPage(1) is called frequently—if filters don’t change but set is called, this may cause unnecessary resets. Consider checking if the value actually changed before resetting.
+// The hook is well-structured, DRY, and covers a wide range of filter-related logic for a product listing page. Just clean up the debug statements and minor typing/naming for even better maintainability.
+
 // URL parsers for filters
 const filterParamsParsers = {
   minPrice: parseAsString.withDefault("").withOptions({
