@@ -39,7 +39,7 @@ export const SkillView = ({skillId}:Props)=> {
 
 
   return (
-    <div className="relative flex w-full flex-col rounded-xl bg-white bg-clip-border text-gray-700 shadow-md px-10">
+    <div className="relative flex w-full flex-col rounded-xl bg-white bg-clip-border text-gray-700 shadow-md px-10 ">
       <div className="relative h-64 overflow-hidden rounded-t-xl mb-4 flex items-center justify-center bg-gray-200">
         <img
           src="/headset.png"

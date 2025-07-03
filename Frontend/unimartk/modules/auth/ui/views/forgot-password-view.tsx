@@ -25,8 +25,19 @@ import {
   SelectItem,
 } from "@/components/ui/select";
 
+import { useMutation } from "@tanstack/react-query";
+import { useState } from "react";
+import {
+  verifyUserEmail,
+  verifyUserSecurityQuestion,
+} from "../../services/api";
+import { UserProfile } from "../../types/auth";
+import { useAuth } from "../../contexts/authContext";
+
 const ForgotPasswordView = () => {
   const router = useRouter();
+  const [errorMsg, setErrorMsg] = useState<string>("");
+  const { setUserId } = useAuth();
 
   const form = useForm<z.infer<typeof forgotPasswordSchema>>({
     resolver: zodResolver(forgotPasswordSchema),
@@ -38,9 +49,30 @@ const ForgotPasswordView = () => {
     },
   });
 
-  const onSubmit = (values: z.infer<typeof forgotPasswordSchema>) => {
-    console.log(values);
-    router.push("/reset-password");
+  const verifyEmailMutation = useMutation({
+    mutationFn: verifyUserEmail,
+    onSuccess: async (data: UserProfile) => {
+      try {
+        const formValues = form.getValues();
+
+        await verifyUserSecurityQuestion({
+          id: Number(data.id),
+          key: formValues.securityQuestion,
+          answer: formValues.answer,
+        });
+        setUserId(data.id);
+        router.push("/reset-password");
+      } catch (error: any) {
+        setErrorMsg(error.message || "Verification failed. Please try again.");
+      }
+    },
+    onError: (error: any) => {
+      setErrorMsg(error.message || "Verification failed. Please try again.");
+    },
+  });
+
+  const onSubmit = async (values: z.infer<typeof forgotPasswordSchema>) => {
+    verifyEmailMutation.mutate(values.email);
   };
 
   return (
@@ -95,14 +127,14 @@ const ForgotPasswordView = () => {
                       </SelectTrigger>
                     </FormControl>
                     <SelectContent className="bg-[#f0f0ee]">
-                      <SelectItem value="pet">
-                        What is your pet’s name?
+                      <SelectItem value="mother_maiden">
+                        What is your mother's maiden name?
                       </SelectItem>
-                      <SelectItem value="school">
-                        What was the name of your first school?
+                      <SelectItem value="first_pet">
+                        What was your first pet's name?
                       </SelectItem>
-                      <SelectItem value="city">
-                        In which city were you born?
+                      <SelectItem value="favorite_book">
+                        What is your favorite book?
                       </SelectItem>
                     </SelectContent>
                   </Select>
@@ -131,8 +163,16 @@ const ForgotPasswordView = () => {
               variant={"default"}
               className="bg-black text-white hover:bg-pink-400 hover:text-primary"
             >
-              Continue
+              {verifyEmailMutation.isPending ? "Verifying..." : "Continue"}
             </Button>
+            {errorMsg && (
+              <div
+                className="rounded-md bg-red-100 border border-red-400 text-red-700 px-4 py-3 mt-2 text-sm"
+                role="alert"
+              >
+                {errorMsg}
+              </div>
+            )}
           </form>
         </Form>
       </div>

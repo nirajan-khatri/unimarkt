@@ -67,6 +67,7 @@ export const JobsListView = ({
 
   const showPagination = !isLoading && !error && jobs && jobs.count > 0;
 
+
   return (
     <div className="px-4 lg:px-12 py-8 flex flex-col gap-4">
       {/* Header Section */}

@@ -18,9 +18,16 @@ import {
 import { Input } from "@/components/ui/input";
 
 import { resetPasswordSchema } from "../../schemas";
+import { useState } from "react";
+import { useAuth } from "../../contexts/authContext";
+import { useMutation } from "@tanstack/react-query";
+import { resetPassword } from "../../services/api";
 
 export const ResetPasswordView = () => {
   const router = useRouter();
+  const [message, setMessage] = useState<string>("");
+  const [messageType, setMessageType] = useState<"error" | "success">("error");
+  const { getUserId } = useAuth();
 
   const form = useForm<z.infer<typeof resetPasswordSchema>>({
     resolver: zodResolver(resetPasswordSchema),
@@ -31,9 +38,23 @@ export const ResetPasswordView = () => {
     },
   });
 
+  const resetPasswordMutation = useMutation({
+    mutationFn: resetPassword,
+    onSuccess: () => {
+      setMessageType("success");
+      setMessage("Password reset successful. ");
+    },
+    onError: (error: any) => {
+      setMessageType("error");
+      setMessage(error.message || "Password reset failed. Please try again.");
+    },
+  });
+
   const onSubmit = (values: z.infer<typeof resetPasswordSchema>) => {
-    console.log(values);
-    router.push("/sign-in");
+    resetPasswordMutation.mutate({
+      id: getUserId(),
+      new_password: values.password,
+    });
   };
 
   return (
@@ -92,6 +113,18 @@ export const ResetPasswordView = () => {
             >
               Change Password
             </Button>
+
+            {message && (
+              <div
+                className={`rounded-md border ${messageType === "error" ? "bg-red-100 border-red-400 text-red-700" : "bg-green-100 border-green-400 text-green-700"}  px-4 py-3 mt-2 text-sm`}
+              >
+                {message}
+
+                {messageType === "success" && <Link prefetch href={"/sign-in"}>
+                  Sign In here.
+                </Link>}
+              </div>
+            )}
           </form>
         </Form>
       </div>
