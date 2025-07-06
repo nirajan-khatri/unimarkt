@@ -1,4 +1,4 @@
-import { Shield, AlertTriangle, Check } from "lucide-react";
+import { Shield, AlertTriangle, Check, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -6,9 +6,10 @@ import { Badge } from "@/components/ui/badge";
 interface SecuritySectionProps {
   is2FAEnabled?: boolean;
   onEnable2FA: () => void;
+  onManage2FA?: () => void;
 }
 
-const SecuritySection = ({ is2FAEnabled = false, onEnable2FA }: SecuritySectionProps) => {
+const SecuritySection = ({ is2FAEnabled = false, onEnable2FA, onManage2FA }: SecuritySectionProps) => {
   return (
     <Card className="border-l-4 border-l-primary">
       <CardHeader className="pb-4">
@@ -64,19 +65,29 @@ const SecuritySection = ({ is2FAEnabled = false, onEnable2FA }: SecuritySectionP
             </div>
           </>
         ) : (
-          <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-            <div className="flex items-center gap-3">
-              <Check className="h-5 w-5 text-green-600" />
-              <div>
-                <p className="text-sm font-medium text-green-800">
-                  Two-factor authentication is enabled
-                </p>
-                <p className="text-sm text-green-700">
-                  Your account is protected with an additional security layer.
-                </p>
+          <>
+            <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+              <div className="flex items-center gap-3">
+                <Check className="h-5 w-5 text-green-600" />
+                <div>
+                  <p className="text-sm font-medium text-green-800">
+                    Two-factor authentication is enabled
+                  </p>
+                  <p className="text-sm text-green-700">
+                    Your account is protected with an additional security layer.
+                  </p>
+                </div>
               </div>
             </div>
-          </div>
+            {onManage2FA && (
+              <div className="flex flex-col sm:flex-row gap-3">
+                <Button onClick={onManage2FA} variant="outline" className="flex items-center gap-2">
+                  <Settings className="h-4 w-4" />
+                  Manage 2FA Settings
+                </Button>
+              </div>
+            )}
+          </>
         )}
       </CardContent>
     </Card>

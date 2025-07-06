@@ -156,6 +156,7 @@ const ProfileView = () => {
             <SecuritySection
               is2FAEnabled={user.two_factor_enabled}
               onEnable2FA={() => router.push("/profile/2fa")}
+              onManage2FA={() => router.push("/profile/2fa")}
             />
           </div>
         </>

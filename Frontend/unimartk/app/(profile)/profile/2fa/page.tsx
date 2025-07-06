@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { disableTwoFactor, setupTwoFactor, enableTwoFactor } from "@/modules/auth/services/api";
 import { TwoFactorVerifyRequest, TwoFactorEnableRequest } from "@/modules/auth/types/auth";
 import { Tooltip, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
-import { Key, Loader, Smartphone } from "lucide-react";
+import { Key, Loader, Smartphone, ArrowLeft } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogTrigger,
@@ -22,9 +22,11 @@ import {
   AlertDialogAction,
   AlertDialogCancel,
 } from "@/components/ui/alert-dialog";
+import { useRouter } from "next/navigation";
 
 export default function TwoFactorAuthPage() {
   const { user, updateUser } = useAuth();
+  const router = useRouter();
   const [showQRSetup, setShowQRSetup] = useState(false);
   const [qrCode, setQrCode] = useState("");
   const [secret, setSecret] = useState("");
@@ -148,6 +150,16 @@ export default function TwoFactorAuthPage() {
   return (
     <div className="container mx-auto px-4 py-8 max-w-2xl">
       <div className="mb-8">
+        <div className="flex items-center gap-4 mb-4">
+          <Button
+            variant="ghost"
+            onClick={() => router.push("/profile")}
+            className="flex items-center gap-2"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Back to Profile
+          </Button>
+        </div>
         <h1 className="text-3xl font-bold mb-2">Two-Factor Authentication</h1>
         <p className="text-muted-foreground">
           Enhance your account security with two-factor authentication

@@ -10,7 +10,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { verifyTwoFactor, verifyBackupCode } from "../../services/api";
 import { useAuth } from "../../contexts/authContext";
 import { TwoFactorVerifyRequest, BackupCodeVerifyRequest } from "../../types/auth";
-import { Loader } from "lucide-react";
+import { Loader, ArrowLeft } from "lucide-react";
 
 interface TwoFactorVerificationProps {
   userId: number;
@@ -65,91 +65,107 @@ export const TwoFactorVerification = ({ userId, onSuccess }: TwoFactorVerificati
     backupCodeMutation.mutate({ user_id: userId, backup_code: backupCode });
   };
 
+  const handleBackToSignIn = () => {
+    router.push("/sign-in");
+  };
+
   return (
     <div className="flex items-center justify-center min-h-screen bg-[#f4f4f0]">
-      <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle>Two-Factor Authentication</CardTitle>
-          <CardDescription>
-            Enter the 6-digit code from your Google Authenticator app
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          {!showBackupCode ? (
-            <>
-              <div className="space-y-2">
-                <Input
-                  type="text"
-                  placeholder="Enter 6-digit code"
-                  value={code}
-                  onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
-                  maxLength={6}
-                  className="text-center text-lg tracking-widest"
-                />
-              </div>
-              <Button
-                onClick={handleVerify}
-                disabled={verifyMutation.isPending || code.length !== 6}
-                className="w-full"
-              >
-                {verifyMutation.isPending ? (
-                  <span className="flex items-center justify-center gap-2">
-                    <Loader className="animate-spin h-4 w-4" /> Verifying...
-                  </span>
-                ) : (
-                  "Verify"
-                )}
-              </Button>
-              <Button
-                variant="outline"
-                onClick={() => setShowBackupCode(true)}
-                className="w-full"
-              >
-                Use Backup Code
-              </Button>
-            </>
-          ) : (
-            <>
-              <div className="space-y-2">
-                <Input
-                  type="text"
-                  placeholder="Enter 8-character backup code"
-                  value={backupCode}
-                  onChange={(e) => setBackupCode(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 8))}
-                  maxLength={8}
-                  className="text-center text-lg tracking-widest"
-                />
-              </div>
-              <Button
-                onClick={handleBackupCodeVerify}
-                disabled={backupCodeMutation.isPending || backupCode.length !== 8}
-                className="w-full"
-              >
-                {backupCodeMutation.isPending ? (
-                  <span className="flex items-center justify-center gap-2">
-                    <Loader className="animate-spin h-4 w-4" /> Verifying...
-                  </span>
-                ) : (
-                  "Verify Backup Code"
-                )}
-              </Button>
-              <Button
-                variant="outline"
-                onClick={() => setShowBackupCode(false)}
-                className="w-full"
-              >
-                Use 2FA Code
-              </Button>
-            </>
-          )}
-          
-          {errorMsg && (
-            <Alert variant="destructive">
-              <AlertDescription>{errorMsg}</AlertDescription>
-            </Alert>
-          )}
-        </CardContent>
-      </Card>
+      <div className="w-full max-w-md">
+        <div className="mb-4">
+          <Button
+            variant="ghost"
+            onClick={handleBackToSignIn}
+            className="flex items-center gap-2 text-muted-foreground hover:text-foreground"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Back to Sign In
+          </Button>
+        </div>
+        <Card>
+          <CardHeader>
+            <CardTitle>Two-Factor Authentication</CardTitle>
+            <CardDescription>
+              Enter the 6-digit code from your Google Authenticator app
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {!showBackupCode ? (
+              <>
+                <div className="space-y-2">
+                  <Input
+                    type="text"
+                    placeholder="Enter 6-digit code"
+                    value={code}
+                    onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                    maxLength={6}
+                    className="text-center text-lg tracking-widest"
+                  />
+                </div>
+                <Button
+                  onClick={handleVerify}
+                  disabled={verifyMutation.isPending || code.length !== 6}
+                  className="w-full"
+                >
+                  {verifyMutation.isPending ? (
+                    <span className="flex items-center justify-center gap-2">
+                      <Loader className="animate-spin h-4 w-4" /> Verifying...
+                    </span>
+                  ) : (
+                    "Verify"
+                  )}
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => setShowBackupCode(true)}
+                  className="w-full"
+                >
+                  Use Backup Code
+                </Button>
+              </>
+            ) : (
+              <>
+                <div className="space-y-2">
+                  <Input
+                    type="text"
+                    placeholder="Enter 8-character backup code"
+                    value={backupCode}
+                    onChange={(e) => setBackupCode(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 8))}
+                    maxLength={8}
+                    className="text-center text-lg tracking-widest"
+                  />
+                </div>
+                <Button
+                  onClick={handleBackupCodeVerify}
+                  disabled={backupCodeMutation.isPending || backupCode.length !== 8}
+                  className="w-full"
+                >
+                  {backupCodeMutation.isPending ? (
+                    <span className="flex items-center justify-center gap-2">
+                      <Loader className="animate-spin h-4 w-4" /> Verifying...
+                    </span>
+                  ) : (
+                    "Verify Backup Code"
+                  )}
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => setShowBackupCode(false)}
+                  className="w-full"
+                >
+                  Use 2FA Code
+                </Button>
+              </>
+            )}
+            
+            {errorMsg && (
+              <Alert variant="destructive">
+                <AlertDescription>{errorMsg}</AlertDescription>
+              </Alert>
+            )}
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }; 

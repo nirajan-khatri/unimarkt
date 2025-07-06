@@ -84,8 +84,4 @@ export interface BackupCodeVerifyRequest {
   backup_code: string;
 }
 
-// types/auth.ts
-export interface LoginRequest {
-  email: string;
-  password: string;
-}
+
