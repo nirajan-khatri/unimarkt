@@ -19,6 +19,11 @@ from .serializers import (
     PasswordResetSerializer,
     UpdateUserSerializer,
     PasswordResetByIdSerializer,
+    TwoFactorSetupSerializer,
+    TwoFactorVerifySerializer,
+    TwoFactorEnableSerializer,
+    TwoFactorDisableSerializer,
+    BackupCodeVerifySerializer,
 )
 
 
@@ -36,6 +41,16 @@ class LoginAPIView(APIView):
         serializer = LoginSerializer(data=request.data, context={"request": request})
         if serializer.is_valid():
             user = serializer.validated_data["user"]
+            
+            # Check if 2FA is enabled
+            if user.two_factor_enabled:
+                return Response({
+                    "requires_2fa": True,
+                    "user_id": user.id,
+                    "message": "2FA code required"
+                }, status=status.HTTP_200_OK)
+            
+            # Generate tokens for users without 2FA
             refresh = RefreshToken.for_user(user)
             user_data = UserSerializer(user).data
             return Response(
@@ -43,6 +58,7 @@ class LoginAPIView(APIView):
                     "user": user_data,
                     "refresh": str(refresh),
                     "access": str(refresh.access_token),
+                    "requires_2fa": False,
                 }
             )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -394,3 +410,202 @@ class VerifySecurityQuestionAPIView(APIView):
             return Response({"success": False, "message": "Security question key does not match user's records."}, status=status.HTTP_400_BAD_REQUEST)
         except User.DoesNotExist:
             return Response({"success": False, "message": "User does not exist."}, status=status.HTTP_404_NOT_FOUND)
+
+
+class TwoFactorVerifyAPIView(APIView):
+    @swagger_auto_schema(
+        tags=["2FA"],
+        request_body=TwoFactorVerifySerializer,
+        responses={
+            200: "JWT token and user data",
+            400: "Validation error",
+            401: "Invalid 2FA code",
+        },
+    )
+    def post(self, request):
+        serializer = TwoFactorVerifySerializer(data=request.data)
+        if serializer.is_valid():
+            user_id = serializer.validated_data["user_id"]
+            code = serializer.validated_data["code"]
+            
+            try:
+                user = User.objects.get(id=user_id)
+            except User.DoesNotExist:
+                return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+            
+            if not user.two_factor_enabled:
+                return Response({"error": "2FA not enabled for this user"}, status=status.HTTP_400_BAD_REQUEST)
+            
+            if user.verify_two_factor_code(code):
+                refresh = RefreshToken.for_user(user)
+                user_data = UserSerializer(user).data
+                return Response({
+                    "user": user_data,
+                    "refresh": str(refresh),
+                    "access": str(refresh.access_token),
+                    "requires_2fa": False,
+                })
+            else:
+                return Response({"error": "Invalid 2FA code"}, status=status.HTTP_401_UNAUTHORIZED)
+        
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class TwoFactorSetupAPIView(APIView):
+    @swagger_auto_schema(
+        tags=["2FA"],
+        request_body=TwoFactorSetupSerializer,
+        responses={
+            200: "QR code and secret",
+            400: "Validation error",
+        },
+    )
+    def post(self, request):
+        serializer = TwoFactorSetupSerializer(data=request.data)
+        if serializer.is_valid():
+            user_id = serializer.validated_data["user_id"]
+            
+            try:
+                user = User.objects.get(id=user_id)
+            except User.DoesNotExist:
+                return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+            
+            if user.two_factor_enabled:
+                return Response({"error": "2FA already enabled"}, status=status.HTTP_400_BAD_REQUEST)
+            
+            # Generate new secret
+            secret = user.generate_two_factor_secret()
+            user.two_factor_secret = secret
+            user.save()
+            
+            # Generate QR code
+            qr_code = user.get_two_factor_qr_code(secret)
+            
+            return Response({
+                "secret": secret,
+                "qr_code": qr_code,
+                "message": "Scan QR code with Google Authenticator"
+            })
+        
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class TwoFactorEnableAPIView(APIView):
+    @swagger_auto_schema(
+        tags=["2FA"],
+        request_body=TwoFactorEnableSerializer,
+        responses={
+            200: "2FA enabled successfully",
+            400: "Validation error",
+            401: "Invalid 2FA code",
+        },
+    )
+    def post(self, request):
+        serializer = TwoFactorEnableSerializer(data=request.data)
+        if serializer.is_valid():
+            user_id = serializer.validated_data["user_id"]
+            code = serializer.validated_data["code"]
+            
+            try:
+                user = User.objects.get(id=user_id)
+            except User.DoesNotExist:
+                return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+            
+            if user.two_factor_enabled:
+                return Response({"error": "2FA already enabled"}, status=status.HTTP_400_BAD_REQUEST)
+            
+            if not user.two_factor_secret:
+                return Response({"error": "2FA not set up"}, status=status.HTTP_400_BAD_REQUEST)
+            
+            if user.verify_two_factor_code(code):
+                user.two_factor_enabled = True
+                # Generate backup codes
+                backup_codes = user.generate_backup_codes()
+                user.backup_codes = backup_codes
+                user.save()
+                
+                return Response({
+                    "message": "2FA enabled successfully",
+                    "backup_codes": backup_codes,
+                    "warning": "Save these backup codes in a secure location. You won't be able to see them again."
+                })
+            else:
+                return Response({"error": "Invalid 2FA code"}, status=status.HTTP_401_UNAUTHORIZED)
+        
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class TwoFactorDisableAPIView(APIView):
+    @swagger_auto_schema(
+        tags=["2FA"],
+        request_body=TwoFactorDisableSerializer,
+        responses={
+            200: "2FA disabled successfully",
+            400: "Validation error",
+            401: "Invalid 2FA code",
+        },
+    )
+    def post(self, request):
+        serializer = TwoFactorDisableSerializer(data=request.data)
+        if serializer.is_valid():
+            user_id = serializer.validated_data["user_id"]
+            code = serializer.validated_data["code"]
+            
+            try:
+                user = User.objects.get(id=user_id)
+            except User.DoesNotExist:
+                return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+            
+            if not user.two_factor_enabled:
+                return Response({"error": "2FA not enabled"}, status=status.HTTP_400_BAD_REQUEST)
+            
+            if user.verify_two_factor_code(code):
+                user.two_factor_enabled = False
+                user.two_factor_secret = None
+                user.backup_codes = []
+                user.save()
+                
+                return Response({"message": "2FA disabled successfully"})
+            else:
+                return Response({"error": "Invalid 2FA code"}, status=status.HTTP_401_UNAUTHORIZED)
+        
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class BackupCodeVerifyAPIView(APIView):
+    @swagger_auto_schema(
+        tags=["2FA"],
+        request_body=BackupCodeVerifySerializer,
+        responses={
+            200: "JWT token and user data",
+            400: "Validation error",
+            401: "Invalid backup code",
+        },
+    )
+    def post(self, request):
+        serializer = BackupCodeVerifySerializer(data=request.data)
+        if serializer.is_valid():
+            user_id = serializer.validated_data["user_id"]
+            backup_code = serializer.validated_data["backup_code"]
+            
+            try:
+                user = User.objects.get(id=user_id)
+            except User.DoesNotExist:
+                return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+            
+            if not user.two_factor_enabled:
+                return Response({"error": "2FA not enabled for this user"}, status=status.HTTP_400_BAD_REQUEST)
+            
+            if user.verify_backup_code(backup_code):
+                refresh = RefreshToken.for_user(user)
+                user_data = UserSerializer(user).data
+                return Response({
+                    "user": user_data,
+                    "refresh": str(refresh),
+                    "access": str(refresh.access_token),
+                    "requires_2fa": False,
+                })
+            else:
+                return Response({"error": "Invalid backup code"}, status=status.HTTP_401_UNAUTHORIZED)
+        
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

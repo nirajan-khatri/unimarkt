@@ -14,7 +14,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ["id", "name", "email", "contact_number", "role"]
+        fields = ["id", "name", "email", "contact_number", "role", "two_factor_enabled"]
 
 
 class LoginSerializer(serializers.Serializer):
@@ -36,6 +36,85 @@ class LoginSerializer(serializers.Serializer):
 
         attrs["user"] = user
         return attrs
+
+
+class TwoFactorSetupSerializer(serializers.Serializer):
+    user_id = serializers.IntegerField()
+
+    def validate_user_id(self, value):
+        try:
+            User.objects.get(id=value)
+        except User.DoesNotExist:
+            raise serializers.ValidationError("User not found")
+        return value
+
+
+class TwoFactorVerifySerializer(serializers.Serializer):
+    user_id = serializers.IntegerField()
+    code = serializers.CharField(max_length=6, min_length=6)
+
+    def validate_user_id(self, value):
+        try:
+            User.objects.get(id=value)
+        except User.DoesNotExist:
+            raise serializers.ValidationError("User not found")
+        return value
+
+    def validate_code(self, value):
+        if not value.isdigit():
+            raise serializers.ValidationError("Code must contain only digits")
+        return value
+
+
+class TwoFactorEnableSerializer(serializers.Serializer):
+    user_id = serializers.IntegerField()
+    code = serializers.CharField(max_length=6, min_length=6)
+
+    def validate_user_id(self, value):
+        try:
+            User.objects.get(id=value)
+        except User.DoesNotExist:
+            raise serializers.ValidationError("User not found")
+        return value
+
+    def validate_code(self, value):
+        if not value.isdigit():
+            raise serializers.ValidationError("Code must contain only digits")
+        return value
+
+
+class TwoFactorDisableSerializer(serializers.Serializer):
+    user_id = serializers.IntegerField()
+    code = serializers.CharField(max_length=6, min_length=6)
+
+    def validate_user_id(self, value):
+        try:
+            User.objects.get(id=value)
+        except User.DoesNotExist:
+            raise serializers.ValidationError("User not found")
+        return value
+
+    def validate_code(self, value):
+        if not value.isdigit():
+            raise serializers.ValidationError("Code must contain only digits")
+        return value
+
+
+class BackupCodeVerifySerializer(serializers.Serializer):
+    user_id = serializers.IntegerField()
+    backup_code = serializers.CharField(max_length=8, min_length=8)
+
+    def validate_user_id(self, value):
+        try:
+            User.objects.get(id=value)
+        except User.DoesNotExist:
+            raise serializers.ValidationError("User not found")
+        return value
+
+    def validate_backup_code(self, value):
+        if not value.isalnum():
+            raise serializers.ValidationError("Backup code must be alphanumeric")
+        return value.upper()
 
 
 class RegisterSerializer(serializers.ModelSerializer):
@@ -80,78 +159,51 @@ class UpdateUserSerializer(serializers.ModelSerializer):
         return instance
 
 
-class RoleSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Role
-        fields = ["id", "name"]
-
-
 class PasswordResetSerializer(serializers.Serializer):
     email = serializers.EmailField()
-    security_question = serializers.ChoiceField(choices=User.SECURITY_QUESTION_CHOICES)
-    answer = serializers.CharField()
+    security_question1 = serializers.CharField()
+    answer1 = serializers.CharField()
+    security_question2 = serializers.CharField()
+    answer2 = serializers.CharField()
+    security_question3 = serializers.CharField()
+    answer3 = serializers.CharField()
     new_password = serializers.CharField(write_only=True)
 
-    def validate(self, data):
-        email = data.get("email")
-        question = data.get("security_question")
-        answer = data.get("answer")
-        new_password = data.get("new_password")
+    def validate(self, attrs):
+        email = attrs.get("email")
+        security_question1 = attrs.get("security_question1")
+        answer1 = attrs.get("answer1")
+        security_question2 = attrs.get("security_question2")
+        answer2 = attrs.get("answer2")
+        security_question3 = attrs.get("security_question3")
+        answer3 = attrs.get("answer3")
 
         try:
             user = User.objects.get(email=email)
         except User.DoesNotExist:
-            raise serializers.ValidationError("Invalid email or user not found.")
+            raise serializers.ValidationError("User with this email does not exist")
 
-        matched = False
-        if user.security_question1 == question and user.answer1 == answer:
-            matched = True
-        elif user.security_question2 == question and user.answer2 == answer:
-            matched = True
-        elif user.security_question3 == question and user.answer3 == answer:
-            matched = True
+        if (
+            user.security_question1 != security_question1
+            or user.answer1 != answer1
+            or user.security_question2 != security_question2
+            or user.answer2 != answer2
+            or user.security_question3 != security_question3
+            or user.answer3 != answer3
+        ):
+            raise serializers.ValidationError("Security questions or answers are incorrect")
 
-        if not matched:
-            raise serializers.ValidationError(
-                "Security question or answer is incorrect."
-            )
-
-        # ✅ Check new password is not the same as old
-        if user.check_password(new_password):
-            raise serializers.ValidationError(
-                "New password must be different from the old password."
-            )
-
-        data["user"] = user
-        return data
-
-    def save(self):
-        user = self.validated_data["user"]
-        new_password = self.validated_data["new_password"]
-        user.set_password(new_password)
-        user.save()
-        return user
+        attrs["user"] = user
+        return attrs
 
 
 class PasswordResetByIdSerializer(serializers.Serializer):
-    id = serializers.IntegerField()
+    user_id = serializers.IntegerField()
     new_password = serializers.CharField(write_only=True)
 
-    def validate(self, data):
-        user_id = data.get("id")
-        new_password = data.get("new_password")
+    def validate_user_id(self, value):
         try:
-            user = User.objects.get(id=user_id)
+            User.objects.get(id=value)
         except User.DoesNotExist:
-            raise serializers.ValidationError("User not found.")
-        if user.check_password(new_password):
-            raise serializers.ValidationError("New password must be different from the old password.")
-        data["user"] = user
-        return data
-
-    def save(self):
-        user = self.validated_data["user"]
-        new_password = self.validated_data["new_password"]
-        user.set_password(new_password)
-        user.save()
-        return user
+            raise serializers.ValidationError("User not found")
+        return value
