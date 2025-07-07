@@ -14,12 +14,16 @@ export interface UserProfile {
   email: string;
   contact_number: string | null;
   role: UserRole;
+  two_factor_enabled: boolean;
 }
 
 export interface LoginResponse {
   user: UserProfile;
   refresh: string;
   access: string;
+  requires_2fa?: boolean;
+  user_id?: string;
+  message?: string;
 }
 
 export interface LoginRequest {
@@ -53,8 +57,31 @@ export interface SecurityQuestion {
   question: string;
 }
 
-// types/auth.ts
-export interface LoginRequest {
-  email: string;
-  password: string;
+export interface TwoFactorSetupResponse {
+  secret: string;
+  qr_code: string;
+  message: string;
 }
+
+export interface TwoFactorVerifyRequest {
+  user_id: number;
+  code: string;
+}
+
+export interface TwoFactorEnableRequest {
+  user_id: number;
+  code: string;
+}
+
+export interface TwoFactorEnableResponse {
+  message: string;
+  backup_codes: string[];
+  warning: string;
+}
+
+export interface BackupCodeVerifyRequest {
+  user_id: number;
+  backup_code: string;
+}
+
+

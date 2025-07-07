@@ -22,9 +22,10 @@ import { Input } from "@/components/ui/input";
 
 // Import organized modules
 import { loginSchema } from "../../schemas";
-import { useAuth } from "../../contexts/authContext"; // Updated import
+import { useAuth } from "../../contexts/authContext";
 import { LoginResponse } from "../../types/auth";
 import { loginUser } from "../../services/api";
+import { TwoFactorVerification } from "../components/two-factor-verification";
 
 const SignUpLink = dynamic(
   () =>
@@ -44,6 +45,8 @@ export const SignInView = () => {
   const [redirectUrl, setRedirectUrl] = useState<string>("/");
   const [isLoading, setIsLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState<string>("");
+  const [requires2FA, setRequires2FA] = useState(false);
+  const [userId, setUserId] = useState<number | null>(null);
   const router = useRouter();
   const { login, isAuthenticated } = useAuth();
 
@@ -55,7 +58,7 @@ export const SignInView = () => {
       if (redirect) {
         router.push(redirect);
       } else {
-        router.push("/"); // fallback if no redirect provided
+        router.push("/");
       }
       return;
     }
@@ -76,19 +79,22 @@ export const SignInView = () => {
     },
   });
 
-  // TanStack Query mutation
   const loginMutation = useMutation({
     mutationFn: loginUser,
     onSuccess: (data: LoginResponse) => {
-      try {
-        login(data);
-        router.push(redirectUrl);
-      } catch (error) {
-        setErrorMsg("Login successful but failed to store user data locally.");
+      if (data.requires_2fa) {
+        setRequires2FA(true);
+        setUserId(parseInt(data.user_id!));
+      } else {
+        try {
+          login(data);
+          router.push(redirectUrl);
+        } catch (error) {
+          setErrorMsg("Login successful but failed to store user data locally.");
+        }
       }
     },
     onError: (error: any) => {
-      // Show a user-friendly error message
       if (error?.response?.status === 400 || (typeof error.message === 'string' && error.message.includes('400'))) {
         setErrorMsg("Email and password do not match.");
       } else if (error.message.includes("401") || error.message.toLowerCase().includes("unauthorized")) {
@@ -100,12 +106,21 @@ export const SignInView = () => {
   });
 
   const onSubmit = (values: z.infer<typeof loginSchema>) => {
-    setErrorMsg(""); // Clear error on new submit
+    setErrorMsg("");
     loginMutation.mutate({
       email: values.email,
       password: values.password,
     });
   };
+
+  const handle2FASuccess = () => {
+    router.push(redirectUrl);
+  };
+
+  // Show 2FA verification if required
+  if (requires2FA && userId) {
+    return <TwoFactorVerification userId={userId} onSuccess={handle2FASuccess} />;
+  }
 
   // Early return while checking authentication
   if (isLoading) {
@@ -198,7 +213,7 @@ export const SignInView = () => {
           backgroundSize: "cover",
           backgroundPosition: "center",
         }}
-        className="h-screen w-full lg:col-span-2 hidden lg:block dark:brightness-[0.6]"
+        className="hidden lg:block lg:col-span-2"
       />
     </div>
   );

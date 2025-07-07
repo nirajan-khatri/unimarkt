@@ -47,6 +47,7 @@ interface AuthContextType {
   login: (loginResponse: LoginResponse) => void;
   logout: () => void;
   updateTokens: (access: string, refresh?: string) => void;
+  updateUser: (userData: UserProfile) => void;
 
   // Utility methods
   getAccessToken: () => string | null;
@@ -185,6 +186,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     return Number(getCookie("userId"));
   };
 
+  const updateUser = (userData: UserProfile) => {
+    setUser({
+      ...userData,
+      role: ROLE_MAP[(userData as any).role as keyof typeof ROLE_MAP] || "user",
+    });
+  };
+
   const value: AuthContextType = {
     isAuthenticated,
     isInitialized,
@@ -193,6 +201,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     login,
     logout,
     updateTokens,
+    updateUser,
     getAccessToken,
     getRefreshToken,
     getAuthHeader,

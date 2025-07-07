@@ -18,6 +18,9 @@ import {
 } from "../components/skeletons";
 import { Pagination } from "@/components/ui/pagination";
 import { parseAsStringEnum, useQueryState } from "nuqs";
+import { Shield } from "lucide-react";
+import SecuritySection from "../components/SecuritySection";
+import { useRouter } from "next/navigation";
 
 // Products Component wrapped in Suspense
 const ProductsSection = ({ userId }: { userId: string }) => {
@@ -120,6 +123,7 @@ const ProfileView = () => {
     "tab",
     parseAsStringEnum(["products", "services", "jobs"]).withDefault("products")
   );
+  const router = useRouter();
 
   // if (userLoading || detailsLoading) {
   //   return (
@@ -139,15 +143,23 @@ const ProfileView = () => {
   return (
     <div className="px-4 lg:px-12 py-10 flex flex-col gap-y-8">
       {user && (
-        <ProfileDetailsCard
-          // avatarUrl={user?.}
-          id={user.id}
-          name={user.name}
-          email={user.email}
-          contact_number={user.contact_number || undefined}
-          role={user.role || "User"}
-          loading={isLoading}
-        />
+        <>
+          <ProfileDetailsCard
+            id={user.id}
+            name={user.name}
+            email={user.email}
+            contact_number={user.contact_number || undefined}
+            role={user.role || "User"}
+            loading={isLoading}
+          />
+          <div className="flex flex-col gap-4 mb-2">
+            <SecuritySection
+              is2FAEnabled={user.two_factor_enabled}
+              onEnable2FA={() => router.push("/profile/2fa")}
+              onManage2FA={() => router.push("/profile/2fa")}
+            />
+          </div>
+        </>
       )}
       <div className="flex flex-col gap-4">
         <div className="flex justify-between gap-3">
