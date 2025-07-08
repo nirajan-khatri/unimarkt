@@ -212,11 +212,15 @@ export const ProfileProductView = ({ productId }: Props) => {
     mutationFn: () => {
       return archiveProduct({
         productId,
-        data: { isArchived: !data.isArchived },
+        isArchived: data.isArchived,
       });
     },
     onSuccess: () => {
-      toast.success("Product archived successfully!");
+      toast.success(
+        data.isArchived
+          ? "Product unarchived successfully!"
+          : "Product archived successfully!"
+      );
       queryClient.invalidateQueries({
         queryKey: ["userProducts"],
         exact: false,

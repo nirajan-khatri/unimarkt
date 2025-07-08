@@ -12,7 +12,7 @@ export type Job = {
   category: { id: string; name: string };
   contact_email: string;
   user: User;
-  degree: Degree;
+  degree: string;
   department: DepartmentOrRoleOrSkillCategory;
   status: "pending" | "approved" | "rejected";
   isArchived: boolean;
