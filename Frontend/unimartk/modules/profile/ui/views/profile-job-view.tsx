@@ -2,36 +2,35 @@
 
 import {
   useMutation,
-  useSuspenseQuery,
   useQueryClient,
+  useSuspenseQuery,
 } from "@tanstack/react-query";
-import { useRouter } from "next/navigation";
+
+import Image from "next/image";
 import React, { useState } from "react";
 
 import {
   Lightbulb,
   GraduationCapIcon,
-  SchoolIcon,
-  CalendarDaysIcon,
-  Trash2Icon,
-  XIcon,
-  CheckIcon,
-  ArrowLeft,
   Microscope,
-  User,
-  PenToolIcon,
-  FileText,
   Briefcase,
+  FileText,
   MapPinIcon,
-  Building2Icon,
+  PenToolIcon,
   Scroll,
+  User,
+  Trash2Icon,
+  ArchiveIcon,
+  PencilIcon,
 } from "lucide-react";
-import { sortedAvailability, sendAdminMessage } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
+import { useAuth } from "@/modules/auth/contexts/authContext"; // Updated import
+
+import { useRouter } from "next/navigation";
+import { archiveJob, deleteJob } from "../../api";
 import { toast } from "sonner";
-import { cn } from "@/lib/utils";
-import { fetchJobById } from "../../api";
+import ConfirmDeleteDialog from "@/components/confirm-delete-dialog";
+import { fetchJobById } from "@/modules/jobs/api";
+import { Button } from "@/components/ui/button";
 
 interface Props {
   jobId: string;
@@ -45,15 +44,65 @@ const jobTypes = [
   { value: "Customer Support", label: "Customer Support", icon: Briefcase },
 ];
 
-export const JobDetailView = ({ jobId }: Props) => {
+export const ProfileJobView = ({ jobId }: Props) => {
   const router = useRouter();
+  const queryClient = useQueryClient();
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [confirmName, setConfirmName] = useState("");
+  const { isAuthenticated, user, isInitialized } = useAuth();
 
   const { data, error, isLoading } = useSuspenseQuery({
     queryKey: ["job", jobId],
     queryFn: () => fetchJobById(jobId),
   });
 
-  console.log(data);
+  const deleteJobMutation = useMutation({
+    mutationFn: async () => {
+      return deleteJob(jobId);
+    },
+    onSuccess: () => {
+      toast.success("Job deleted successfully!");
+      queryClient.invalidateQueries({
+        queryKey: ["userJobs"],
+        exact: false,
+      });
+      queryClient.invalidateQueries({ queryKey: ["job", jobId] });
+      router.push("/profile?tab=jobs");
+    },
+    onError: (error) => {
+      console.error("Delete error:", error);
+      toast.error("Failed to delete skill. Please try again.");
+    },
+  });
+
+  const archiveJobMutation = useMutation({
+    mutationFn: () => {
+      return archiveJob({
+        jobId,
+        isArchived: data.isArchived,
+      });
+    },
+    onSuccess: () => {
+      toast.success(
+        data.isArchived
+          ? "Job unarchived successfully!"
+          : "Job archived successfully!"
+      );
+      queryClient.invalidateQueries({
+        queryKey: ["userJobs"],
+        exact: false,
+      });
+      queryClient.invalidateQueries({ queryKey: ["job", jobId] });
+    },
+    onError: (error) => {
+      console.error("Job Archive error:", error);
+      toast.error("Failed to archive job. Please try again.");
+    },
+  });
+
+  const handleArchive = () => {
+    archiveJobMutation.mutate();
+  };
 
   return (
     <>
@@ -154,17 +203,67 @@ export const JobDetailView = ({ jobId }: Props) => {
               </div>
             </div>
           </div>
+          <div className="flex flex-row gap-2 mt-4 justify-end items-center w-full p-4 border-t border-border bg-gray-50">
+            <Button
+              variant="outline"
+              className="flex flex-row gap-2 hover:bg-red-50 hover:border-red-300"
+              onClick={() => setShowDeleteDialog(true)}
+            >
+              <Trash2Icon className="w-4 h-4" />
+              {false ? "Deleting..." : "Delete"}
+            </Button>
+
+            {data.status === "approved" && (
+              <Button
+                variant="outline"
+                className="flex flex-row gap-2"
+                onClick={handleArchive}
+                disabled={archiveJobMutation.isPending}
+              >
+                <ArchiveIcon className="w-4 h-4" />
+                {data.isArchived ? "Unarchive" : "Archive Job"}
+              </Button>
+            )}
+
+            <Button
+              variant="outline"
+              className="flex flex-row gap-2"
+              onClick={() => {
+                router.push(`/profile/edit/job/${jobId}`);
+              }}
+              // onClick={handleApprove}
+              // disabled={approveProductMutation.isPending}
+            >
+              <PencilIcon className="w-4 h-4" />
+              Edit
+            </Button>
+          </div>
         </div>
       </div>
+      <ConfirmDeleteDialog
+        confirmName={confirmName}
+        setConfirmName={setConfirmName}
+        showDeleteDialog={showDeleteDialog}
+        setShowDeleteDialog={setShowDeleteDialog}
+        deleteMutation={deleteJobMutation}
+        itemName={data.title}
+      />
     </>
   );
 };
 
-export const JobDetailViewSkeleton = () => {
+export const ProductViewSkeleton = () => {
   return (
     <div className="px-4 lg:px-12 py-10">
       <div className="border rounded-sm bg-white overflow-hidden">
-        <div className="relative aspect-[3.9] border-b"></div>
+        <div className="relative aspect-[3.9] border-b">
+          <Image
+            alt={"Placeholder"}
+            src={"/placeholder.jpg"}
+            fill
+            className="object-cover"
+          />
+        </div>
       </div>
     </div>
   );

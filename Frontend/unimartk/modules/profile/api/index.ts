@@ -137,12 +137,14 @@ export const updateUserProfile = async (userId: string) => {
 
 export const archiveProduct = async ({
   productId,
-  data,
+  isArchived,
 }: {
   productId: string;
-  data: Partial<Product>;
+  isArchived: boolean;
 }) => {
-  const response = await axios.put(`/products/${productId}/`, data);
+  const response = await axios.post(`/products/${productId}/archive-toggle/`, {
+    archive: !isArchived,
+  });
   return response.data;
 };
 
@@ -154,17 +156,38 @@ export const deleteProduct = async (productId: string) => {
 
 export const archiveSkill = async ({
   skillId,
-  data,
+  isArchived,
 }: {
   skillId: string;
-  data: Partial<Skill>;
+  isArchived: boolean;
 }) => {
-  const response = await axios.put(`/skills/${skillId}/`, data);
+  const response = await axios.post(`/skills/${skillId}/archive-toggle/`, {
+    archive: !isArchived,
+  });
   return response.data;
 };
 
 // Delete product
 export const deleteSkill = async (skillId: string) => {
   const response = await axios.delete(`/skills/${skillId}/`);
+  return response.data;
+};
+
+export const archiveJob = async ({
+  jobId,
+  isArchived,
+}: {
+  jobId: string;
+  isArchived: boolean;
+}) => {
+  const response = await axios.post(`/jobs/${jobId}/archive-toggle/`, {
+    archive: !isArchived,
+  });
+  return response.data;
+};
+
+// Delete product
+export const deleteJob = async (jobId: string) => {
+  const response = await axios.delete(`/jobs/${jobId}/`);
   return response.data;
 };

@@ -74,7 +74,7 @@ const CreateJobForm = ({ jobId }: Props) => {
       location: "",
       category_id: "",
       contact_email: "",
-      degree_id: "",
+      degree: "",
     },
   });
 
@@ -87,29 +87,23 @@ const CreateJobForm = ({ jobId }: Props) => {
     queryFn: fetchJobCategories,
   });
 
-  const {
-    data: degreeData,
-    isLoading: degreeIsLoading,
-    error: degreeError,
-  } = useQuery({
-    queryKey: ["degrees"],
-    queryFn: fetchDegrees,
-  });
-
   // Update form and preview images when product data is loaded
-  // useEffect(() => {
-  //   if (product) {
-  //     form.reset({
-  //       name: product?.name || "",
-  //       description: product?.description || "",
-  //       images: product?.images || [],
-  //       price: product?.price.toString() || "",
-  //       pickup_location: product?.pickup_location || "",
-  //       category_id: product?.category?.id?.toString() || "",
-  //       sub_category_id: product?.sub_category?.id?.toString() || "",
-  //     });
-  //   }
-  // }, [product, form]);
+  useEffect(() => {
+    if (job) {
+      form.reset({
+        title: job?.title || "",
+        description: job?.description || "",
+        contact_email: job?.contact_email || "",
+        qualifications: job?.qualifications || "",
+        salary_per_hour: job?.salary_per_hour?.toString() || "",
+        location: job?.location || "",
+        degree: job?.degree || "",
+        category_id: job?.category?.id?.toString() || "",
+      });
+    }
+  }, [job, form]);
+
+  console.log(form.formState.defaultValues);
 
   const mutation = useMutation({
     mutationFn: (newJob: JobFromData) => {
@@ -129,7 +123,7 @@ const CreateJobForm = ({ jobId }: Props) => {
       toast.success(
         jobId ? "Jobs updated successfully!" : "Jobs created successfully!"
       );
-      window.location.href = "/profile";
+      window.location.href = "/profile?tab=jobs";
     },
   });
 
@@ -232,32 +226,15 @@ const CreateJobForm = ({ jobId }: Props) => {
               />
               <FormField
                 control={form.control}
-                name="degree_id"
+                name="degree"
                 render={({ field }) => (
                   <FormItem className="flex-1">
                     <FormLabel>
                       Degree<span className="text-red-500 -ml-1.5">*</span>
                     </FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
-                      <FormControl className="w-full">
-                        <SelectTrigger>
-                          <SelectValue placeholder="Select a degree" />
-                        </SelectTrigger>
-                      </FormControl>
-                      <SelectContent>
-                        {degreeData?.map((degree) => (
-                          <SelectItem
-                            key={degree.id}
-                            value={degree.id.toString()}
-                          >
-                            {degree.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    <FormControl>
+                      <Input type="text" placeholder="Masters.." {...field} />
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}

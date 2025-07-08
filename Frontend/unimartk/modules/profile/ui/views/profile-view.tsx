@@ -187,6 +187,9 @@ const ProfileView = () => {
           <TabsList>
             <TabsTrigger value="products">Products</TabsTrigger>
             <TabsTrigger value="services">Services</TabsTrigger>
+            {user?.role !== "user" && (
+              <TabsTrigger value="jobs">Jobs</TabsTrigger>
+            )}
           </TabsList>
           <TabsContent value="products">
             {user?.id && (

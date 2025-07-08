@@ -87,11 +87,15 @@ export const ProfileSkillView = ({ skillId }: Props) => {
     mutationFn: () => {
       return archiveSkill({
         skillId,
-        data: { isArchived: !data.isArchived },
+        isArchived: data.isArchived,
       });
     },
     onSuccess: () => {
-      toast.success("Skill archived successfully!");
+      toast.success(
+        data.isArchived
+          ? "Skill unarchived successfully!"
+          : "Skill archived successfully!"
+      );
       queryClient.invalidateQueries({
         queryKey: ["userSkills"],
         exact: false,
@@ -227,7 +231,7 @@ export const ProfileSkillView = ({ skillId }: Props) => {
                     disabled={archiveSkillMutation.isPending}
                   >
                     <ArchiveIcon className="w-4 h-4" />
-                    {data.isArchived ? "Unarchive" : "Archive Product"}
+                    {data.isArchived ? "Unarchive" : "Archive Service"}
                   </Button>
                 )}
 
