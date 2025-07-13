@@ -7,7 +7,8 @@ export async function fetchFilteredSkills(
   category?: string,
   subcategory?: string,
   filters?: ServiceFilters,
-  pageSize: number = 9
+  pageSize: number = 9,
+  ordering?: string // <-- add ordering param
 ): Promise<PaginatedSkillsResponse> {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_API_URL || "http://localhost:8000/api/";
   const url = new URL(`${baseUrl}skills/?status=approved&isArchived=false`);
@@ -42,6 +43,11 @@ export async function fetchFilteredSkills(
   // Add module filter
   if (filters?.module) {
     url.searchParams.append("module", filters.module);
+  }
+
+  // Add ordering
+  if (ordering) {
+    url.searchParams.append("ordering", ordering);
   }
 
   const response = await fetch(url.toString());

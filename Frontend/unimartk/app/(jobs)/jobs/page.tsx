@@ -17,8 +17,14 @@ export default function JobsPage() {
     department: searchParams.get("department") || "",
     jobType: searchParams.get("jobType") || ""
   });
+  // Sorting state
+  const [sortField, setSortField] = useState<'created_at' | 'salary_per_hour'>("created_at");
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>("desc");
 
   const search = searchParams.get("search") || "";
+
+  // Compute ordering string
+  const ordering = (sortOrder === 'desc' ? '-' : '') + sortField;
 
   useEffect(() => {
     const params = new URLSearchParams(searchParams.toString());
@@ -49,7 +55,9 @@ export default function JobsPage() {
     currentPage,
     search,
     filters,
-    pageSize
+    pageSize,
+    undefined,
+    ordering // <-- pass ordering
   );
 
   const handlePageChange = (page: number) => {
@@ -80,6 +88,10 @@ export default function JobsPage() {
           pageSize={pageSize}
           filters={filters}
           onFiltersChange={handleFiltersChange}
+          sortField={sortField}
+          sortOrder={sortOrder}
+          setSortField={setSortField}
+          setSortOrder={setSortOrder}
         />
       </main>
     </div>

@@ -26,6 +26,10 @@ interface ServiceListViewProps {
   pageSize: number;
   filters: ServiceFiltersType;
   onFiltersChange: (filters: ServiceFiltersType) => void;
+  sortField: 'created_at' | 'charge_per_hour';
+  sortOrder: 'asc' | 'desc';
+  setSortField: (field: 'created_at' | 'charge_per_hour') => void;
+  setSortOrder: (order: 'asc' | 'desc') => void;
 }
 
 export const ServiceListView = ({
@@ -42,7 +46,11 @@ export const ServiceListView = ({
   onPageSizeChange,
   pageSize,
   filters,
-  onFiltersChange
+  onFiltersChange,
+  sortField,
+  sortOrder,
+  setSortField,
+  setSortOrder
 }: ServiceListViewProps) => {
   const searchParams = useSearchParams();
   const search = searchParams.get("search") || "";
@@ -80,9 +88,33 @@ export const ServiceListView = ({
       <div className="flex flex-row lg:flex-row-reverse lg:items-center gap-y-2 lg:gap-y-0 justify-between">
         {showSort && (
           <div className="flex items-center gap-2">
-            <div className="text-sm text-gray-500">
-              Sort functionality can be added here
-            </div>
+            <label htmlFor="sort" className="text-sm text-gray-500">Sort by:</label>
+            <select
+              id="sort"
+              className="border rounded px-2 py-1 text-sm"
+              value={sortField + '-' + sortOrder}
+              onChange={e => {
+                const value = e.target.value;
+                if (value === 'created_at-desc') {
+                  setSortField('created_at');
+                  setSortOrder('desc');
+                } else if (value === 'created_at-asc') {
+                  setSortField('created_at');
+                  setSortOrder('asc');
+                } else if (value === 'charge_per_hour-asc') {
+                  setSortField('charge_per_hour');
+                  setSortOrder('asc');
+                } else if (value === 'charge_per_hour-desc') {
+                  setSortField('charge_per_hour');
+                  setSortOrder('desc');
+                }
+              }}
+            >
+              <option value="created_at-desc">Newest</option>
+              <option value="created_at-asc">Oldest</option>
+              <option value="charge_per_hour-asc">Price: Low to High</option>
+              <option value="charge_per_hour-desc">Price: High to Low</option>
+            </select>
           </div>
         )}
       </div>

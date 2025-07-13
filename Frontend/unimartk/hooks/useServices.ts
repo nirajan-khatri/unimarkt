@@ -13,7 +13,8 @@ async function fetchServices(
   category?: string,
   subcategory?: string,
   filters?: ServiceFilters,
-  pageSize: number = 9
+  pageSize: number = 9,
+  ordering?: string // <-- add ordering param
 ): Promise<PaginatedSkillsResponse> {
   const baseUrl =
     process.env.NEXT_PUBLIC_BASE_API_URL || "http://localhost:8000/api/";
@@ -48,6 +49,11 @@ async function fetchServices(
     url.searchParams.append("module", filters.module);
   }
 
+  // Add ordering
+  if (ordering) {
+    url.searchParams.append("ordering", ordering);
+  }
+
   try {
     const response = await fetch(url.toString());
 
@@ -68,11 +74,12 @@ export function useServices(
   category?: string,
   subcategory?: string,
   filters?: ServiceFilters,
-  pageSize: number = 9
+  pageSize: number = 9,
+  ordering?: string // <-- add ordering param
 ) {
   return useQuery({
-    queryKey: ["services", page, searchTerm, category, subcategory, filters, pageSize],
+    queryKey: ["services", page, searchTerm, category, subcategory, filters, pageSize, ordering],
     queryFn: () =>
-      fetchServices(page, searchTerm, category, subcategory, filters, pageSize),
+      fetchServices(page, searchTerm, category, subcategory, filters, pageSize, ordering),
   });
 }

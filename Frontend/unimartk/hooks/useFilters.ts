@@ -69,6 +69,8 @@ interface UseFiltersReturn {
   error: Error | null;
   currentPage: number;
   pageSize: number;
+  sortField: 'created_at' | 'price';
+  sortOrder: 'asc' | 'desc';
 
   // Actions
   setFilters: (filters: PriceFilters) => void;
@@ -77,6 +79,8 @@ interface UseFiltersReturn {
   setSubcategory: (subcategory: string) => void;
   onPageChange: (page: number) => void;
   onPageSizeChange: (size: number) => void;
+  setSortField: (field: 'created_at' | 'price') => void;
+  setSortOrder: (order: 'asc' | 'desc') => void;
 
   // Clear actions
   clearPriceFilters: () => void;
@@ -145,6 +149,10 @@ export function useFilters({
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(9);
 
+  // Sorting state
+  const [sortField, setSortField] = useState<'created_at' | 'price'>('created_at');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
+
   // Memoized filters
   const filters = useMemo(
     (): PriceFilters => ({
@@ -154,6 +162,12 @@ export function useFilters({
     }),
     [minPrice, maxPrice, pickupLocation]
   );
+
+  // Determine ordering string for API
+  const ordering = useMemo(() => {
+    let prefix = sortOrder === 'desc' ? '-' : '';
+    return `${prefix}${sortField}`;
+  }, [sortField, sortOrder]);
 
   // Determine active and display categories
   const activeCategory =
@@ -178,7 +192,8 @@ export function useFilters({
     categoryState.selectedCategory,
     categoryState.selectedSubcategory,
     filters,
-    pageSize
+    pageSize,
+    ordering // <-- pass ordering
   );
 
   // Reset page when filters change
@@ -282,9 +297,13 @@ export function useFilters({
     error: error as Error | null,
     currentPage,
     pageSize,
+    sortField,
+    sortOrder,
 
     // Actions
     ...actions,
+    setSortField,
+    setSortOrder,
 
     // Pagination handlers
     onPageChange,

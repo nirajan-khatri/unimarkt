@@ -17,8 +17,14 @@ export default function SkillsPage() {
     maxPrice: searchParams.get("maxPrice") || "",
     module: searchParams.get("module") || ""
   });
+  // Sorting state
+  const [sortField, setSortField] = useState<'created_at' | 'charge_per_hour'>("created_at");
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>("desc");
   
   const search = searchParams.get("search") || "";
+
+  // Compute ordering string
+  const ordering = (sortOrder === 'desc' ? '-' : '') + sortField;
 
   // Update URL when filters change
   useEffect(() => {
@@ -66,7 +72,8 @@ export default function SkillsPage() {
     undefined,
     undefined,
     filters,
-    pageSize
+    pageSize,
+    ordering // <-- pass ordering
   );
 
   const handlePageChange = (page: number) => {
@@ -97,6 +104,10 @@ export default function SkillsPage() {
           pageSize={pageSize}
           filters={filters}
           onFiltersChange={handleFiltersChange}
+          sortField={sortField}
+          sortOrder={sortOrder}
+          setSortField={setSortField}
+          setSortOrder={setSortOrder}
         />
       </main>
     </div>

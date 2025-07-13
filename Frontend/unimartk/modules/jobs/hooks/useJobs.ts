@@ -49,7 +49,8 @@ async function fetchJobs(
   searchTerm: string,
   filters: JobFilters,
   pageSize: number = 9,
-  category?: string
+  category?: string,
+  ordering?: string
 ): Promise<PaginatedJobsResponse> {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_API_URL || "http://localhost:8000/api/";
   const url = new URL(`${baseUrl}jobs/?isArchived=false`);
@@ -71,6 +72,10 @@ async function fetchJobs(
   }
   if (category) {
     url.searchParams.append("category", category);
+  }
+  // Add ordering
+  if (ordering) {
+    url.searchParams.append("ordering", ordering);
   }
 
   const response = await fetch(url.toString());
@@ -95,10 +100,11 @@ export function useJobs(
   searchTerm: string,
   filters: JobFilters,
   pageSize: number = 9,
-  category?: string
+  category?: string,
+  ordering?: string
 ) {
   return useQuery({
-    queryKey: ["jobs", page, searchTerm, filters, pageSize, category],
-    queryFn: () => fetchJobs(page, searchTerm, filters, pageSize, category),
+    queryKey: ["jobs", page, searchTerm, filters, pageSize, category, ordering],
+    queryFn: () => fetchJobs(page, searchTerm, filters, pageSize, category, ordering),
   });
 } 

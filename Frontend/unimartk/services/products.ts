@@ -9,7 +9,8 @@ export async function fetchFilteredProducts(
   category?: string,
   subcategory?: string,
   priceFilters?: PriceFilters,
-  pageSize: number = 9
+  pageSize: number = 9,
+  ordering?: string // <-- add ordering param
 ): Promise<PaginatedProductsResponse> {
   const baseUrl =
     process.env.NEXT_PUBLIC_BASE_API_URL || "http://localhost:8000/api/";
@@ -43,6 +44,11 @@ export async function fetchFilteredProducts(
   // Add pickup location filter
   if (priceFilters?.pickupLocation) {
     url.searchParams.append("pickup_location", priceFilters.pickupLocation);
+  }
+
+  // Add ordering
+  if (ordering) {
+    url.searchParams.append("ordering", ordering);
   }
 
   const response = await fetch(url.toString());
