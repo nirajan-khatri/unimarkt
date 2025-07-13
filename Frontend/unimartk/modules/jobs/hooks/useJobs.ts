@@ -114,16 +114,28 @@ export async function fetchUserJobs(
   userId: string,
   page: number = 1,
   pageSize: number = 9,
-  ordering?: string
+  ordering?: string,
+  status?: string,
+  isArchived?: boolean
 ) {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_API_URL || "http://localhost:8000/api/";
   const url = new URL(`${baseUrl}jobs/?isArchived=false`);
   url.searchParams.append("user_id", userId);
   url.searchParams.append("page", page.toString());
   url.searchParams.append("page_size", pageSize.toString());
+  
   if (ordering) {
     url.searchParams.append("ordering", ordering);
   }
+  
+  if (status) {
+    url.searchParams.append("status", status);
+  }
+  
+  if (isArchived !== undefined) {
+    url.searchParams.append("isArchived", isArchived.toString());
+  }
+  
   const response = await fetch(url.toString());
   if (!response.ok) {
     throw new Error(`HTTP error! status: ${response.status}`);
@@ -142,10 +154,12 @@ export function useUserJobs(
   userId: string,
   page: number = 1,
   pageSize: number = 9,
-  ordering?: string
+  ordering?: string,
+  status?: string,
+  isArchived?: boolean
 ) {
   return useQuery({
-    queryKey: ["userJobs", userId, page, pageSize, ordering],
-    queryFn: () => fetchUserJobs(userId, page, pageSize, ordering),
+    queryKey: ["userJobs", userId, page, pageSize, ordering, status, isArchived],
+    queryFn: () => fetchUserJobs(userId, page, pageSize, ordering, status, isArchived),
   });
 } 

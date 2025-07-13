@@ -28,10 +28,12 @@ import { ProfileJobGrid } from "../components/profile-job-grid";
 const ProductsSection = ({ userId }: { userId: string }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(9);
+  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [isArchivedFilter, setIsArchivedFilter] = useState<boolean | undefined>(undefined);
 
   const { data: userProductsResponse } = useSuspenseQuery({
-    queryKey: ["userProducts", userId, currentPage, pageSize],
-    queryFn: () => fetchUserProducts(userId, currentPage, pageSize),
+    queryKey: ["userProducts", userId, currentPage, pageSize, statusFilter, isArchivedFilter],
+    queryFn: () => fetchUserProducts(userId, currentPage, pageSize, statusFilter === "all" ? undefined : statusFilter, isArchivedFilter),
     staleTime: 5 * 60 * 1000, // 5 minutes
     retry: 3,
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
@@ -46,10 +48,74 @@ const ProductsSection = ({ userId }: { userId: string }) => {
     setCurrentPage(1); // Reset to first page when changing page size
   };
 
+  const handleFilterChange = (filter: string) => {
+    setStatusFilter(filter);
+    setCurrentPage(1); // Reset to first page when changing filter
+  };
+
+  const handleArchivedFilterChange = (archived: boolean | undefined) => {
+    setIsArchivedFilter(archived);
+    setCurrentPage(1); // Reset to first page when changing filter
+  };
+
   const showPagination = userProductsResponse && userProductsResponse.count > 0;
 
   return (
     <div className="flex flex-col gap-4">
+      {/* Filter Controls */}
+      <div className="flex flex-wrap gap-2 mb-4">
+        <Button
+          variant={statusFilter === "all" && isArchivedFilter === undefined ? "default" : "outline"}
+          size="sm"
+          onClick={() => {
+            setStatusFilter("all");
+            setIsArchivedFilter(undefined);
+          }}
+        >
+          All
+        </Button>
+        <Button
+          variant={statusFilter === "pending" ? "default" : "outline"}
+          size="sm"
+          onClick={() => {
+            setStatusFilter("pending");
+            setIsArchivedFilter(false);
+          }}
+        >
+          Pending
+        </Button>
+        <Button
+          variant={statusFilter === "approved" ? "default" : "outline"}
+          size="sm"
+          onClick={() => {
+            setStatusFilter("approved");
+            setIsArchivedFilter(false);
+          }}
+        >
+          Approved
+        </Button>
+        <Button
+          variant={statusFilter === "rejected" ? "default" : "outline"}
+          size="sm"
+          onClick={() => {
+            setStatusFilter("rejected");
+            setIsArchivedFilter(false);
+          }}
+        >
+          Rejected
+        </Button>
+        <Button
+          variant={isArchivedFilter === true ? "default" : "outline"}
+          size="sm"
+          onClick={() => {
+            setStatusFilter("all");
+            setIsArchivedFilter(true);
+          }}
+        >
+          Archived
+        </Button>
+      </div>
+
       <ProfileProductGrid
         products={userProductsResponse.results}
         error=""
@@ -75,10 +141,12 @@ const ProductsSection = ({ userId }: { userId: string }) => {
 const SkillsSection = ({ userId }: { userId: string }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(9);
+  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [isArchivedFilter, setIsArchivedFilter] = useState<boolean | undefined>(undefined);
 
   const { data: userSkillsResponse } = useSuspenseQuery({
-    queryKey: ["userSkills", userId, currentPage, pageSize],
-    queryFn: () => fetchUserSkills(userId, currentPage, pageSize),
+    queryKey: ["userSkills", userId, currentPage, pageSize, statusFilter, isArchivedFilter],
+    queryFn: () => fetchUserSkills(userId, currentPage, pageSize, statusFilter === "all" ? undefined : statusFilter, isArchivedFilter),
     staleTime: 5 * 60 * 1000, // 5 minutes
     retry: 3,
     retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
@@ -93,10 +161,74 @@ const SkillsSection = ({ userId }: { userId: string }) => {
     setCurrentPage(1); // Reset to first page when changing page size
   };
 
+  const handleFilterChange = (filter: string) => {
+    setStatusFilter(filter);
+    setCurrentPage(1); // Reset to first page when changing filter
+  };
+
+  const handleArchivedFilterChange = (archived: boolean | undefined) => {
+    setIsArchivedFilter(archived);
+    setCurrentPage(1); // Reset to first page when changing filter
+  };
+
   const showPagination = userSkillsResponse && userSkillsResponse.count > 0;
 
   return (
     <div className="flex flex-col gap-4">
+      {/* Filter Controls */}
+      <div className="flex flex-wrap gap-2 mb-4">
+        <Button
+          variant={statusFilter === "all" && isArchivedFilter === undefined ? "default" : "outline"}
+          size="sm"
+          onClick={() => {
+            setStatusFilter("all");
+            setIsArchivedFilter(undefined);
+          }}
+        >
+          All
+        </Button>
+        <Button
+          variant={statusFilter === "pending" ? "default" : "outline"}
+          size="sm"
+          onClick={() => {
+            setStatusFilter("pending");
+            setIsArchivedFilter(false);
+          }}
+        >
+          Pending
+        </Button>
+        <Button
+          variant={statusFilter === "approved" ? "default" : "outline"}
+          size="sm"
+          onClick={() => {
+            setStatusFilter("approved");
+            setIsArchivedFilter(false);
+          }}
+        >
+          Approved
+        </Button>
+        <Button
+          variant={statusFilter === "rejected" ? "default" : "outline"}
+          size="sm"
+          onClick={() => {
+            setStatusFilter("rejected");
+            setIsArchivedFilter(false);
+          }}
+        >
+          Rejected
+        </Button>
+        <Button
+          variant={isArchivedFilter === true ? "default" : "outline"}
+          size="sm"
+          onClick={() => {
+            setStatusFilter("all");
+            setIsArchivedFilter(true);
+          }}
+        >
+          Archived
+        </Button>
+      </div>
+
       <ProfileServiceGrid
         services={userSkillsResponse.results}
         error={null}
@@ -122,11 +254,16 @@ const SkillsSection = ({ userId }: { userId: string }) => {
 const JobsSection = ({ userId }: { userId: string }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(9);
+  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [isArchivedFilter, setIsArchivedFilter] = useState<boolean | undefined>(undefined);
 
   const { data: userJobsResponse, isLoading, error } = useUserJobs(
     userId,
     currentPage,
-    pageSize
+    pageSize,
+    undefined, // ordering
+    statusFilter === "all" ? undefined : statusFilter,
+    isArchivedFilter
   );
 
   const handlePageChange = (page: number) => {
@@ -138,10 +275,74 @@ const JobsSection = ({ userId }: { userId: string }) => {
     setCurrentPage(1); // Reset to first page when changing page size
   };
 
+  const handleFilterChange = (filter: string) => {
+    setStatusFilter(filter);
+    setCurrentPage(1); // Reset to first page when changing filter
+  };
+
+  const handleArchivedFilterChange = (archived: boolean | undefined) => {
+    setIsArchivedFilter(archived);
+    setCurrentPage(1); // Reset to first page when changing filter
+  };
+
   const showPagination = userJobsResponse && userJobsResponse.count > 0;
 
   return (
     <div className="flex flex-col gap-4">
+      {/* Filter Controls */}
+      <div className="flex flex-wrap gap-2 mb-4">
+        <Button
+          variant={statusFilter === "all" && isArchivedFilter === undefined ? "default" : "outline"}
+          size="sm"
+          onClick={() => {
+            setStatusFilter("all");
+            setIsArchivedFilter(undefined);
+          }}
+        >
+          All
+        </Button>
+        <Button
+          variant={statusFilter === "pending" ? "default" : "outline"}
+          size="sm"
+          onClick={() => {
+            setStatusFilter("pending");
+            setIsArchivedFilter(false);
+          }}
+        >
+          Pending
+        </Button>
+        <Button
+          variant={statusFilter === "approved" ? "default" : "outline"}
+          size="sm"
+          onClick={() => {
+            setStatusFilter("approved");
+            setIsArchivedFilter(false);
+          }}
+        >
+          Approved
+        </Button>
+        <Button
+          variant={statusFilter === "rejected" ? "default" : "outline"}
+          size="sm"
+          onClick={() => {
+            setStatusFilter("rejected");
+            setIsArchivedFilter(false);
+          }}
+        >
+          Rejected
+        </Button>
+        <Button
+          variant={isArchivedFilter === true ? "default" : "outline"}
+          size="sm"
+          onClick={() => {
+            setStatusFilter("all");
+            setIsArchivedFilter(true);
+          }}
+        >
+          Archived
+        </Button>
+      </div>
+
       <ProfileJobGrid
         jobs={userJobsResponse?.results || []}
         error={error as Error | null}

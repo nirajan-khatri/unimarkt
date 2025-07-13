@@ -1,4 +1,4 @@
-import { JobCard } from "@/modules/jobs/ui/components/JobCard";
+import { ProfileJobCard } from "./profile-job-card";
 import { JobGridSkeleton } from "./skeletons";
 import { Job } from "@/modules/jobs/types";
 
@@ -35,7 +35,7 @@ export function ProfileJobGrid({ jobs, isLoading, error }: ProfileJobGridProps) 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4">
       {jobs.map((job) => (
-        <JobCard key={job.job_id} job={job} />
+        <ProfileJobCard key={job.job_id} job={job} />
       ))}
     </div>
   );
