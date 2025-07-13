@@ -9,7 +9,6 @@ import {
   Mail,
   Phone,
   User,
-  CheckCircle,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -25,19 +24,6 @@ export function JobCard({ job }: JobCardProps) {
     ? parseFloat(job.salary_per_hour.toString())
     : "Negotiable";
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "approved":
-        return "bg-green-100 text-green-800";
-      case "pending":
-        return "bg-yellow-100 text-yellow-800";
-      case "rejected":
-        return "bg-red-100 text-red-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
-  };
-
   return (
     <Card
       className="group bg-white rounded-xl py-0 shadow-sm border border-gray-200 overflow-hidden cursor-pointer transition-all duration-300 hover:shadow-lg hover:-translate-y-1 h-full flex flex-col"
@@ -50,24 +36,15 @@ export function JobCard({ job }: JobCardProps) {
             <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2 group-hover:text-gray-700 transition-colors min-h-[3.5rem] leading-tight">
               {job.title}
             </h3>
-            <div className="flex gap-2">
-              {job.location && (
-                <Badge
-                  variant="secondary"
-                  className="bg-gray-100 text-gray-700 border-gray-200 font-medium"
-                >
-                  <MapPin size={12} className="mr-1" />
-                  {job.location}
-                </Badge>
-              )}
-              {/* Status Pill */}
-              <Badge className={`text-xs font-medium ${getStatusColor(job.status.toLowerCase())}`}>
-                {job.status === "approved" && (
-                  <CheckCircle className="w-3 h-3 mr-1 inline" />
-                )}
-                {job.status.charAt(0).toUpperCase() + job.status.slice(1)}
+            {job.location && (
+              <Badge
+                variant="secondary"
+                className="bg-gray-100 text-gray-700 border-gray-200 font-medium"
+              >
+                <MapPin size={12} className="mr-1" />
+                {job.location}
               </Badge>
-            </div>
+            )}
           </div>
         </div>
 
