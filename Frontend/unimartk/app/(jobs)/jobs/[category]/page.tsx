@@ -3,19 +3,27 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useSearchParams, useRouter, usePathname } from "next/navigation";
 import { JobsListView } from '@/modules/jobs/ui/components/JobsListView';
-import { useJobs, JobFilters } from '@/modules/jobs/hooks/useJobs';
+import { useJobs } from '@/modules/jobs/hooks/useJobs';
+import { JobFilters } from '@/modules/jobs/types';
+import { useAuth } from '@/modules/auth/contexts/authContext';
 
 export default function DepartmentJobsPage() {
   const router = useRouter();
   const pathname = usePathname();
   const params = useParams();
   const searchParams = useSearchParams();
+  const { isAuthenticated, user } = useAuth();
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(9);
   const department = params.category as string;
   const [filters, setFilters] = useState<JobFilters>({
+    department: "",
     jobType: searchParams.get("jobType") || ""
   });
+
+  // Sorting state
+  const [sortField, setSortField] = useState<'created_at' | 'salary_per_hour'>("created_at");
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>("desc");
 
   const search = searchParams.get("search") || "";
 
@@ -44,7 +52,9 @@ export default function DepartmentJobsPage() {
     search,
     filters,
     pageSize,
-    department
+    department,
+    undefined, // ordering
+    isAuthenticated && user ? user.id : undefined // <-- pass user ID if authenticated
   );
 
   const handlePageChange = (page: number) => {
@@ -68,13 +78,17 @@ export default function DepartmentJobsPage() {
           jobs={data || { results: [], count: 0, currentPage: 1, hasNext: false, hasPrevious: false }}
           isLoading={isLoading}
           error={error as Error | null}
-          title={`Jobs in ${department}`}
+          title={`${department} Jobs`}
           showSort={true}
           onPageChange={handlePageChange}
           onPageSizeChange={handlePageSizeChange}
           pageSize={pageSize}
           filters={filters}
           onFiltersChange={handleFiltersChange}
+          sortField={sortField}
+          sortOrder={sortOrder}
+          setSortField={setSortField}
+          setSortOrder={setSortOrder}
         />
       </main>
     </div>

@@ -1,48 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-
-export interface JobFilters {
-  location: string;
-  minSalary: string;
-  maxSalary: string;
-}
-
-export interface JobPosting {
-  job_id: number;
-  title: string;
-  description: string;
-  qualifications: string;
-  department: {
-    id: number;
-    name: string;
-  };
-  job_type: string;
-  remuneration: string;
-  contact_email: string;
-  contact_name: string;
-  contact_phone: string | null;
-  status: string;
-  status_display: string;
-  posted_by: {
-    id: number;
-    name: string;
-    email: string;
-    contact_number: string | null;
-    role: string | null;
-  };
-  created_at: string;
-  updated_at: string;
-  rejection_reason: string | null;
-  can_archive: boolean;
-  is_archived: boolean;
-}
-
-export interface PaginatedJobsResponse {
-  count: number;
-  hasNext: boolean;
-  hasPrevious: boolean;
-  currentPage: number;
-  results: JobPosting[];
-}
+import { PaginatedJobsResponse, JobFilters } from "../types";
 
 async function fetchJobs(
   page: number,
@@ -50,7 +7,8 @@ async function fetchJobs(
   filters: JobFilters,
   pageSize: number = 9,
   category?: string,
-  ordering?: string
+  ordering?: string,
+  excludeUserId?: string
 ): Promise<PaginatedJobsResponse> {
   const baseUrl = process.env.NEXT_PUBLIC_BASE_API_URL || "http://localhost:8000/api/";
   const url = new URL(`${baseUrl}jobs/?isArchived=false`);
@@ -78,6 +36,11 @@ async function fetchJobs(
     url.searchParams.append("ordering", ordering);
   }
 
+  // Add exclude_user_id parameter if provided
+  if (excludeUserId) {
+    url.searchParams.append("exclude_user_id", excludeUserId);
+  }
+
   const response = await fetch(url.toString());
   if (!response.ok) {
     throw new Error(`HTTP error! status: ${response.status}`);
@@ -101,11 +64,12 @@ export function useJobs(
   filters: JobFilters,
   pageSize: number = 9,
   category?: string,
-  ordering?: string
+  ordering?: string,
+  excludeUserId?: string
 ) {
   return useQuery({
-    queryKey: ["jobs", page, searchTerm, filters, pageSize, category, ordering],
-    queryFn: () => fetchJobs(page, searchTerm, filters, pageSize, category, ordering),
+    queryKey: ["jobs", page, searchTerm, filters, pageSize, category, ordering, excludeUserId],
+    queryFn: () => fetchJobs(page, searchTerm, filters, pageSize, category, ordering, excludeUserId),
   });
 }
 

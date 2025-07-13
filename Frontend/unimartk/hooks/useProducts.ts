@@ -9,7 +9,8 @@ export function useProducts(
   subcategory: string | null,
   priceFilters?: PriceFilters,
   pageSize: number = 9,
-  ordering?: string
+  ordering?: string,
+  excludeUserId?: string
 ) {
   return useQuery({
     queryKey: [
@@ -20,7 +21,8 @@ export function useProducts(
       subcategory,
       priceFilters,
       pageSize,
-      ordering
+      ordering,
+      excludeUserId
     ],
     queryFn: () =>
       fetchFilteredProducts(
@@ -30,7 +32,8 @@ export function useProducts(
         subcategory || undefined,
         priceFilters,
         pageSize,
-        ordering
+        ordering,
+        excludeUserId
       ),
   });
 }

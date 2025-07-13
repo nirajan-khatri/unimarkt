@@ -10,7 +10,8 @@ export async function fetchFilteredProducts(
   subcategory?: string,
   priceFilters?: PriceFilters,
   pageSize: number = 9,
-  ordering?: string // <-- add ordering param
+  ordering?: string, // <-- add ordering param
+  excludeUserId?: string // <-- add excludeUserId parameter
 ): Promise<PaginatedProductsResponse> {
   const baseUrl =
     process.env.NEXT_PUBLIC_BASE_API_URL || "http://localhost:8000/api/";
@@ -49,6 +50,11 @@ export async function fetchFilteredProducts(
   // Add ordering
   if (ordering) {
     url.searchParams.append("ordering", ordering);
+  }
+
+  // Add exclude_user_id parameter if provided
+  if (excludeUserId) {
+    url.searchParams.append("exclude_user_id", excludeUserId);
   }
 
   const response = await fetch(url.toString());

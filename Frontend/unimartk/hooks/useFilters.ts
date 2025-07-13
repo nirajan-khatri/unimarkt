@@ -11,6 +11,7 @@ import { useCategoryState } from "./useCategoryState";
 import { useSearchState } from "./useSearchState";
 import { usePagination } from "./usePagination";
 import { PaginatedProductsResponse } from "@/modules/products/types";
+import { useAuth } from "@/modules/auth/contexts/authContext";
 
 // Features:
 
@@ -110,6 +111,9 @@ export function useFilters({
   initialCategory = null,
   initialSubcategory = null,
 }: UseFiltersProps = {}): UseFiltersReturn {
+  // Auth context
+  const { isAuthenticated, user } = useAuth();
+
   // URL state management
   const [minPrice, setMinPrice] = useQueryState(
     "minPrice",
@@ -193,7 +197,8 @@ export function useFilters({
     categoryState.selectedSubcategory,
     filters,
     pageSize,
-    ordering // <-- pass ordering
+    ordering, // <-- pass ordering
+    isAuthenticated && user ? user.id : undefined // <-- pass user ID if authenticated
   );
 
   // Reset page when filters change

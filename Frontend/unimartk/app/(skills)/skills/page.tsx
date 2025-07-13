@@ -5,11 +5,13 @@ import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { ServiceListView } from '@/modules/skills/ui/components/ServicesListView';
 import { useServices } from '@/hooks/useServices';
 import { ServiceFilters } from '@/hooks/useServices';
+import { useAuth } from '@/modules/auth/contexts/authContext';
 
 export default function SkillsPage() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const { isAuthenticated, user } = useAuth();
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(9);
   const [filters, setFilters] = useState<ServiceFilters>({
@@ -73,7 +75,8 @@ export default function SkillsPage() {
     undefined,
     filters,
     pageSize,
-    ordering // <-- pass ordering
+    ordering, // <-- pass ordering
+    isAuthenticated && user ? user.id : undefined // <-- pass user ID if authenticated
   );
 
   const handlePageChange = (page: number) => {

@@ -14,7 +14,8 @@ async function fetchServices(
   subcategory?: string,
   filters?: ServiceFilters,
   pageSize: number = 9,
-  ordering?: string // <-- add ordering param
+  ordering?: string, // <-- add ordering param
+  excludeUserId?: string // <-- add excludeUserId parameter
 ): Promise<PaginatedSkillsResponse> {
   const baseUrl =
     process.env.NEXT_PUBLIC_BASE_API_URL || "http://localhost:8000/api/";
@@ -54,6 +55,11 @@ async function fetchServices(
     url.searchParams.append("ordering", ordering);
   }
 
+  // Add exclude_user_id parameter if provided
+  if (excludeUserId) {
+    url.searchParams.append("exclude_user_id", excludeUserId);
+  }
+
   try {
     const response = await fetch(url.toString());
 
@@ -75,11 +81,31 @@ export function useServices(
   subcategory?: string,
   filters?: ServiceFilters,
   pageSize: number = 9,
-  ordering?: string // <-- add ordering param
+  ordering?: string,
+  excludeUserId?: string
 ) {
   return useQuery({
-    queryKey: ["services", page, searchTerm, category, subcategory, filters, pageSize, ordering],
+    queryKey: [
+      "services",
+      page,
+      searchTerm,
+      category,
+      subcategory,
+      filters,
+      pageSize,
+      ordering,
+      excludeUserId,
+    ],
     queryFn: () =>
-      fetchServices(page, searchTerm, category, subcategory, filters, pageSize, ordering),
+      fetchServices(
+        page,
+        searchTerm,
+        category,
+        subcategory,
+        filters,
+        pageSize,
+        ordering,
+        excludeUserId
+      ),
   });
 }

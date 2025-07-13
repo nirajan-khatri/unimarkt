@@ -5,12 +5,15 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { JobsListView } from '@/modules/jobs/ui/components/JobsListView';
-import { useJobs, JobFilters } from '@/modules/jobs/hooks/useJobs';
+import { useJobs } from '@/modules/jobs/hooks/useJobs';
+import { JobFilters } from '@/modules/jobs/types';
+import { useAuth } from '@/modules/auth/contexts/authContext';
 
 export default function JobsPage() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const { isAuthenticated, user } = useAuth();
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(9);
   const [filters, setFilters] = useState<JobFilters>({
@@ -57,7 +60,8 @@ export default function JobsPage() {
     filters,
     pageSize,
     undefined,
-    ordering // <-- pass ordering
+    ordering, // <-- pass ordering
+    isAuthenticated && user ? user.id : undefined // <-- pass user ID if authenticated
   );
 
   const handlePageChange = (page: number) => {
