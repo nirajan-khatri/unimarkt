@@ -1,6 +1,8 @@
 import { Badge } from "@/components/ui/badge";
 import { Product } from "@/modules/products/types";
-import { CheckCircle } from "lucide-react";
+import { CheckCircle, Calendar, MapPin, ShoppingBag } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 
@@ -23,44 +25,103 @@ export const ProfileProductCard = ({ product }: { product: Product }) => {
         return "bg-gray-100 text-gray-800";
     }
   };
+
+  const price = product.price ? parseFloat(String(product.price)) : 299.99;
+
   return (
-    <div
-      className="border rounded-lg cursor-pointer transition-transform hover:scale-[1.02] hover:shadow-lg"
+    <Card
+      className="group bg-white dark:bg-accent dard:text-white gap-0 rounded-xl py-0 shadow-sm border border-gray-200 overflow-hidden cursor-pointer transition-all duration-300 hover:shadow-xl hover:-translate-y-2 h-full flex flex-col"
       onClick={handleClick}
     >
-      <div className="relative h-48 mb-4">
+      {/* Image Container */}
+      <div className="relative h-48 bg-gradient-to-br from-gray-50 to-gray-100 overflow-hidden">
         <Image
           src={product.images[0]}
           alt={product.name}
           fill
-          className="rounded-t-lg object-cover"
+          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110 rounded-t-xl"
         />
-        <Badge
-          className={`text-xs z-10 absolute right-2 top-2 ${getStatusColor(product.status.toLowerCase())}`}
-        >
-          {product.status === "approved" && (
-            <CheckCircle className="w-3 h-3 mr-1" />
-          )}
-          {product.status.charAt(0).toUpperCase() + product.status.slice(1)}
-        </Badge>
-      </div>
-      <div className="p-4">
-        <h3 className="text-lg font-semibold mb-2">{product.name}</h3>
-        <p className="text-slate-600 dark:text-slate-300 mb-2 line-clamp-2">
-          {product.description}
-        </p>
-        <div className="flex justify-between items-center mb-2">
-          <span className="text-blue-600 dark:text-blue-400 font-bold">
-            €{product.price}
-          </span>
-          <span className="text-sm bg-slate-100 dark:bg-slate-700 px-2 py-1 rounded">
-            {product.category.name}
-          </span>
+        <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+
+        {/* Category and Status Badges */}
+        <div className="absolute top-3 left-3 flex flex-col gap-2 items-start">
+          {/* Status Pill */}
+          <Badge className={`text-xs font-medium ${getStatusColor(product.status.toLowerCase())}`}
+            >
+            {product.status === "approved" && (
+              <CheckCircle className="w-3 h-3 mr-1 inline" />
+            )}
+            {product.status.charAt(0).toUpperCase() + product.status.slice(1)}
+          </Badge>
         </div>
-        <div className="text-sm text-slate-500 dark:text-slate-400">
-          <p>Posted: {new Date(product.created_at).toLocaleDateString()}</p>
+        <div className="absolute top-3 right-3 flex flex-col gap-2 items-end">
+          <Badge className="bg-white/90 text-gray-700 dark:bg-accent dark:text-white border-0 font-medium backdrop-blur-sm shadow-sm">
+            {product.category?.name || 'Electronics'}
+          </Badge>
+        </div>
+
+        {/* Price Badge - Floating */}
+        <div className="absolute bottom-3 left-3">
+          <div className="bg-white/95 dark:bg-accent px-3 py-1.5 rounded-lg shadow-md backdrop-blur-sm border border-white/20">
+            <span className="text-lg font-bold text-gray-900  dark:text-white">
+              €{price.toFixed(2)}
+            </span>
+          </div>
         </div>
       </div>
-    </div>
+
+      <CardContent className="p-5 flex flex-col flex-grow">
+        {/* Header Section */}
+        <div className="">
+          <h3 className="text-lg font-bold text-gray-900 dark:text-white line-clamp-1 leading-tight min-h-[1.5rem]">
+            {product.name || 'Sample Product'}
+          </h3>
+        </div>
+
+        {/* Description - Fixed height */}
+        <div className="mb-4 flex-grow">
+          <p className="text-gray-600 dark:text-white/80 text-sm leading-relaxed line-clamp-2 h-[2.5rem] overflow-hidden">
+            {product.description || 'High-quality product with excellent features and modern design. Perfect for everyday use with premium materials.'}
+          </p>
+        </div>
+
+        {/* Details Section */}
+        <div className="space-y-3 mb-4">
+          {/* Location Info */}
+          <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-accent dark:border dark:border-gray-100 rounded-lg">
+            <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center flex-shrink-0">
+              <MapPin size={14} className="text-white" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="font-medium text-gray-900 dark:text-white text-sm">Pickup Location</p>
+              <p className="text-xs text-gray-600 dark:text-white/90 truncate">{product.pickup_location || 'Amsterdam, Netherlands'}</p>
+            </div>
+          </div>
+
+          {/* Date Section */}
+          <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-100 dark:bg-accent dark:border dark:border-gray-100">
+            <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center flex-shrink-0">
+              <Calendar size={14} className="text-white" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="font-medium text-gray-900 dark:text-white text-sm">Listed</p>
+              <p className="text-xs text-gray-600 dark:text-white/90">
+                {product.created_at
+                  ? new Date(product.created_at).toLocaleDateString('en-US', {
+                    month: 'short',
+                    day: 'numeric',
+                    year: 'numeric'
+                  })
+                  : 'Dec 24, 2024'
+                }
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Action Button - Fixed at bottom */}
+        {/* (Remove the Button component for 'View Details') */}
+      </CardContent>
+    </Card>
   );
 };

@@ -21,6 +21,8 @@ import { parseAsStringEnum, useQueryState } from "nuqs";
 import { Shield } from "lucide-react";
 import SecuritySection from "../components/SecuritySection";
 import { useRouter } from "next/navigation";
+import { useUserJobs } from "@/modules/jobs/hooks/useJobs";
+import { ProfileJobGrid } from "../components/profile-job-grid";
 
 // Products Component wrapped in Suspense
 const ProductsSection = ({ userId }: { userId: string }) => {
@@ -116,6 +118,51 @@ const SkillsSection = ({ userId }: { userId: string }) => {
   );
 };
 
+// Jobs Component wrapped in Suspense
+const JobsSection = ({ userId }: { userId: string }) => {
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(9);
+
+  const { data: userJobsResponse, isLoading, error } = useUserJobs(
+    userId,
+    currentPage,
+    pageSize
+  );
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
+  const handlePageSizeChange = (size: number) => {
+    setPageSize(size);
+    setCurrentPage(1); // Reset to first page when changing page size
+  };
+
+  const showPagination = userJobsResponse && userJobsResponse.count > 0;
+
+  return (
+    <div className="flex flex-col gap-4">
+      <ProfileJobGrid
+        jobs={userJobsResponse?.results || []}
+        error={error as Error | null}
+        isLoading={isLoading}
+      />
+
+      {showPagination && (
+        <Pagination
+          currentPage={userJobsResponse.currentPage}
+          totalItems={userJobsResponse.count}
+          pageSize={pageSize}
+          hasNext={userJobsResponse.hasNext}
+          hasPrevious={userJobsResponse.hasPrevious}
+          onPageChange={handlePageChange}
+          onPageSizeChange={handlePageSizeChange}
+        />
+      )}
+    </div>
+  );
+};
+
 const ProfileView = () => {
   const { user, isInitialized, isAuthenticated } = useAuth();
   const { user: userDetails, isLoading } = useUser(user?.id.toString() ?? "");
@@ -187,7 +234,7 @@ const ProfileView = () => {
           <TabsList>
             <TabsTrigger value="products">Products</TabsTrigger>
             <TabsTrigger value="services">Services</TabsTrigger>
-            {user?.role !== "user" && (
+            { (
               <TabsTrigger value="jobs">Jobs</TabsTrigger>
             )}
           </TabsList>
@@ -202,6 +249,13 @@ const ProfileView = () => {
             {user?.id && (
               <Suspense fallback={<SkillGridSkeleton />}>
                 <SkillsSection userId={user.id.toString()} />
+              </Suspense>
+            )}
+          </TabsContent>
+          <TabsContent value="jobs">
+            {user?.id && (
+              <Suspense fallback={<SkillGridSkeleton />}>
+                <JobsSection userId={user.id.toString()} />
               </Suspense>
             )}
           </TabsContent>

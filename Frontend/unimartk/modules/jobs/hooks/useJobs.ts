@@ -107,4 +107,45 @@ export function useJobs(
     queryKey: ["jobs", page, searchTerm, filters, pageSize, category, ordering],
     queryFn: () => fetchJobs(page, searchTerm, filters, pageSize, category, ordering),
   });
+}
+
+// Fetch jobs for a specific user
+export async function fetchUserJobs(
+  userId: string,
+  page: number = 1,
+  pageSize: number = 9,
+  ordering?: string
+) {
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_API_URL || "http://localhost:8000/api/";
+  const url = new URL(`${baseUrl}jobs/?isArchived=false`);
+  url.searchParams.append("user_id", userId);
+  url.searchParams.append("page", page.toString());
+  url.searchParams.append("page_size", pageSize.toString());
+  if (ordering) {
+    url.searchParams.append("ordering", ordering);
+  }
+  const response = await fetch(url.toString());
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  const data = await response.json();
+  return {
+    count: data.count,
+    results: data.results,
+    currentPage: page,
+    hasNext: !!data.next,
+    hasPrevious: !!data.previous,
+  };
+}
+
+export function useUserJobs(
+  userId: string,
+  page: number = 1,
+  pageSize: number = 9,
+  ordering?: string
+) {
+  return useQuery({
+    queryKey: ["userJobs", userId, page, pageSize, ordering],
+    queryFn: () => fetchUserJobs(userId, page, pageSize, ordering),
+  });
 } 
