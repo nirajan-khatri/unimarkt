@@ -5,12 +5,14 @@ import { useParams, useSearchParams, useRouter, usePathname } from "next/navigat
 import { ServiceListView } from '@/modules/skills/ui/components/ServicesListView';
 import { useServices } from '@/hooks/useServices';
 import { ServiceFilters } from '@/hooks/useServices';
+import { useAuth } from '@/modules/auth/contexts/authContext';
 
 export default function CategoryPage() {
   const router = useRouter();
   const pathname = usePathname();
   const params = useParams();
   const searchParams = useSearchParams();
+  const { isAuthenticated, user } = useAuth();
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(9);
   const [filters, setFilters] = useState<ServiceFilters>({
@@ -18,6 +20,10 @@ export default function CategoryPage() {
     maxPrice: searchParams.get("maxPrice") || "",
     module: searchParams.get("module") || ""
   });
+  
+  // Sorting state
+  const [sortField, setSortField] = useState<'created_at' | 'charge_per_hour'>("created_at");
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>("desc");
   
   const department = params.department as string;
   const search = searchParams.get("search") || "";
@@ -68,7 +74,9 @@ export default function CategoryPage() {
     department.toLowerCase(), // Convert to lowercase to match backend
     undefined,
     filters,
-    pageSize
+    pageSize,
+    undefined, // ordering
+    isAuthenticated && user ? user.id : undefined // <-- pass user ID if authenticated
   );
 
   const handlePageChange = (page: number) => {
@@ -99,6 +107,10 @@ export default function CategoryPage() {
           pageSize={pageSize}
           filters={filters}
           onFiltersChange={handleFiltersChange}
+          sortField={sortField}
+          sortOrder={sortOrder}
+          setSortField={setSortField}
+          setSortOrder={setSortOrder}
         />
       </main>
     </div>

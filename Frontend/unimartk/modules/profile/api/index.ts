@@ -31,23 +31,35 @@ const baseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api/";
 export const fetchUserProducts = async (
   userId: string,
   page: number = 1,
-  pageSize: number = 9
+  pageSize: number = 9,
+  status?: string,
+  isArchived?: boolean
 ): Promise<ProductsResponse> => {
   if (!userId) {
     throw new Error("User ID is required");
   }
 
-  const response = await fetch(
-    `${baseUrl}products/?user_id=${userId}&page=${page}&page_size=${pageSize}`,
-    {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        // Add authorization header if needed
-        // 'Authorization': `Bearer ${token}`,
-      },
-    }
-  );
+  const url = new URL(`${baseUrl}products/`);
+  url.searchParams.append("user_id", userId);
+  url.searchParams.append("page", page.toString());
+  url.searchParams.append("page_size", pageSize.toString());
+  
+  if (status) {
+    url.searchParams.append("status", status);
+  }
+  
+  if (isArchived !== undefined) {
+    url.searchParams.append("isArchived", isArchived.toString());
+  }
+
+  const response = await fetch(url.toString(), {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      // Add authorization header if needed
+      // 'Authorization': `Bearer ${token}`,
+    },
+  });
 
   if (!response.ok) {
     throw new Error(
@@ -84,23 +96,35 @@ export interface SkillsResponse {
 export const fetchUserSkills = async (
   userId: string,
   page: number = 1,
-  pageSize: number = 9
+  pageSize: number = 9,
+  status?: string,
+  isArchived?: boolean
 ): Promise<SkillsResponse> => {
   if (!userId) {
     throw new Error("User ID is required");
   }
 
-  const response = await fetch(
-    `${baseUrl}skills/?user_id=${userId}&page=${page}&page_size=${pageSize}`,
-    {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        // Add authorization header if needed
-        // 'Authorization': `Bearer ${token}`,
-      },
-    }
-  );
+  const url = new URL(`${baseUrl}skills/`);
+  url.searchParams.append("user_id", userId);
+  url.searchParams.append("page", page.toString());
+  url.searchParams.append("page_size", pageSize.toString());
+  
+  if (status) {
+    url.searchParams.append("status", status);
+  }
+  
+  if (isArchived !== undefined) {
+    url.searchParams.append("isArchived", isArchived.toString());
+  }
+
+  const response = await fetch(url.toString(), {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+      // Add authorization header if needed
+      // 'Authorization': `Bearer ${token}`,
+    },
+  });
 
   if (!response.ok) {
     throw new Error(

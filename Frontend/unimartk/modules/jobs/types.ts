@@ -19,3 +19,46 @@ export type Job = {
   created_at: string;
   updated_at: string;
 };
+
+export interface JobFilters {
+  department: string;
+  jobType: string;
+}
+
+export interface JobPosting {
+  job_id: number;
+  title: string;
+  description: string;
+  qualifications: string;
+  department: {
+    id: number;
+    name: string;
+  };
+  job_type: string;
+  remuneration: string;
+  contact_email: string;
+  contact_name: string;
+  contact_phone: string | null;
+  status: string;
+  status_display: string;
+  posted_by: {
+    id: number;
+    name: string;
+    email: string;
+    contact_number: string | null;
+    role: string | null;
+  };
+  created_at: string;
+  updated_at: string;
+  rejection_reason: string | null;
+  can_archive: boolean;
+  is_archived: boolean;
+}
+
+export interface PaginatedJobsResponse {
+  count: number;
+  hasNext: boolean;
+  hasPrevious: boolean;
+  currentPage: number;
+  results: JobPosting[];
+}

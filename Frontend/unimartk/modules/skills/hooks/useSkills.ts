@@ -1,14 +1,23 @@
 import { useQuery } from "@tanstack/react-query";
 import { fetchFilteredSkills } from "@/services/skills";
 import { PriceFilters } from "@/types/filters";
+import { ServiceFilters } from "@/hooks/useServices";
 
 export function useSkills(
   page: number,
   searchTerm: string,
   category?: string | null,
   subcategory?: string | null,
-  priceFilters?: PriceFilters
+  priceFilters?: PriceFilters,
+  excludeUserId?: string
 ) {
+  // Convert PriceFilters to ServiceFilters
+  const serviceFilters: ServiceFilters | undefined = priceFilters ? {
+    minPrice: priceFilters.minPrice,
+    maxPrice: priceFilters.maxPrice,
+    module: "", // Default empty module since PriceFilters doesn't have module
+  } : undefined;
+
   return useQuery({
     queryKey: [
       "skills",
@@ -17,6 +26,7 @@ export function useSkills(
       category,
       subcategory,
       priceFilters,
+      excludeUserId,
     ],
     queryFn: () =>
       fetchFilteredSkills(
@@ -24,8 +34,10 @@ export function useSkills(
         searchTerm,
         category || undefined,
         subcategory || undefined,
-        priceFilters,
-        module,
+        serviceFilters,
+        undefined, // pageSize
+        undefined, // ordering
+        excludeUserId
       ),
   });
 }

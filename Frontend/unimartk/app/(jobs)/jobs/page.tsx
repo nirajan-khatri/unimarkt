@@ -5,20 +5,29 @@
 import React, { useState, useEffect } from 'react';
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
 import { JobsListView } from '@/modules/jobs/ui/components/JobsListView';
-import { useJobs, JobFilters } from '@/modules/jobs/hooks/useJobs';
+import { useJobs } from '@/modules/jobs/hooks/useJobs';
+import { JobFilters } from '@/modules/jobs/types';
+import { useAuth } from '@/modules/auth/contexts/authContext';
 
 export default function JobsPage() {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const { isAuthenticated, user } = useAuth();
   const [currentPage, setCurrentPage] = useState(1);
   const [pageSize, setPageSize] = useState(9);
   const [filters, setFilters] = useState<JobFilters>({
     department: searchParams.get("department") || "",
     jobType: searchParams.get("jobType") || ""
   });
+  // Sorting state
+  const [sortField, setSortField] = useState<'created_at' | 'salary_per_hour'>("created_at");
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>("desc");
 
   const search = searchParams.get("search") || "";
+
+  // Compute ordering string
+  const ordering = (sortOrder === 'desc' ? '-' : '') + sortField;
 
   useEffect(() => {
     const params = new URLSearchParams(searchParams.toString());
@@ -49,7 +58,10 @@ export default function JobsPage() {
     currentPage,
     search,
     filters,
-    pageSize
+    pageSize,
+    undefined,
+    ordering, // <-- pass ordering
+    isAuthenticated && user ? user.id : undefined // <-- pass user ID if authenticated
   );
 
   const handlePageChange = (page: number) => {
@@ -80,6 +92,10 @@ export default function JobsPage() {
           pageSize={pageSize}
           filters={filters}
           onFiltersChange={handleFiltersChange}
+          sortField={sortField}
+          sortOrder={sortOrder}
+          setSortField={setSortField}
+          setSortOrder={setSortOrder}
         />
       </main>
     </div>

@@ -20,6 +20,10 @@ interface JobsListViewProps {
   pageSize: number;
   filters: JobFiltersType;
   onFiltersChange: (filters: JobFiltersType) => void;
+  sortField: 'created_at' | 'salary_per_hour';
+  sortOrder: 'asc' | 'desc';
+  setSortField: (field: 'created_at' | 'salary_per_hour') => void;
+  setSortOrder: (order: 'asc' | 'desc') => void;
 }
 
 export const JobsListView = ({
@@ -32,7 +36,11 @@ export const JobsListView = ({
   onPageSizeChange,
   pageSize,
   filters,
-  onFiltersChange
+  onFiltersChange,
+  sortField,
+  sortOrder,
+  setSortField,
+  setSortOrder
 }: JobsListViewProps) => {
   const searchParams = useSearchParams();
   const search = searchParams.get("search") || "";
@@ -74,9 +82,33 @@ export const JobsListView = ({
       <div className="flex flex-row lg:flex-row-reverse lg:items-center gap-y-2 lg:gap-y-0 justify-between">
         {showSort && (
           <div className="flex items-center gap-2">
-            <div className="text-sm text-gray-500">
-              Sort functionality can be added here
-            </div>
+            <label htmlFor="sort" className="text-sm text-gray-500">Sort by:</label>
+            <select
+              id="sort"
+              className="border rounded px-2 py-1 text-sm"
+              value={sortField + '-' + sortOrder}
+              onChange={e => {
+                const value = e.target.value;
+                if (value === 'created_at-desc') {
+                  setSortField('created_at');
+                  setSortOrder('desc');
+                } else if (value === 'created_at-asc') {
+                  setSortField('created_at');
+                  setSortOrder('asc');
+                } else if (value === 'salary_per_hour-asc') {
+                  setSortField('salary_per_hour');
+                  setSortOrder('asc');
+                } else if (value === 'salary_per_hour-desc') {
+                  setSortField('salary_per_hour');
+                  setSortOrder('desc');
+                }
+              }}
+            >
+              <option value="created_at-desc">Newest</option>
+              <option value="created_at-asc">Oldest</option>
+              <option value="salary_per_hour-asc">Salary: Low to High</option>
+              <option value="salary_per_hour-desc">Salary: High to Low</option>
+            </select>
           </div>
         )}
       </div>

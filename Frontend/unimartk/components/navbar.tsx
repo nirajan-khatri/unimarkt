@@ -5,10 +5,8 @@ import { Poppins } from "next/font/google";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
-
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-
 import { NavbarSidebar } from "./navbar-sidebar";
 import {
   DropdownMenu,
@@ -21,47 +19,23 @@ import {
 import { Avatar, AvatarImage, AvatarFallback } from "./ui/avatar";
 import { useTheme } from "next-themes";
 import { useAuth } from "@/modules/auth/contexts/authContext";
-import { UserProfile } from "@/modules/auth/types/auth";
 import dynamic from "next/dynamic";
-import path from "path";
+import { UserProfile } from "@/modules/auth/types/auth";
 
 const poppins = Poppins({
   subsets: ["latin"],
   weight: ["700"],
 });
 
-interface NavbarItemProps {
-  href: string;
-  children: React.ReactNode;
-  isActive?: boolean;
-}
-
 const navbarItems = [
-  { href: "/", children: "Home", slug: "home" },
-  { href: "/skills", children: "Skills", slug: "skills" },
-  { href: "/jobs", children: "Jobs", slug: "jobs" },
+  { href: "/", label: "Home", slug: "home" },
+  { href: "/skills", label: "Skills", slug: "skills" },
+  { href: "/jobs", label: "Jobs", slug: "jobs" },
 ];
-
-const NavbarItem = ({ children, href, isActive }: NavbarItemProps) => {
-  return (
-    <Button
-      asChild
-      variant={"ghost"}
-      className={cn(
-        "bg-transparent hover:bg-transparent rounded-full hover:border-primary border-transparent px-3.5 text-lg",
-        isActive && "bg-primary/70"
-      )}
-    >
-      <Link href={href}>{children}</Link>
-    </Button>
-  );
-};
 
 const ClientLink = dynamic(
   () => import("@/components/client-link").then((m) => m.default),
-  {
-    ssr: false,
-  }
+  { ssr: false }
 );
 
 export const Navbar = () => {
@@ -71,10 +45,10 @@ export const Navbar = () => {
   const router = useRouter();
   const { setTheme } = useTheme();
   const { isAuthenticated, user, logout, hasRole } = useAuth();
+
   useEffect(() => {
-    // Check authentication status on the client side
-    setUserProfile(user);
-  }, []);
+    setUserProfile(user ?? null);
+  }, [user]);
 
   const handleProfile = () => router.push("/profile");
   const handleAdminDashboard = () => router.push("/admin");
@@ -85,148 +59,124 @@ export const Navbar = () => {
   };
 
   return (
-    <nav className="h-20 flex border-b justify-between font-medium px-6">
-      <Link href={"/"} className=" flex items-center">
-        <span className={cn("text-5xl  font-semibold", poppins.className)}>
-          UniMarkt
-        </span>
-      </Link>
+    <header className="sticky top-0 z-50 w-full border-b bg-background">
+      <nav className="h-16 flex items-center justify-between px-4 md:px-8 lg:px-12">
+        {/* Logo */}
+        <Link href="/" className="flex items-center gap-2" aria-label="Go to homepage">
+          <span className={cn("text-3xl font-bold tracking-tight", poppins.className)}>
+            UniMarkt
+          </span>
+        </Link>
 
-      <NavbarSidebar
-        items={navbarItems}
-        open={isSidebarOpen}
-        onOpenChange={setIsSidebarOpen}
-      />
-
-      <div className="items-center gap-2 xl:gap-4 hidden lg:flex">
-        {navbarItems.map((item) => (
-          <NavbarItem
-            key={item.href}
-            href={item.href}
-            isActive={
+        {/* Desktop Navigation */}
+        <ul className="hidden lg:flex items-center gap-2 xl:gap-4 list-none m-0 p-0">
+          {navbarItems.map((item) => {
+            const isActive =
               item.slug === "skills"
-                ? pathname.startsWith("/skillDetail") ||
-                  pathname.startsWith("/skills")
+                ? pathname.startsWith("/skillDetail") || pathname.startsWith("/skills")
                 : item.slug === "jobs"
-                  ? pathname.startsWith("/jobs") ||
-                    pathname.startsWith("/jobDetail")
-                  : !pathname.startsWith("/skills") &&
-                    !pathname.startsWith("/jobs") &&
-                    !pathname.startsWith("/skillDetail") &&
-                    !pathname.startsWith("/jobDetail")
-            }
+                ? pathname.startsWith("/jobs") || pathname.startsWith("/jobDetail")
+                : pathname === "/";
+            return (
+              <li key={item.href} className="relative">
+                <Link
+                  href={item.href}
+                  className={cn(
+                    "relative px-4 py-2 rounded-md text-base font-medium transition-colors duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary",
+                    isActive
+                      ? "text-primary bg-primary/10 after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-primary after:rounded-full"
+                      : "text-muted-foreground hover:text-foreground hover:bg-accent/50"
+                  )}
+                  aria-current={isActive ? "page" : undefined}
+                >
+                  {item.label}
+                </Link>
+              </li>
+            );
+          })}
+        </ul>
+
+        {/* User Actions */}
+        <div className="hidden lg:flex items-center gap-2 xl:gap-4">
+          {/* Theme Toggle */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" size="icon" aria-label="Toggle theme">
+                <Sun className="h-5 w-5 scale-100 rotate-0 transition-all dark:scale-0 dark:-rotate-90" />
+                <Moon className="absolute h-5 w-5 scale-0 rotate-90 transition-all dark:scale-100 dark:rotate-0" />
+                <span className="sr-only">Toggle theme</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => setTheme("light")}>Light</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setTheme("dark")}>Dark</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => setTheme("system")}>System</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
+          {/* Authenticated User */}
+          {isAuthenticated ? (
+            <>
+              <Button variant="ghost" size="icon" asChild aria-label="Messages">
+                <Link href="/messages">
+                  <MessageSquare className="h-6 w-6" strokeWidth={1.5} />
+                </Link>
+              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="rounded-full size-10" aria-label="User menu">
+                    <Avatar className="h-10 w-10">
+                      <AvatarImage
+                        src="https://i.pravatar.cc/150?img=3"
+                        alt={userProfile && userProfile.name ? userProfile.name : "User Avatar"}
+                      />
+                      <AvatarFallback>{userProfile && userProfile.name ? userProfile.name.charAt(0) : "U"}</AvatarFallback>
+                    </Avatar>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  <DropdownMenuLabel>{userProfile && userProfile.name ? userProfile.name : "My Account"}</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleProfile}>Profile</DropdownMenuItem>
+                  {(hasRole("admin") || hasRole("superuser")) && (
+                    <DropdownMenuItem onClick={handleAdminDashboard}>Admin Dashboard</DropdownMenuItem>
+                  )}
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleLogout}>Logout</DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </>
+          ) : (
+            <>
+              <ClientLink basePath="/sign-in">
+                <Button variant="outline">Log in</Button>
+              </ClientLink>
+              <ClientLink basePath="/sign-up">
+                <Button variant="default">Register</Button>
+              </ClientLink>
+            </>
+          )}
+        </div>
+
+        {/* Mobile Hamburger */}
+        <div className="flex lg:hidden items-center justify-center">
+          <Button
+            variant="ghost"
+            className="size-10 border-transparent"
+            aria-label="Open menu"
+            onClick={() => setIsSidebarOpen(true)}
           >
-            {item.children}
-          </NavbarItem>
-        ))}
-      </div>
-      {isAuthenticated ? (
-        <div className="hidden lg:flex px-10 xl:px-12 gap-4 items-center">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="icon">
-                <Sun className="h-[1.2rem] w-[1.2rem] scale-100 rotate-0 transition-all dark:scale-0 dark:-rotate-90" />
-                <Moon className="absolute h-[1.2rem] w-[1.2rem] scale-0 rotate-90 transition-all dark:scale-100 dark:rotate-0" />
-                <span className="sr-only">Toggle theme</span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => setTheme("light")}>
-                Light
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setTheme("dark")}>
-                Dark
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setTheme("system")}>
-                System
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-          <Button variant="outline" className="rounded-full size-14 " asChild>
-            <Link href={"/messages"}>
-              <MessageSquare className="size-8" strokeWidth={1} />
-            </Link>
+            <MenuIcon />
           </Button>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="rounded-full size-14 ">
-                <Avatar className="h-14 w-14">
-                  <AvatarImage
-                    src="https://i.pravatar.cc/150?img=3"
-                    alt={userProfile?.name || "User Avatar"}
-                  />
-                  <AvatarFallback>
-                    {userProfile?.name?.charAt(0) || "U"}
-                  </AvatarFallback>
-                </Avatar>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-48 ">
-              <DropdownMenuLabel>
-                {userProfile?.name || "My Account"}
-              </DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={handleProfile}>
-                Profile
-              </DropdownMenuItem>
-              {(hasRole("admin") || hasRole("superuser")) && (
-                <DropdownMenuItem onClick={handleAdminDashboard}>
-                  Admin Dashboard
-                </DropdownMenuItem>
-              )}
-              <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={handleLogout}>Logout</DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
         </div>
-      ) : (
-        <div className="hidden lg:flex h-full gap-2 items-center">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="icon">
-                <Sun className="h-[1.2rem] w-[1.2rem] scale-100 rotate-0 transition-all dark:scale-0 dark:-rotate-90" />
-                <Moon className="absolute h-[1.2rem] w-[1.2rem] scale-0 rotate-90 transition-all dark:scale-100 dark:rotate-0" />
-                <span className="sr-only">Toggle theme</span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => setTheme("light")}>
-                Light
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setTheme("dark")}>
-                Dark
-              </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setTheme("system")}>
-                System
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-          {/* <Button
-            asChild
-            variant="secondary"
-            className="px-10 xl:px-12 transition-colors text-lg bg-primary max-w-32"
-          > */}
-          <ClientLink basePath="/sign-in">
-            <Button className="">Log in</Button>
-          </ClientLink>
 
-          {/* </Button> */}
-
-          <ClientLink basePath="/sign-up">
-            <Button className="">Register</Button>
-          </ClientLink>
-        </div>
-      )}
-
-      <div className="flex lg:hidden items-center justify-center">
-        <Button
-          variant={"ghost"}
-          className="size-12 border-transparent"
-          onClick={() => setIsSidebarOpen(true)}
-        >
-          <MenuIcon />
-        </Button>
-      </div>
-    </nav>
+        {/* Sidebar for mobile */}
+        <NavbarSidebar
+          items={navbarItems}
+          open={isSidebarOpen}
+          onOpenChange={setIsSidebarOpen}
+        />
+      </nav>
+    </header>
   );
 };

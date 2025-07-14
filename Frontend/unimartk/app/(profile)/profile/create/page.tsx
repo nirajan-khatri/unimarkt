@@ -61,7 +61,7 @@ const Page = () => {
             <SelectContent>
               <SelectItem value="product">Product</SelectItem>
               <SelectItem value="skill">Skill</SelectItem>
-              {hasRole("faculty") && <SelectItem value="job">Job</SelectItem>}
+              {hasRole("user") && <SelectItem value="job">Job</SelectItem>}
             </SelectContent>
           </Select>
         </CardHeader>
