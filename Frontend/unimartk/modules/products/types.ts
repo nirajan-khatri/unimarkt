@@ -45,3 +45,11 @@ export interface ProductMessageWindowProps {
   productName: string;
   sellerName: string;
 }
+
+export type Wishlist = {
+  id: string | number;
+  user_id: string;
+  product: Product;
+  product_id: string | number;
+  created_at: string;
+};

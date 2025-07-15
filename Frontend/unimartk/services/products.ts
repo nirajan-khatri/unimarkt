@@ -101,3 +101,37 @@ export async function fetchJobById(jobId: string): Promise<Job> {
 
   return response.json();
 }
+
+// Wishlist API
+export async function getUserWishlist(userId: string) {
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_API_URL || "http://localhost:8000/api/";
+  const response = await fetch(`${baseUrl}wishlists/by-user/${userId}/`);
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  return response.json();
+}
+
+export async function addToWishlist(userId: string, productId: string) {
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_API_URL || "http://localhost:8000/api/";
+  const response = await fetch(`${baseUrl}wishlists/`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ user_id: userId, product_id: productId })
+  });
+  if (!response.ok) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  return response.json();
+}
+
+export async function removeFromWishlist(wishlistId: string) {
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_API_URL || "http://localhost:8000/api/";
+  const response = await fetch(`${baseUrl}wishlists/${wishlistId}/`, {
+    method: 'DELETE',
+  });
+  if (!response.ok && response.status !== 204) {
+    throw new Error(`HTTP error! status: ${response.status}`);
+  }
+  return true;
+}

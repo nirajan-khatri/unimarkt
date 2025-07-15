@@ -1,10 +1,16 @@
+"use client";
+
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Product } from "@/modules/products/types";
-import { Calendar, MapPin, ShoppingBag } from "lucide-react"
+import { Calendar, MapPin, ShoppingBag, Heart } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { useAuth } from "@/modules/auth/contexts/authContext";
+import { useEffect, useState } from "react";
+import { getUserWishlist, addToWishlist, removeFromWishlist } from "@/services/products";
+import { Wishlist } from "@/modules/products/types";
 
 interface ProductCardProps {
   product: Product;
@@ -12,6 +18,40 @@ interface ProductCardProps {
 
 export const ProductCard = ({ product }: ProductCardProps) => {
   const router = useRouter();
+  const { user } = useAuth();
+  const [wishlistId, setWishlistId] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    const fetchWishlist = async () => {
+      if (!user) return;
+      try {
+        const data: Wishlist[] = await getUserWishlist(String(user.id));
+        const found = data.find((w) => w.product.product_id === product.product_id);
+        setWishlistId(found ? String(found.id) : null);
+      } catch (e) {
+        setWishlistId(null);
+      }
+    };
+    fetchWishlist();
+    // eslint-disable-next-line
+  }, [user, product.product_id]);
+
+  const handleWishlist = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!user) return;
+    setLoading(true);
+    try {
+      if (wishlistId) {
+        await removeFromWishlist(String(wishlistId));
+        setWishlistId(null);
+      } else {
+        const res = await addToWishlist(String(user.id), String(product.product_id));
+        setWishlistId(String(res.id));
+      }
+    } catch (e) {}
+    setLoading(false);
+  };
 
   const handleClick = () => {
     router.push(`/products/${product.product_id}`);
@@ -34,10 +74,24 @@ export const ProductCard = ({ product }: ProductCardProps) => {
         <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
 
         {/* Category Badge */}
-        <div className="absolute top-3 right-3">
+        <div className="absolute top-3 right-3 flex gap-2 items-center z-10">
           <Badge className="bg-white/90 text-gray-700 dark:bg-accent dark:text-white border-0 font-medium backdrop-blur-sm shadow-sm">
             {product.category?.name || 'Electronics'}
           </Badge>
+          {user && (
+            <button
+              className="ml-2 p-1 rounded-full bg-white/80 hover:bg-white shadow"
+              onClick={handleWishlist}
+              disabled={loading}
+              aria-label={wishlistId ? "Remove from wishlist" : "Add to wishlist"}
+            >
+              <Heart
+                size={22}
+                className={wishlistId ? "text-red-500 fill-red-500" : "text-gray-400"}
+                fill={wishlistId ? "#ef4444" : "none"}
+              />
+            </button>
+          )}
         </div>
 
         {/* Price Badge - Floating */}
