@@ -2,6 +2,7 @@ from rest_framework import serializers
 from .models import Category, SubCategory, Product
 from uniMarktAuth.models import User
 from uniMarktAuth.serializers import UserSerializer
+from .models import Wishlist
 
 
 class SubCategorySerializer(serializers.ModelSerializer):
@@ -84,4 +85,14 @@ class ProductUpdateSerializer(serializers.ModelSerializer):
         # Force status to 'pending' on update, regardless of input
         validated_data['status'] = 'pending'
         return super().update(instance, validated_data)
+
+class WishlistSerializer(serializers.ModelSerializer):
+    product = ProductSerializer(read_only=True)
+    product_id = serializers.PrimaryKeyRelatedField(queryset=Product.objects.all(), source='product', write_only=True)
+    user_id = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), source='user', write_only=True)
+
+    class Meta:
+        model = Wishlist
+        fields = ['id', 'user_id', 'product', 'product_id', 'created_at']
+        read_only_fields = ['id', 'created_at', 'product']
 

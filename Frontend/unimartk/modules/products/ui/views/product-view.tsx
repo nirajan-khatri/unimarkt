@@ -7,11 +7,15 @@ import {
   ChevronLeftIcon,
   ChevronRightIcon,
   MessageCircle,
+  Heart,
 } from "lucide-react";
 import Image from "next/image";
 import React, { useMemo, useState } from "react";
 
 import { fetchProductById } from "@/services/products";
+import { getUserWishlist, addToWishlist, removeFromWishlist } from "@/services/products";
+import { Wishlist } from "@/modules/products/types";
+import { useEffect } from "react";
 
 const dummyImages = [
   "https://images.pexels.com/photos/31173368/pexels-photo-31173368/free-photo-of-colorful-facades-along-amsterdam-canal.jpeg?auto=compress&cs=tinysrgb&w=1200&lazy=load",
@@ -157,9 +161,41 @@ export const ProductView = ({ productId }: Props) => {
   const [selectedImage, setSelectedImage] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const { isAuthenticated, user, isInitialized } = useAuth();
+  const [wishlistId, setWishlistId] = useState<string | number | null>(null);
+  const [wishlistLoading, setWishlistLoading] = useState(false);
 
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
+
+  useEffect(() => {
+    const fetchWishlist = async () => {
+      if (!user) return;
+      try {
+        const data: Wishlist[] = await getUserWishlist(String(user.id));
+        const found = data.find((w) => w.product.product_id == productId);
+        setWishlistId(found ? found.id : null);
+      } catch (e) {
+        setWishlistId(null);
+      }
+    };
+    fetchWishlist();
+    // eslint-disable-next-line
+  }, [user, productId]);
+
+  const handleWishlist = async () => {
+    if (!user) return;
+    setWishlistLoading(true);
+    try {
+      if (wishlistId) {
+        await removeFromWishlist(String(wishlistId));
+        setWishlistId(null);
+      } else {
+        const res = await addToWishlist(String(user.id), String(productId));
+        setWishlistId(res.id);
+      }
+    } catch (e) {}
+    setWishlistLoading(false);
+  };
 
   const { data, error, isLoading } = useSuspenseQuery({
     queryKey: ["product", productId],
@@ -234,10 +270,24 @@ export const ProductView = ({ productId }: Props) => {
           <div className="flex flex-col lg:flex-row">
             <div className="flex-1">
               <div className="p-4 border-t border-border flex flex-row justify-between items-center">
+                <div className="flex items-center gap-4 mb-4">
+                  <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{data.name}</h1>
+                  {user && (
+                    <button
+                      className="p-2 rounded-full bg-white/80 hover:bg-white shadow border border-gray-200"
+                      onClick={handleWishlist}
+                      disabled={wishlistLoading}
+                      aria-label={wishlistId ? "Remove from wishlist" : "Add to wishlist"}
+                    >
+                      <Heart
+                        size={28}
+                        className={wishlistId ? "text-red-500 fill-red-500" : "text-gray-400"}
+                        fill={wishlistId ? "#ef4444" : "none"}
+                      />
+                    </button>
+                  )}
+                </div>
                 <div className="">
-                  <h2 className="text-xl sm:text-2xl font-semibold mb-2">
-                    {data.name}
-                  </h2>
                   <div className="flex items-center gap-1 text-muted-foreground mb-4">
                     <MapPinIcon className="w-4 h-4" />
                     <span className="text-sm">{data.pickup_location}</span>

@@ -1,6 +1,6 @@
 "use client";
 
-import { MenuIcon, MessageSquare, Moon, Sun } from "lucide-react";
+import { MenuIcon, MessageSquare, Moon, Sun, Heart } from "lucide-react";
 import { Poppins } from "next/font/google";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
@@ -21,6 +21,7 @@ import { useTheme } from "next-themes";
 import { useAuth } from "@/modules/auth/contexts/authContext";
 import dynamic from "next/dynamic";
 import { UserProfile } from "@/modules/auth/types/auth";
+import { WishlistModal } from "@/modules/products/ui/components/WishlistModal";
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -45,6 +46,7 @@ export const Navbar = () => {
   const router = useRouter();
   const { setTheme } = useTheme();
   const { isAuthenticated, user, logout, hasRole } = useAuth();
+  const [wishlistOpen, setWishlistOpen] = useState(false);
 
   useEffect(() => {
     setUserProfile(user ?? null);
@@ -98,6 +100,19 @@ export const Navbar = () => {
 
         {/* User Actions */}
         <div className="hidden lg:flex items-center gap-2 xl:gap-4">
+          {isAuthenticated && (
+            <>
+              <Link href="/wishlist" aria-label="Wishlist">
+                <button
+                  className="relative p-2 rounded-full hover:bg-accent transition cursor-pointer"
+                  aria-label="Wishlist"
+                >
+                  <Heart className="h-6 w-6 text-pink-500" />
+                </button>
+              </Link>
+              <WishlistModal open={wishlistOpen} onClose={() => setWishlistOpen(false)} />
+            </>
+          )}
           {/* Theme Toggle */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

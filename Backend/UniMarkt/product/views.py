@@ -6,12 +6,13 @@ from rest_framework.parsers import  JSONParser
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework.pagination import PageNumberPagination
+from rest_framework.permissions import IsAuthenticated
 
 
 from .filters import ProductFilter
-from .models import Product,Category,SubCategory
+from .models import Product,Category,SubCategory, Wishlist
 from .serializers import ProductSerializer, SubCategorySerializer, CategorySerializer, ProductCreateSerializer, \
-    ProductUpdateSerializer
+    ProductUpdateSerializer, WishlistSerializer
 
 # Suggestion: Use constants instead of hardcoded values for pagination
 class StandardResultsSetPagination(PageNumberPagination):
@@ -158,7 +159,7 @@ class ProductViewSet(viewsets.ModelViewSet):
     @action(
         detail=True,
         methods=['post'],
-        permission_classes=[],  # Suggestion: Change to [IsAuthenticated] to ensure only logged-in users can archive/unarchive products.
+        permission_classes=[IsAuthenticated],
         url_path='archive-toggle',
         url_name='archive_toggle'
     )
@@ -249,3 +250,30 @@ class SubCategoryViewSet(mixins.ListModelMixin,  mixins.CreateModelMixin,
     @swagger_auto_schema(tags=["SubCategories"])
     def destroy(self, request, *args, **kwargs):
         return super().destroy(request, *args, **kwargs)
+
+
+class WishlistViewSet(viewsets.ModelViewSet):
+    serializer_class = WishlistSerializer
+    permission_classes = []  # No authentication required
+    http_method_names = ['get', 'post', 'delete']
+
+    def get_queryset(self):
+        user_id = self.request.query_params.get('user_id')
+        if user_id:
+            return Wishlist.objects.filter(user_id=user_id)
+        return Wishlist.objects.all()
+
+    def perform_create(self, serializer):
+        user_id = self.request.data.get('user_id')
+        serializer.save(user_id=user_id)
+
+    def destroy(self, request, *args, **kwargs):
+        instance = self.get_object()
+        self.perform_destroy(instance)
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+    @action(detail=False, methods=['get'], url_path='by-user/(?P<user_id>[^/.]+)')
+    def by_user(self, request, user_id=None):
+        wishlists = Wishlist.objects.filter(user_id=user_id)
+        serializer = self.get_serializer(wishlists, many=True)
+        return Response(serializer.data)
