@@ -101,7 +101,7 @@ const ProfileDetailsCard = ({
 
   return (
     <>
-      <Card className="w-full mx-auto p-6 bg-muted/10 border border-border shadow-sm rounded-xl">
+      <Card className="w-full mx-auto p-6 bg-card border border-border shadow-sm rounded-xl">
         <div className="flex flex-col md:flex-row items-start md:items-center gap-6">
           <div className="flex items-center gap-4">
             <Avatar className="h-16 w-16">

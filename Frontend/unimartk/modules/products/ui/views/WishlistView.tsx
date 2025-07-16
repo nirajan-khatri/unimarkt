@@ -9,17 +9,17 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { 
-  Search, 
-  Heart, 
-  Filter, 
-  SortAsc, 
-  SortDesc, 
-  Trash2, 
+import {
+  Search,
+  Heart,
+  Filter,
+  SortAsc,
+  SortDesc,
+  Trash2,
   ShoppingBag,
   Calendar,
   Euro,
-  X
+  X,
 } from "lucide-react";
 import {
   Select,
@@ -68,20 +68,26 @@ const WishlistView: React.FC = () => {
   // Filter and sort wishlist
   const filteredAndSortedWishlist = wishlist
     .filter((item) => {
-      const matchesSearch = 
+      const matchesSearch =
         item.product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.product.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        item.product.category?.name.toLowerCase().includes(searchTerm.toLowerCase());
-      
-      const matchesCategory = !selectedCategory || item.product.category?.name === selectedCategory;
-      
+        item.product.description
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase()) ||
+        item.product.category?.name
+          .toLowerCase()
+          .includes(searchTerm.toLowerCase());
+
+      const matchesCategory =
+        !selectedCategory || item.product.category?.name === selectedCategory;
+
       return matchesSearch && matchesCategory;
     })
     .sort((a, b) => {
       let comparison = 0;
       switch (sortBy) {
         case "date":
-          comparison = new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+          comparison =
+            new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
           break;
         case "price":
           comparison = Number(a.product.price) - Number(b.product.price);
@@ -95,22 +101,37 @@ const WishlistView: React.FC = () => {
 
   // Calculate stats
   const totalItems = wishlist.length;
-  const totalValue = wishlist.reduce((sum, item) => sum + Number(item.product.price), 0);
-  const categories = [...new Set(wishlist.map(item => item.product.category?.name).filter(Boolean))];
+  const totalValue = wishlist.reduce(
+    (sum, item) => sum + Number(item.product.price),
+    0
+  );
+  const categories = [
+    ...new Set(
+      wishlist.map((item) => item.product.category?.name).filter(Boolean)
+    ),
+  ];
 
   // Calculate filtered stats
   const filteredItems = wishlist.filter((item) => {
-    const matchesSearch = 
+    const matchesSearch =
       item.product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.product.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.product.category?.name.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    const matchesCategory = !selectedCategory || item.product.category?.name === selectedCategory;
-    
+      item.product.description
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase()) ||
+      item.product.category?.name
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase());
+
+    const matchesCategory =
+      !selectedCategory || item.product.category?.name === selectedCategory;
+
     return matchesSearch && matchesCategory;
   });
-  
-  const filteredTotalValue = filteredItems.reduce((sum, item) => sum + Number(item.product.price), 0);
+
+  const filteredTotalValue = filteredItems.reduce(
+    (sum, item) => sum + Number(item.product.price),
+    0
+  );
 
   if (!isAuthenticated) {
     return (
@@ -118,8 +139,12 @@ const WishlistView: React.FC = () => {
         <Card className="text-center py-12">
           <CardContent>
             <Heart className="h-16 w-16 mx-auto text-gray-400 mb-4" />
-            <h2 className="text-2xl font-semibold mb-2">Sign in to view your wishlist</h2>
-            <p className="text-gray-500 mb-6">Create an account or sign in to start building your wishlist</p>
+            <h2 className="text-2xl font-semibold mb-2">
+              Sign in to view your wishlist
+            </h2>
+            <p className="text-gray-500 mb-6">
+              Create an account or sign in to start building your wishlist
+            </p>
             <Button>Sign In</Button>
           </CardContent>
         </Card>
@@ -138,10 +163,10 @@ const WishlistView: React.FC = () => {
             {totalItems} items
           </Badge>
         </div>
-        
+
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-          <Card>
+          <Card className="border-border">
             <CardContent className="p-4">
               <div className="flex items-center gap-3">
                 <ShoppingBag className="h-5 w-5 text-blue-500" />
@@ -152,14 +177,16 @@ const WishlistView: React.FC = () => {
               </div>
             </CardContent>
           </Card>
-          
-          <Card>
+
+          <Card className="border-border">
             <CardContent className="p-4">
               <div className="flex items-center gap-3">
                 <Euro className="h-5 w-5 text-green-500" />
                 <div>
                   <p className="text-sm text-gray-500">Total Value</p>
-                  <p className="text-2xl font-bold">€{filteredTotalValue.toFixed(2)}</p>
+                  <p className="text-2xl font-bold">
+                    €{filteredTotalValue.toFixed(2)}
+                  </p>
                 </div>
               </div>
             </CardContent>
@@ -171,7 +198,9 @@ const WishlistView: React.FC = () => {
           <div className="mb-4">
             <div className="flex items-center gap-2 mb-2">
               <Filter className="h-4 w-4 text-gray-500" />
-              <span className="text-sm font-medium text-gray-700">Filter by category:</span>
+              <span className="text-sm font-medium text-gray-700">
+                Filter by category:
+              </span>
             </div>
             <div className="flex flex-wrap gap-2">
               <Button
@@ -184,7 +213,9 @@ const WishlistView: React.FC = () => {
               {categories.map((category) => (
                 <Button
                   key={category}
-                  variant={selectedCategory === category ? "default" : "outline"}
+                  variant={
+                    selectedCategory === category ? "default" : "outline"
+                  }
                   size="sm"
                   onClick={() => setSelectedCategory(category)}
                 >
@@ -206,9 +237,14 @@ const WishlistView: React.FC = () => {
               className="pl-10"
             />
           </div>
-          
+
           <div className="flex gap-2">
-            <Select value={sortBy} onValueChange={(value: "date" | "price" | "name") => setSortBy(value)}>
+            <Select
+              value={sortBy}
+              onValueChange={(value: "date" | "price" | "name") =>
+                setSortBy(value)
+              }
+            >
               <SelectTrigger className="w-32">
                 <SelectValue />
               </SelectTrigger>
@@ -218,13 +254,17 @@ const WishlistView: React.FC = () => {
                 <SelectItem value="name">Name</SelectItem>
               </SelectContent>
             </Select>
-            
+
             <Button
               variant="outline"
               size="icon"
               onClick={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")}
             >
-              {sortOrder === "asc" ? <SortAsc className="h-4 w-4" /> : <SortDesc className="h-4 w-4" />}
+              {sortOrder === "asc" ? (
+                <SortAsc className="h-4 w-4" />
+              ) : (
+                <SortDesc className="h-4 w-4" />
+              )}
             </Button>
           </div>
         </div>
@@ -237,17 +277,18 @@ const WishlistView: React.FC = () => {
           <p className="text-gray-500">Loading your wishlist...</p>
         </div>
       ) : filteredAndSortedWishlist.length === 0 ? (
-        <Card className="text-center py-12">
+        <Card className="text-center py-12 border-border">
           <CardContent>
             <Heart className="h-16 w-16 mx-auto text-gray-300 mb-4" />
             <h2 className="text-xl font-semibold mb-2">
-              {searchTerm || selectedCategory ? "No items found" : "Your wishlist is empty"}
+              {searchTerm || selectedCategory
+                ? "No items found"
+                : "Your wishlist is empty"}
             </h2>
             <p className="text-gray-500 mb-6">
               {searchTerm || selectedCategory
-                ? "Try adjusting your search terms or category filter" 
-                : "Start browsing products and add them to your wishlist"
-              }
+                ? "Try adjusting your search terms or category filter"
+                : "Start browsing products and add them to your wishlist"}
             </p>
             {!searchTerm && !selectedCategory && (
               <Button asChild>
@@ -261,7 +302,7 @@ const WishlistView: React.FC = () => {
           {filteredAndSortedWishlist.map((item) => (
             <div key={item.id} className="relative group">
               <ProductCard product={item.product} />
-              
+
               {/* Remove Button */}
               <Button
                 variant="destructive"
@@ -279,7 +320,7 @@ const WishlistView: React.FC = () => {
                   </>
                 )}
               </Button>
-              
+
               {/* Added Date Badge */}
               <div className="absolute top-2 left-2 z-10">
                 <Badge variant="secondary" className="text-xs">
@@ -295,4 +336,4 @@ const WishlistView: React.FC = () => {
   );
 };
 
-export default WishlistView; 
+export default WishlistView;

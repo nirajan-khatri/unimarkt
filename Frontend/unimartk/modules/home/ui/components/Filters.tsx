@@ -73,8 +73,8 @@ export function Filters({ filters, onFiltersChange }: FiltersProps) {
     localFilters.pickupLocation;
 
   return (
-    <div className="lg:col-span-2 rounded-lg border bg-card text-card-foreground shadow-sm h-fit">
-      <div className="flex items-center justify-between p-4 border-b">
+    <div className="lg:col-span-2 rounded-lg border border-border bg-card/20 text-card-foreground shadow-sm h-fit">
+      <div className="flex items-center justify-between p-4 border-b border-border">
         <h3 className="font-semibold text-lg">Filters</h3>
         {hasActiveFilters && (
           <Button
@@ -93,7 +93,7 @@ export function Filters({ filters, onFiltersChange }: FiltersProps) {
         defaultValue={["price", "location"]}
         className="w-full"
       >
-        <AccordionItem value="price">
+        <AccordionItem value="price" className="border-0">
           <AccordionTrigger className="p-4">Price</AccordionTrigger>
           <AccordionContent className="p-4 pt-0">
             <div className="grid gap-2">
@@ -131,8 +131,8 @@ export function Filters({ filters, onFiltersChange }: FiltersProps) {
           </AccordionContent>
         </AccordionItem>
 
-        <AccordionItem value="location">
-          <AccordionTrigger className="p-4">Pickup Location</AccordionTrigger>
+        <AccordionItem value="location" className="border-t border-border">
+          <AccordionTrigger className="p-4  ">Pickup Location</AccordionTrigger>
           <AccordionContent className="p-4 pt-0">
             <div className="grid gap-4">
               <div>

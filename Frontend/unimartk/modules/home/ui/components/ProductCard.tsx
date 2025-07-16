@@ -3,13 +3,17 @@
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Product } from "@/modules/products/types";
-import { Calendar, MapPin, ShoppingBag, Heart } from "lucide-react"
-import { Badge } from "@/components/ui/badge"
+import { Calendar, MapPin, ShoppingBag, Heart } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useAuth } from "@/modules/auth/contexts/authContext";
 import { useEffect, useState } from "react";
-import { getUserWishlist, addToWishlist, removeFromWishlist } from "@/services/products";
+import {
+  getUserWishlist,
+  addToWishlist,
+  removeFromWishlist,
+} from "@/services/products";
 import { Wishlist } from "@/modules/products/types";
 
 interface ProductCardProps {
@@ -27,7 +31,9 @@ export const ProductCard = ({ product }: ProductCardProps) => {
       if (!user) return;
       try {
         const data: Wishlist[] = await getUserWishlist(String(user.id));
-        const found = data.find((w) => w.product.product_id === product.product_id);
+        const found = data.find(
+          (w) => w.product.product_id === product.product_id
+        );
         setWishlistId(found ? String(found.id) : null);
       } catch (e) {
         setWishlistId(null);
@@ -46,7 +52,10 @@ export const ProductCard = ({ product }: ProductCardProps) => {
         await removeFromWishlist(String(wishlistId));
         setWishlistId(null);
       } else {
-        const res = await addToWishlist(String(user.id), String(product.product_id));
+        const res = await addToWishlist(
+          String(user.id),
+          String(product.product_id)
+        );
         setWishlistId(String(res.id));
       }
     } catch (e) {}
@@ -57,11 +66,11 @@ export const ProductCard = ({ product }: ProductCardProps) => {
     router.push(`/products/${product.product_id}`);
   };
 
-  const price = product.price ? parseFloat(product.price) : 299.99;
+  const price = product.price ? parseFloat(product.price.toString()) : 299.99;
 
   return (
     <Card
-      className="group bg-white dark:bg-accent dard:text-white gap-0 rounded-xl py-0 shadow-sm border border-gray-200 overflow-hidden cursor-pointer transition-all duration-300 hover:shadow-xl hover:-translate-y-2 h-full flex flex-col"
+      className="group bg-white dark:bg-accent dard:text-white gap-0 rounded-xl py-0 shadow-sm border border-border overflow-hidden cursor-pointer transition-all duration-300 hover:shadow-xl hover:-translate-y-2 h-full flex flex-col"
       onClick={handleClick}
     >
       {/* Image Container */}
@@ -76,18 +85,22 @@ export const ProductCard = ({ product }: ProductCardProps) => {
         {/* Category Badge */}
         <div className="absolute top-3 right-3 flex gap-2 items-center z-10">
           <Badge className="bg-white/90 text-gray-700 dark:bg-accent dark:text-white border-0 font-medium backdrop-blur-sm shadow-sm">
-            {product.category?.name || 'Electronics'}
+            {product.category?.name || "Electronics"}
           </Badge>
           {user && (
             <button
               className="ml-2 p-1 rounded-full bg-white/80 hover:bg-white shadow"
               onClick={handleWishlist}
               disabled={loading}
-              aria-label={wishlistId ? "Remove from wishlist" : "Add to wishlist"}
+              aria-label={
+                wishlistId ? "Remove from wishlist" : "Add to wishlist"
+              }
             >
               <Heart
                 size={22}
-                className={wishlistId ? "text-red-500 fill-red-500" : "text-gray-400"}
+                className={
+                  wishlistId ? "text-red-500 fill-red-500" : "text-gray-400"
+                }
                 fill={wishlistId ? "#ef4444" : "none"}
               />
             </button>
@@ -96,7 +109,7 @@ export const ProductCard = ({ product }: ProductCardProps) => {
 
         {/* Price Badge - Floating */}
         <div className="absolute bottom-3 left-3">
-          <div className="bg-white/95 dark:bg-accent px-3 py-1.5 rounded-lg shadow-md backdrop-blur-sm border border-white/20">
+          <div className="bg-white/95 dark:bg-accent px-3 py-1.5 rounded-lg shadow-md backdrop-blur-sm border border-border">
             <span className="text-lg font-bold text-gray-900  dark:text-white">
               €{price.toFixed(2)}
             </span>
@@ -108,46 +121,52 @@ export const ProductCard = ({ product }: ProductCardProps) => {
         {/* Header Section */}
         <div className="">
           <h3 className="text-lg font-bold text-gray-900 dark:text-white line-clamp-1 leading-tight min-h-[1.5rem]">
-            {product.name || 'Sample Product'}
+            {product.name || "Sample Product"}
           </h3>
         </div>
 
         {/* Description - Fixed height */}
         <div className="mb-4 flex-grow">
           <p className="text-gray-600 dark:text-white/80 text-sm leading-relaxed line-clamp-2 h-[2.5rem] overflow-hidden">
-            {product.description || 'High-quality product with excellent features and modern design. Perfect for everyday use with premium materials.'}
+            {product.description ||
+              "High-quality product with excellent features and modern design. Perfect for everyday use with premium materials."}
           </p>
         </div>
 
         {/* Details Section */}
         <div className="space-y-3 mb-4">
           {/* Location Info */}
-          <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-accent dark:border dark:border-gray-100 rounded-lg">
+          <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-accent border border-border rounded-lg">
             <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center flex-shrink-0">
               <MapPin size={14} className="text-white" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="font-medium text-gray-900 dark:text-white text-sm">Pickup Location</p>
-              <p className="text-xs text-gray-600 dark:text-white/90 truncate">{product.pickup_location || 'Amsterdam, Netherlands'}</p>
+              <p className="font-medium text-gray-900 dark:text-white text-sm">
+                Pickup Location
+              </p>
+              <p className="text-xs text-gray-600 dark:text-white/90 truncate">
+                {product.pickup_location || "Amsterdam, Netherlands"}
+              </p>
             </div>
           </div>
 
           {/* Date Section */}
-          <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-100 dark:bg-accent dark:border dark:border-gray-100">
+          <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-border dark:bg-accent">
             <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center flex-shrink-0">
               <Calendar size={14} className="text-white" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="font-medium text-gray-900 dark:text-white text-sm">Listed</p>
+              <p className="font-medium text-gray-900 dark:text-white text-sm">
+                Listed
+              </p>
               <p className="text-xs text-gray-600 dark:text-white/90">
                 {product.created_at
-                  ? new Date(product.created_at).toLocaleDateString('en-US', {
-                    month: 'short',
-                    day: 'numeric',
-                    year: 'numeric'
-                  })
-                  : 'Dec 24, 2024'
-                }
+                  ? new Date(product.created_at).toLocaleDateString("en-US", {
+                      month: "short",
+                      day: "numeric",
+                      year: "numeric",
+                    })
+                  : "Dec 24, 2024"}
               </p>
             </div>
           </div>

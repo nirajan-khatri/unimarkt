@@ -3,12 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Job } from "@/modules/jobs/types";
 import { useRouter } from "next/navigation";
-import {
-  CalendarDays,
-  MapPin,
-  User,
-  CheckCircle,
-} from "lucide-react";
+import { CalendarDays, MapPin, User, CheckCircle } from "lucide-react";
 
 interface ProfileJobCardProps {
   job: Job;
@@ -39,7 +34,7 @@ export function ProfileJobCard({ job }: ProfileJobCardProps) {
 
   return (
     <Card
-      className="group bg-white rounded-xl py-0 shadow-sm border border-gray-200 overflow-hidden cursor-pointer transition-all duration-300 hover:shadow-lg hover:-translate-y-1 h-full flex flex-col"
+      className="group bg-white rounded-xl py-0 shadow-sm border border-border overflow-hidden cursor-pointer transition-all duration-300 hover:shadow-lg hover:-translate-y-1 h-full flex flex-col"
       onClick={handleClick}
     >
       <CardContent className="p-6 flex flex-col h-full">
@@ -53,14 +48,16 @@ export function ProfileJobCard({ job }: ProfileJobCardProps) {
               {job.location && (
                 <Badge
                   variant="secondary"
-                  className="bg-gray-100 text-gray-700 border-gray-200 font-medium"
+                  className="bg-gray-100 text-gray-700 border-border font-medium"
                 >
                   <MapPin size={12} className="mr-1" />
                   {job.location}
                 </Badge>
               )}
               {/* Status Pill */}
-              <Badge className={`text-xs font-medium ${getStatusColor(job.status.toLowerCase())}`}>
+              <Badge
+                className={`text-xs font-medium ${getStatusColor(job.status.toLowerCase())}`}
+              >
                 {job.status === "approved" && (
                   <CheckCircle className="w-3 h-3 mr-1 inline" />
                 )}
@@ -95,7 +92,7 @@ export function ProfileJobCard({ job }: ProfileJobCardProps) {
 
           {/* Salary Info */}
           {salary && (
-            <div className="flex items-center gap-2 p-2 bg-gray-50 rounded-lg border border-gray-200">
+            <div className="flex items-center gap-2 p-2 bg-gray-50 rounded-lg border border-border">
               <span className="flex-shrink-0">Salary:</span>
               <span className="text-sm text-gray-800 font-medium">
                 €{salary}/hr
@@ -113,7 +110,7 @@ export function ProfileJobCard({ job }: ProfileJobCardProps) {
             </span>
           </div>
 
-          <div className="p-2 bg-gray-50 rounded-lg border border-gray-200 mb-4">
+          <div className="p-2 bg-gray-50 rounded-lg border border-border mb-4">
             <span className="text-sm text-gray-800">
               {new Date(job.created_at).toLocaleDateString("en-US", {
                 weekday: "long",
@@ -135,4 +132,4 @@ export function ProfileJobCard({ job }: ProfileJobCardProps) {
       </CardContent>
     </Card>
   );
-} 
+}

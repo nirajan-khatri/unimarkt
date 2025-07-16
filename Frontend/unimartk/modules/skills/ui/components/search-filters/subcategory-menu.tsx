@@ -1,3 +1,4 @@
+import { Category } from "@/modules/home/types";
 import Link from "next/link";
 import React from "react";
 
@@ -23,7 +24,7 @@ const SubcategoryMenu = ({ category, isOpen }: Props) => {
       <div className="h-3 w-60"></div>
       <div
         style={{ backgroundColor }}
-        className="w-60 text-black rounded-md overflow-hidden border shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] -translate-x-[2px] -translate-y-[2px]"
+        className="w-60  rounded-md overflow-hidden border border-border bg-background"
       >
         <div className="">
           {category.subcategories.map((subcategory: Category) => (

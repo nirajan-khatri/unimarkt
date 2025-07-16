@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense } from 'react';
+import { Suspense } from "react";
 import { ActiveFilters } from "@/modules/skills/ui/components/ActiveFilters";
 import { ServiceGrid } from "@/modules/skills/ui/components/ServiceGrid";
 import { ServiceFilters } from "@/modules/skills/ui/components/ServiceFilters";
@@ -26,10 +26,10 @@ interface ServiceListViewProps {
   pageSize: number;
   filters: ServiceFiltersType;
   onFiltersChange: (filters: ServiceFiltersType) => void;
-  sortField: 'created_at' | 'charge_per_hour';
-  sortOrder: 'asc' | 'desc';
-  setSortField: (field: 'created_at' | 'charge_per_hour') => void;
-  setSortOrder: (order: 'asc' | 'desc') => void;
+  sortField: "created_at" | "charge_per_hour";
+  sortOrder: "asc" | "desc";
+  setSortField: (field: "created_at" | "charge_per_hour") => void;
+  setSortOrder: (order: "asc" | "desc") => void;
 }
 
 export const ServiceListView = ({
@@ -50,25 +50,30 @@ export const ServiceListView = ({
   sortField,
   sortOrder,
   setSortField,
-  setSortOrder
+  setSortOrder,
 }: ServiceListViewProps) => {
   const searchParams = useSearchParams();
   const search = searchParams.get("search") || "";
 
-  const hasAnyFilters = !!(filters.minPrice || filters.maxPrice || filters.module || search);
+  const hasAnyFilters = !!(
+    filters.minPrice ||
+    filters.maxPrice ||
+    filters.module ||
+    search
+  );
 
   const clearPriceFilters = () => {
     onFiltersChange({
       ...filters,
       minPrice: "",
-      maxPrice: ""
+      maxPrice: "",
     });
   };
 
   const clearModule = () => {
     onFiltersChange({
       ...filters,
-      module: ""
+      module: "",
     });
   };
 
@@ -76,7 +81,7 @@ export const ServiceListView = ({
     onFiltersChange({
       minPrice: "",
       maxPrice: "",
-      module: ""
+      module: "",
     });
   };
 
@@ -88,25 +93,27 @@ export const ServiceListView = ({
       <div className="flex flex-row lg:flex-row-reverse lg:items-center gap-y-2 lg:gap-y-0 justify-between">
         {showSort && (
           <div className="flex items-center gap-2">
-            <label htmlFor="sort" className="text-sm text-gray-500">Sort by:</label>
+            <label htmlFor="sort" className="text-sm text-gray-500">
+              Sort by:
+            </label>
             <select
               id="sort"
-              className="border rounded px-2 py-1 text-sm"
-              value={sortField + '-' + sortOrder}
-              onChange={e => {
+              className="border border-border rounded px-2 py-1 text-sm"
+              value={sortField + "-" + sortOrder}
+              onChange={(e) => {
                 const value = e.target.value;
-                if (value === 'created_at-desc') {
-                  setSortField('created_at');
-                  setSortOrder('desc');
-                } else if (value === 'created_at-asc') {
-                  setSortField('created_at');
-                  setSortOrder('asc');
-                } else if (value === 'charge_per_hour-asc') {
-                  setSortField('charge_per_hour');
-                  setSortOrder('asc');
-                } else if (value === 'charge_per_hour-desc') {
-                  setSortField('charge_per_hour');
-                  setSortOrder('desc');
+                if (value === "created_at-desc") {
+                  setSortField("created_at");
+                  setSortOrder("desc");
+                } else if (value === "created_at-asc") {
+                  setSortField("created_at");
+                  setSortOrder("asc");
+                } else if (value === "charge_per_hour-asc") {
+                  setSortField("charge_per_hour");
+                  setSortOrder("asc");
+                } else if (value === "charge_per_hour-desc") {
+                  setSortField("charge_per_hour");
+                  setSortOrder("desc");
                 }
               }}
             >
@@ -133,10 +140,7 @@ export const ServiceListView = ({
       <div className="grid grid-cols-1 lg:grid-cols-6 xl:grid-cols-8 gap-y-6 gap-x-12">
         {/* Filters Sidebar */}
         <div className="lg:col-span-2">
-          <ServiceFilters
-            filters={filters}
-            onFiltersChange={onFiltersChange}
-          />
+          <ServiceFilters filters={filters} onFiltersChange={onFiltersChange} />
         </div>
 
         {/* Services Grid and Pagination */}
@@ -148,7 +152,7 @@ export const ServiceListView = ({
               error={error}
             />
           </Suspense>
-          
+
           {showPagination && (
             <Pagination
               currentPage={skills.currentPage}

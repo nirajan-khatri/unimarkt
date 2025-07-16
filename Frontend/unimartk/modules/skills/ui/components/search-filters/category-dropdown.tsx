@@ -52,9 +52,9 @@ export const CategoryDropdown = ({
           asChild
           variant={"ghost"}
           className={cn(
-            "h-11 px-4 border-transparent rounded-full text-accent-foreground",
-            isActive && !isNavigationHovered && "bg-primary border-primary",
-            isOpen && "bg-muted"
+            "h-9 px-4 border-transparent rounded-md text-accent-foreground",
+            isActive && !isNavigationHovered && "text-primary bg-primary/20",
+            isOpen && "bg-muted/90"
           )}
         >
           <Link
@@ -66,7 +66,7 @@ export const CategoryDropdown = ({
         {category.subcategories && category.subcategories.length > 0 && (
           <div
             className={cn(
-              "opacity-0 absolute -bottom-3 h-0 w-0 border-l-[10px] border-r-[10px] border-l-transparent border-transparent border-b-black left-1/2 -translate-x-1/2 border-b-[10px]",
+              "opacity-0 absolute -bottom-3 h-0 w-0 border-l-[10px] border-r-[10px] border-l-transparent border-transparent border-b-border left-1/2 -translate-x-1/2 border-b-[10px]",
               isOpen && "opacity-100"
             )}
           ></div>

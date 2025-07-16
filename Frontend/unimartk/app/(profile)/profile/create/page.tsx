@@ -28,7 +28,7 @@ const Page = () => {
 
   return (
     <div className="max-w-7xl w-full mx-auto p-6">
-      <Card>
+      <Card className="border-border">
         <CardHeader className="flex flex-row justify-between items-center">
           <CardTitle>
             <div className="flex flex-row gap-3 items-center">
@@ -55,10 +55,10 @@ const Page = () => {
               setType(value)
             }
           >
-            <SelectTrigger className="w-40 ">
+            <SelectTrigger className="w-40">
               <SelectValue placeholder="Sort by" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="border-border">
               <SelectItem value="product">Product</SelectItem>
               <SelectItem value="skill">Skill</SelectItem>
               {hasRole("user") && <SelectItem value="job">Job</SelectItem>}

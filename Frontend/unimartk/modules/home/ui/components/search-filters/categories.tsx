@@ -116,7 +116,7 @@ export const Categories = ({ data }: Props) => {
           <Button
             variant={"ghost"}
             className={cn(
-              "h-11 px-4  border-transparent rounded-full",
+              "h-11 px-4  border-transparent rounded-md",
               isActiveCategoryHidden &&
                 !isAnyHovered &&
                 "bg-white border-primary"
