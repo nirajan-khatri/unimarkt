@@ -87,7 +87,7 @@ const UsersTable = () => {
 
   const filterSuperAdmin = React.useMemo(() => {
     if (isSuperadmin) return data;
-    return data?.filter((user: User) => user.role?.name !== "superuser");
+    return data?.filter((user: User) => user.role !== "superuser");
   }, [data]);
 
   const queryClient = useQueryClient();
@@ -211,8 +211,8 @@ const UsersTable = () => {
       cell: ({ row }) => {
         const user = row.original;
 
-        const isFaculty = user.role?.name === "faculty";
-        const isAdmin = user.role?.name === "admin";
+        const isFaculty = user.role === "faculty";
+        const isAdmin = user.role === "admin";
 
         return (
           <DropdownMenu>
@@ -364,7 +364,7 @@ const UsersTable = () => {
           className="max-w-sm"
         />
         <div className="flex flex-row gap-4">
-          {table.getSelectedRowModel().rows.length > 0 && (
+          {/* {table.getSelectedRowModel().rows.length > 0 && (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" className="">
@@ -407,10 +407,10 @@ const UsersTable = () => {
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-          )}
+          )} */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="ml-auto">
+              <Button variant="outline" className="ml-auto border-border">
                 Columns <ChevronDown />
               </Button>
             </DropdownMenuTrigger>
@@ -436,11 +436,11 @@ const UsersTable = () => {
           </DropdownMenu>
         </div>
       </div>
-      <div className="rounded-md border">
-        <Table>
+      <div className="rounded-md border bg-white/10 border-border">
+        <Table className="border-border">
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
+              <TableRow key={headerGroup.id} className="border-border">
                 {headerGroup.headers.map((header) => (
                   <TableHead key={header.id}>
                     {header.isPlaceholder
@@ -458,6 +458,7 @@ const UsersTable = () => {
             {table.getPaginationRowModel().rows?.length ? (
               table.getPaginationRowModel().rows.map((row) => (
                 <TableRow
+                  className="border-border"
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
                 >
@@ -491,6 +492,7 @@ const UsersTable = () => {
         </div>
         <div className="space-x-2">
           <Button
+            className="border-border"
             variant="outline"
             size="sm"
             onClick={() => table.previousPage()}
@@ -499,6 +501,7 @@ const UsersTable = () => {
             Previous
           </Button>
           <Button
+            className="border-border"
             variant="outline"
             size="sm"
             onClick={() => table.nextPage()}

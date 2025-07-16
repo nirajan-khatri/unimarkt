@@ -182,7 +182,7 @@ export const SignUpView = () => {
                 <FormItem>
                   <FormLabel className="text-base">
                     Contact Number
-                    <span className="text-red-500 -ml-1.5">*</span>
+                    {/* <span className="text-red-500 -ml-1.5">*</span> */}
                   </FormLabel>
                   <FormControl>
                     <Input {...field} placeholder="Optional" />
