@@ -1,3 +1,5 @@
+"use client";
+
 import { useRouter, usePathname } from "next/navigation";
 import { useAuth } from "@/modules/auth/contexts/authContext";
 import { useTheme } from "next-themes";
@@ -108,7 +110,6 @@ export const NavbarSidebar = ({ items, onOpenChange, open }: Props) => {
               onCheckedChange={(checked) =>
                 setTheme(checked ? "dark" : "light")
               }
-              aria-label="Toggle dark mode"
             />
             <Moon className="h-4 w-4" />
           </div>
