@@ -13,7 +13,11 @@ import Image from "next/image";
 import React, { useMemo, useState } from "react";
 
 import { fetchProductById } from "@/services/products";
-import { getUserWishlist, addToWishlist, removeFromWishlist } from "@/services/products";
+import {
+  getUserWishlist,
+  addToWishlist,
+  removeFromWishlist,
+} from "@/services/products";
 import { Wishlist } from "@/modules/products/types";
 import { useEffect } from "react";
 
@@ -270,27 +274,31 @@ export const ProductView = ({ productId }: Props) => {
           <div className="flex flex-col lg:flex-row">
             <div className="flex-1">
               <div className="p-4 border-t border-border flex flex-row justify-between items-center">
-                <div className="flex items-center gap-4 mb-4">
-                  <h1 className="text-2xl font-bold text-gray-900 dark:text-white">{data.name}</h1>
-                  {user && (
-                    <button
-                      className="p-2 rounded-full bg-white/80 hover:bg-white shadow border border-gray-200"
-                      onClick={handleWishlist}
-                      disabled={wishlistLoading}
-                      aria-label={wishlistId ? "Remove from wishlist" : "Add to wishlist"}
-                    >
-                      <Heart
-                        size={28}
-                        className={wishlistId ? "text-red-500 fill-red-500" : "text-gray-400"}
-                        fill={wishlistId ? "#ef4444" : "none"}
-                      />
-                    </button>
-                  )}
-                </div>
-                <div className="">
-                  <div className="flex items-center gap-1 text-muted-foreground mb-4">
-                    <MapPinIcon className="w-4 h-4" />
-                    <span className="text-sm">{data.pickup_location}</span>
+                <div className="flex flex-col gap-2">
+                  <div className="flex items-center gap-4">
+                    <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+                      {data.name}
+                    </h1>
+                    {user && (
+                      <button
+                        className="p-2 rounded-full"
+                        onClick={handleWishlist}
+                        disabled={wishlistLoading}
+                        aria-label={
+                          wishlistId
+                            ? "Remove from wishlist"
+                            : "Add to wishlist"
+                        }
+                      >
+                        <Heart size={18} fill={wishlistId ? "white" : "none"} />
+                      </button>
+                    )}
+                  </div>
+                  <div className="">
+                    <div className="flex items-center gap-1 text-muted-foreground mb-4">
+                      <MapPinIcon className="w-4 h-4" />
+                      <span className="text-sm">{data.pickup_location}</span>
+                    </div>
                   </div>
                 </div>
                 <div className="mb-4">
@@ -328,7 +336,7 @@ export const ProductView = ({ productId }: Props) => {
               ) : (
                 // Non-authenticated User View
                 <div className="text-center">
-                  <div className="mb-4 p-4 bg-primary/10 rounded-lg border border-blue-200">
+                  <div className="mb-4 p-4 bg-primary/10 rounded-lg border border-blue-200/30">
                     <MessageCircle className="w-8 h-8 text-blue-500 mx-auto mb-2" />
                     <h3 className="font-semibold mb-1">Contact the Seller</h3>
                     <p className="text-sm text-muted-foreground">

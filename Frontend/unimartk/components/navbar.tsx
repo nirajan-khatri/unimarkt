@@ -22,6 +22,7 @@ import { useAuth } from "@/modules/auth/contexts/authContext";
 import dynamic from "next/dynamic";
 import { UserProfile } from "@/modules/auth/types/auth";
 import { WishlistModal } from "@/modules/products/ui/components/WishlistModal";
+import { Switch } from "./ui/switch";
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -44,7 +45,7 @@ export const Navbar = () => {
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const pathname = usePathname();
   const router = useRouter();
-  const { setTheme } = useTheme();
+  const { setTheme, theme } = useTheme();
   const { isAuthenticated, user, logout, hasRole } = useAuth();
   const [wishlistOpen, setWishlistOpen] = useState(false);
 
@@ -61,11 +62,20 @@ export const Navbar = () => {
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background">
+    <header className="sticky top-0 z-50 w-full border-b border-border bg-background">
       <nav className="h-16 flex items-center justify-between px-4 md:px-8 lg:px-12">
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-2" aria-label="Go to homepage">
-          <span className={cn("text-3xl font-bold tracking-tight", poppins.className)}>
+        <Link
+          href="/"
+          className="flex items-center gap-2"
+          aria-label="Go to homepage"
+        >
+          <span
+            className={cn(
+              "text-3xl font-bold tracking-tight",
+              poppins.className
+            )}
+          >
             UniMarkt
           </span>
         </Link>
@@ -75,10 +85,12 @@ export const Navbar = () => {
           {navbarItems.map((item) => {
             const isActive =
               item.slug === "skills"
-                ? pathname.startsWith("/skillDetail") || pathname.startsWith("/skills")
+                ? pathname.startsWith("/skillDetail") ||
+                  pathname.startsWith("/skills")
                 : item.slug === "jobs"
-                ? pathname.startsWith("/jobs") || pathname.startsWith("/jobDetail")
-                : pathname === "/";
+                  ? pathname.startsWith("/jobs") ||
+                    pathname.startsWith("/jobDetail")
+                  : pathname === "/";
             return (
               <li key={item.href} className="relative">
                 <Link
@@ -103,31 +115,28 @@ export const Navbar = () => {
           {isAuthenticated && (
             <>
               <Link href="/wishlist" aria-label="Wishlist">
-                <button
-                  className="relative p-2 rounded-full hover:bg-accent transition cursor-pointer"
-                  aria-label="Wishlist"
-                >
-                  <Heart className="h-6 w-6 text-pink-500" />
-                </button>
+                <Button variant="ghost" aria-label="Wishlist" size="icon">
+                  <Heart className="h-6 w-6" strokeWidth={1.5} />
+                </Button>
               </Link>
-              <WishlistModal open={wishlistOpen} onClose={() => setWishlistOpen(false)} />
+              <WishlistModal
+                open={wishlistOpen}
+                onClose={() => setWishlistOpen(false)}
+              />
             </>
           )}
           {/* Theme Toggle */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" aria-label="Toggle theme">
-                <Sun className="h-5 w-5 scale-100 rotate-0 transition-all dark:scale-0 dark:-rotate-90" />
-                <Moon className="absolute h-5 w-5 scale-0 rotate-90 transition-all dark:scale-100 dark:rotate-0" />
-                <span className="sr-only">Toggle theme</span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => setTheme("light")}>Light</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setTheme("dark")}>Dark</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => setTheme("system")}>System</DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+          <div className="flex items-center space-x-2">
+            <Sun className="h-4 w-4" />
+            <Switch
+              checked={theme === "dark"}
+              onCheckedChange={(checked) =>
+                setTheme(checked ? "dark" : "light")
+              }
+              aria-label="Toggle dark mode"
+            />
+            <Moon className="h-4 w-4" />
+          </div>
 
           {/* Authenticated User */}
           {isAuthenticated ? (
@@ -139,25 +148,40 @@ export const Navbar = () => {
               </Button>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="rounded-full size-10" aria-label="User menu">
+                  <Button
+                    variant="ghost"
+                    className="rounded-full size-10"
+                    aria-label="User menu"
+                  >
                     <Avatar className="h-10 w-10">
-                      <AvatarImage
-                        src="https://i.pravatar.cc/150?img=3"
-                        alt={userProfile && userProfile.name ? userProfile.name : "User Avatar"}
-                      />
-                      <AvatarFallback>{userProfile && userProfile.name ? userProfile.name.charAt(0) : "U"}</AvatarFallback>
+                      <AvatarImage src={undefined} />
+                      <AvatarFallback>
+                        {userProfile && userProfile.name
+                          ? userProfile.name.charAt(0)
+                          : "U"}
+                      </AvatarFallback>
                     </Avatar>
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-48">
-                  <DropdownMenuLabel>{userProfile && userProfile.name ? userProfile.name : "My Account"}</DropdownMenuLabel>
+                <DropdownMenuContent align="end" className="w-48 border-border">
+                  <DropdownMenuLabel>
+                    {userProfile && userProfile.name
+                      ? userProfile.name
+                      : "My Account"}
+                  </DropdownMenuLabel>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={handleProfile}>Profile</DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleProfile}>
+                    Profile
+                  </DropdownMenuItem>
                   {(hasRole("admin") || hasRole("superuser")) && (
-                    <DropdownMenuItem onClick={handleAdminDashboard}>Admin Dashboard</DropdownMenuItem>
+                    <DropdownMenuItem onClick={handleAdminDashboard}>
+                      Admin Dashboard
+                    </DropdownMenuItem>
                   )}
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={handleLogout}>Logout</DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleLogout}>
+                    Logout
+                  </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             </>

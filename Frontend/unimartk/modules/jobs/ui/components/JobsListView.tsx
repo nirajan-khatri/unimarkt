@@ -1,10 +1,14 @@
 "use client";
 
-import { Suspense } from 'react';
+import { Suspense } from "react";
 import { ActiveJobFilters } from "./ActiveJobFilters";
 import { JobGrid } from "./JobGrid";
 import { JobFilters } from "./JobFilters";
-import { JobPosting, PaginatedJobsResponse, JobFilters as JobFiltersType } from '@/modules/jobs/hooks/useJobs';
+import {
+  JobPosting,
+  PaginatedJobsResponse,
+  JobFilters as JobFiltersType,
+} from "@/modules/jobs/hooks/useJobs";
 import { ProductGridSkeleton } from "@/components/skeletons/ProductSkeleton";
 import { useSearchParams } from "next/navigation";
 import { Pagination } from "@/components/ui/pagination";
@@ -20,10 +24,10 @@ interface JobsListViewProps {
   pageSize: number;
   filters: JobFiltersType;
   onFiltersChange: (filters: JobFiltersType) => void;
-  sortField: 'created_at' | 'salary_per_hour';
-  sortOrder: 'asc' | 'desc';
-  setSortField: (field: 'created_at' | 'salary_per_hour') => void;
-  setSortOrder: (order: 'asc' | 'desc') => void;
+  sortField: "created_at" | "salary_per_hour";
+  sortOrder: "asc" | "desc";
+  setSortField: (field: "created_at" | "salary_per_hour") => void;
+  setSortOrder: (order: "asc" | "desc") => void;
 }
 
 export const JobsListView = ({
@@ -40,41 +44,48 @@ export const JobsListView = ({
   sortField,
   sortOrder,
   setSortField,
-  setSortOrder
+  setSortOrder,
 }: JobsListViewProps) => {
   const searchParams = useSearchParams();
   const search = searchParams.get("search") || "";
 
-  const hasAnyFilters = !!(filters.location || filters.minSalary || filters.maxSalary || search);
+  const hasAnyFilters = !!(
+    filters.location ||
+    filters.minSalary ||
+    filters.maxSalary ||
+    search
+  );
 
   const clearLocation = () => {
     onFiltersChange({
       ...filters,
-      location: ""
+      location: "",
     });
   };
 
   const clearMinSalary = () => {
     onFiltersChange({
       ...filters,
-      minSalary: ""
+      minSalary: "",
     });
   };
 
   const clearMaxSalary = () => {
     onFiltersChange({
       ...filters,
-      maxSalary: ""
+      maxSalary: "",
     });
   };
 
   const clearAllFilters = () => {
     onFiltersChange({
-      location: "", minSalary: "", maxSalary: "" });
+      location: "",
+      minSalary: "",
+      maxSalary: "",
+    });
   };
 
   const showPagination = !isLoading && !error && jobs && jobs.count > 0;
-
 
   return (
     <div className="px-4 lg:px-12 py-8 flex flex-col gap-4">
@@ -82,25 +93,27 @@ export const JobsListView = ({
       <div className="flex flex-row lg:flex-row-reverse lg:items-center gap-y-2 lg:gap-y-0 justify-between">
         {showSort && (
           <div className="flex items-center gap-2">
-            <label htmlFor="sort" className="text-sm text-gray-500">Sort by:</label>
+            <label htmlFor="sort" className="text-sm text-gray-500">
+              Sort by:
+            </label>
             <select
               id="sort"
-              className="border rounded px-2 py-1 text-sm"
-              value={sortField + '-' + sortOrder}
-              onChange={e => {
+              className="border border-border rounded px-2 py-1 text-sm"
+              value={sortField + "-" + sortOrder}
+              onChange={(e) => {
                 const value = e.target.value;
-                if (value === 'created_at-desc') {
-                  setSortField('created_at');
-                  setSortOrder('desc');
-                } else if (value === 'created_at-asc') {
-                  setSortField('created_at');
-                  setSortOrder('asc');
-                } else if (value === 'salary_per_hour-asc') {
-                  setSortField('salary_per_hour');
-                  setSortOrder('asc');
-                } else if (value === 'salary_per_hour-desc') {
-                  setSortField('salary_per_hour');
-                  setSortOrder('desc');
+                if (value === "created_at-desc") {
+                  setSortField("created_at");
+                  setSortOrder("desc");
+                } else if (value === "created_at-asc") {
+                  setSortField("created_at");
+                  setSortOrder("asc");
+                } else if (value === "salary_per_hour-asc") {
+                  setSortField("salary_per_hour");
+                  setSortOrder("asc");
+                } else if (value === "salary_per_hour-desc") {
+                  setSortField("salary_per_hour");
+                  setSortOrder("desc");
                 }
               }}
             >
@@ -128,10 +141,7 @@ export const JobsListView = ({
       <div className="grid grid-cols-1 lg:grid-cols-6 xl:grid-cols-8 gap-y-6 gap-x-12">
         {/* Filters Sidebar */}
         <div className="lg:col-span-2">
-          <JobFilters
-            filters={filters}
-            onFiltersChange={onFiltersChange}
-          />
+          <JobFilters filters={filters} onFiltersChange={onFiltersChange} />
         </div>
 
         {/* Jobs Grid and Pagination */}
@@ -158,4 +168,4 @@ export const JobsListView = ({
       </div>
     </div>
   );
-}; 
+};

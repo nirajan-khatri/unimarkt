@@ -5,11 +5,20 @@ import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { verifyTwoFactor, verifyBackupCode } from "../../services/api";
 import { useAuth } from "../../contexts/authContext";
-import { TwoFactorVerifyRequest, BackupCodeVerifyRequest } from "../../types/auth";
+import {
+  TwoFactorVerifyRequest,
+  BackupCodeVerifyRequest,
+} from "../../types/auth";
 import { Loader, ArrowLeft } from "lucide-react";
 
 interface TwoFactorVerificationProps {
@@ -17,7 +26,10 @@ interface TwoFactorVerificationProps {
   onSuccess: () => void;
 }
 
-export const TwoFactorVerification = ({ userId, onSuccess }: TwoFactorVerificationProps) => {
+export const TwoFactorVerification = ({
+  userId,
+  onSuccess,
+}: TwoFactorVerificationProps) => {
   const [code, setCode] = useState("");
   const [backupCode, setBackupCode] = useState("");
   const [showBackupCode, setShowBackupCode] = useState(false);
@@ -70,7 +82,7 @@ export const TwoFactorVerification = ({ userId, onSuccess }: TwoFactorVerificati
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-[#f4f4f0]">
+    <div className="flex items-center justify-center min-h-screen bg-background">
       <div className="w-full max-w-md">
         <div className="mb-4">
           <Button
@@ -97,7 +109,9 @@ export const TwoFactorVerification = ({ userId, onSuccess }: TwoFactorVerificati
                     type="text"
                     placeholder="Enter 6-digit code"
                     value={code}
-                    onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                    onChange={(e) =>
+                      setCode(e.target.value.replace(/\D/g, "").slice(0, 6))
+                    }
                     maxLength={6}
                     className="text-center text-lg tracking-widest"
                   />
@@ -130,14 +144,23 @@ export const TwoFactorVerification = ({ userId, onSuccess }: TwoFactorVerificati
                     type="text"
                     placeholder="Enter 8-character backup code"
                     value={backupCode}
-                    onChange={(e) => setBackupCode(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, "").slice(0, 8))}
+                    onChange={(e) =>
+                      setBackupCode(
+                        e.target.value
+                          .toUpperCase()
+                          .replace(/[^A-Z0-9]/g, "")
+                          .slice(0, 8)
+                      )
+                    }
                     maxLength={8}
                     className="text-center text-lg tracking-widest"
                   />
                 </div>
                 <Button
                   onClick={handleBackupCodeVerify}
-                  disabled={backupCodeMutation.isPending || backupCode.length !== 8}
+                  disabled={
+                    backupCodeMutation.isPending || backupCode.length !== 8
+                  }
                   className="w-full"
                 >
                   {backupCodeMutation.isPending ? (
@@ -157,7 +180,7 @@ export const TwoFactorVerification = ({ userId, onSuccess }: TwoFactorVerificati
                 </Button>
               </>
             )}
-            
+
             {errorMsg && (
               <Alert variant="destructive">
                 <AlertDescription>{errorMsg}</AlertDescription>
@@ -168,4 +191,4 @@ export const TwoFactorVerification = ({ userId, onSuccess }: TwoFactorVerificati
       </div>
     </div>
   );
-}; 
+};

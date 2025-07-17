@@ -20,7 +20,7 @@ const SubcategoryMenu = ({ category, isOpen }: Props) => {
     <div className="absolute z-10" style={{ top: "100%", left: 0 }}>
       {/* invisible bridge to maintain hover */}
       <div className="h-3 w-60"></div>
-      <div className="w-60  rounded-md overflow-hidden border bg-background">
+      <div className="w-60  rounded-md overflow-hidden border border-border bg-background">
         <div className="">
           {category.subcategories.map((subcategory: Category) => (
             <Link

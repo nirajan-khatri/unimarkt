@@ -522,8 +522,8 @@ const CreateSkillForm = ({ skillId }: Props) => {
                       key={cover.category_id}
                       className={`border rounded-lg p-4 text-center cursor-pointer transition ${
                         field.value === cover.category_id.toString()
-                          ? "border-blue-500 bg-blue-50"
-                          : "border-gray-300"
+                          ? "border-blue-500 bg-blue-100/30"
+                          : "border-border"
                       }`}
                     >
                       <input

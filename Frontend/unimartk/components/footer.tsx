@@ -2,8 +2,8 @@ import React from "react";
 
 export const Footer = () => {
   return (
-    <footer className="flex border-t justify-between font-medium p-6">
-      <div className="flex items-center w-full justify-between">
+    <footer className="flex border-t border-border justify-between font-medium p-6">
+      <div className="flex items-center w-full justify-between text-muted-foreground">
         <p className="">UniMarkt, Inc.</p>
         <p className="">
           {" "}

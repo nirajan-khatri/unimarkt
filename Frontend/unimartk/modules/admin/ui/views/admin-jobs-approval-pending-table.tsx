@@ -400,7 +400,7 @@ const ApproveJobsTable = () => {
           )} */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="ml-auto">
+              <Button variant="outline" className="ml-auto border-border">
                 Columns <ChevronDown />
               </Button>
             </DropdownMenuTrigger>
@@ -426,11 +426,11 @@ const ApproveJobsTable = () => {
           </DropdownMenu>
         </div>
       </div>
-      <div className="rounded-md border bg-white">
+      <div className="rounded-md border bg-white/10 border-border">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
-              <TableRow key={headerGroup.id}>
+              <TableRow key={headerGroup.id} className="border-border">
                 {headerGroup.headers.map((header) => (
                   <TableHead key={header.id}>
                     {header.isPlaceholder
@@ -448,6 +448,7 @@ const ApproveJobsTable = () => {
             {table.getPaginationRowModel().rows?.length ? (
               table.getPaginationRowModel().rows.map((row) => (
                 <TableRow
+                  className="border-border"
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
                 >
@@ -481,6 +482,7 @@ const ApproveJobsTable = () => {
         </div>
         <div className="space-x-2">
           <Button
+            className="border-border"
             variant="outline"
             size="sm"
             onClick={() => table.previousPage()}
@@ -489,6 +491,7 @@ const ApproveJobsTable = () => {
             Previous
           </Button>
           <Button
+            className="border-border"
             variant="outline"
             size="sm"
             onClick={() => table.nextPage()}

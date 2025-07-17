@@ -3,8 +3,13 @@
 import * as React from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import type { JobFilters } from '@/modules/jobs/hooks/useJobs';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import type { JobFilters } from "@/modules/jobs/hooks/useJobs";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 
 interface JobFiltersProps {
   filters: JobFilters;
@@ -13,7 +18,9 @@ interface JobFiltersProps {
 
 export function JobFilters({ filters, onFiltersChange }: JobFiltersProps) {
   // Only keep location, minSalary, maxSalary in local state
-  const [localFilters, setLocalFilters] = React.useState<Pick<JobFilters, 'location' | 'minSalary' | 'maxSalary'>>({
+  const [localFilters, setLocalFilters] = React.useState<
+    Pick<JobFilters, "location" | "minSalary" | "maxSalary">
+  >({
     location: filters.location || "",
     minSalary: filters.minSalary || "",
     maxSalary: filters.maxSalary || "",
@@ -46,7 +53,10 @@ export function JobFilters({ filters, onFiltersChange }: JobFiltersProps) {
     return () => clearTimeout(handler);
   }, [localFilters, filters, onFiltersChange]);
 
-  const handleInputChange = (field: keyof typeof localFilters, value: string) => {
+  const handleInputChange = (
+    field: keyof typeof localFilters,
+    value: string
+  ) => {
     setLocalFilters({ ...localFilters, [field]: value });
   };
 
@@ -59,11 +69,12 @@ export function JobFilters({ filters, onFiltersChange }: JobFiltersProps) {
     });
   };
 
-  const hasActiveFilters = localFilters.location || localFilters.minSalary || localFilters.maxSalary;
+  const hasActiveFilters =
+    localFilters.location || localFilters.minSalary || localFilters.maxSalary;
 
   return (
-    <div className="lg:col-span-2 rounded-lg border bg-card text-card-foreground shadow-sm h-fit">
-      <div className="flex items-center justify-between p-4 border-b">
+    <div className="lg:col-span-2 rounded-lg border border-border bg-card/20 text-card-foreground shadow-sm h-fit">
+      <div className="flex items-center justify-between p-4 border-b border-border">
         <h3 className="font-semibold text-lg">Filters</h3>
         {hasActiveFilters && (
           <Button
@@ -81,7 +92,7 @@ export function JobFilters({ filters, onFiltersChange }: JobFiltersProps) {
         defaultValue={["location", "salary"]}
         className="w-full"
       >
-        <AccordionItem value="location">
+        <AccordionItem value="location" className="border-0">
           <AccordionTrigger className="p-4">Location</AccordionTrigger>
           <AccordionContent className="p-4 pt-0">
             <div className="grid gap-4">
@@ -89,12 +100,12 @@ export function JobFilters({ filters, onFiltersChange }: JobFiltersProps) {
                 id="location"
                 placeholder="Enter location (e.g. Fulda)"
                 value={localFilters.location}
-                onChange={e => handleInputChange("location", e.target.value)}
+                onChange={(e) => handleInputChange("location", e.target.value)}
               />
             </div>
           </AccordionContent>
         </AccordionItem>
-        <AccordionItem value="salary">
+        <AccordionItem value="salary" className="border-t border-border">
           <AccordionTrigger className="p-4">Salary Range</AccordionTrigger>
           <AccordionContent className="p-4 pt-0">
             <div className="grid gap-4 grid-cols-2">
@@ -103,7 +114,7 @@ export function JobFilters({ filters, onFiltersChange }: JobFiltersProps) {
                 type="number"
                 placeholder="Min Salary"
                 value={localFilters.minSalary}
-                onChange={e => handleInputChange("minSalary", e.target.value)}
+                onChange={(e) => handleInputChange("minSalary", e.target.value)}
                 min={0}
               />
               <Input
@@ -111,7 +122,7 @@ export function JobFilters({ filters, onFiltersChange }: JobFiltersProps) {
                 type="number"
                 placeholder="Max Salary"
                 value={localFilters.maxSalary}
-                onChange={e => handleInputChange("maxSalary", e.target.value)}
+                onChange={(e) => handleInputChange("maxSalary", e.target.value)}
                 min={0}
               />
             </div>
@@ -120,4 +131,4 @@ export function JobFilters({ filters, onFiltersChange }: JobFiltersProps) {
       </Accordion>
     </div>
   );
-} 
+}
