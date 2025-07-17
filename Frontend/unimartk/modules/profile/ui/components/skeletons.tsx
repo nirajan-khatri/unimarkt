@@ -4,31 +4,31 @@ import { Skeleton } from "@/components/ui/skeleton";
 // Product Skeleton Component
 export function ProductSkeleton() {
   return (
-    <div className="rounded-lg border bg-card">
+    <div className="rounded-lg border border-border bg-card dark:bg-card">
       {/* Image container with exact height */}
-      <div className="relative h-48 mb-4">
-        <Skeleton className="absolute inset-0 rounded-t-lg" />
+      <div className="relative h-48 mb-4 bg-muted dark:bg-muted">
+        <Skeleton className="absolute inset-0 rounded-t-lg bg-muted dark:bg-muted" />
       </div>
 
       <div className="p-4">
         {/* Title */}
-        <Skeleton className="h-7 w-3/4 mb-2" />
+        <Skeleton className="h-7 w-3/4 mb-2 bg-muted dark:bg-muted" />
 
         {/* Description - two lines */}
         <div className="space-y-2 mb-2">
-          <Skeleton className="h-4 w-full" />
-          <Skeleton className="h-4 w-2/3" />
+          <Skeleton className="h-4 w-full bg-muted dark:bg-muted" />
+          <Skeleton className="h-4 w-2/3 bg-muted dark:bg-muted" />
         </div>
 
         {/* Price and category row */}
         <div className="flex justify-between items-center mb-2">
-          <Skeleton className="h-6 w-16" /> {/* Price */}
-          <Skeleton className="h-6 w-24 rounded" /> {/* Category tag */}
+          <Skeleton className="h-6 w-16 bg-muted dark:bg-muted" /> {/* Price */}
+          <Skeleton className="h-6 w-24 rounded bg-muted dark:bg-muted" /> {/* Category tag */}
         </div>
 
         {/* Posted date */}
         <div className="mt-2">
-          <Skeleton className="h-4 w-32" />
+          <Skeleton className="h-4 w-32 bg-muted dark:bg-muted" />
         </div>
       </div>
     </div>
@@ -49,30 +49,30 @@ export function ProductGridSkeleton() {
 // Skills/Service Skeleton Component
 export function SkillSkeleton() {
   return (
-    <Card className="group bg-white py-0 rounded-xl shadow-sm border border-gray-200 overflow-hidden h-[450px] flex flex-col">
+    <Card className="group bg-card dark:bg-card py-0 rounded-xl shadow-sm border border-border overflow-hidden h-[450px] flex flex-col">
       <CardContent className="p-6 flex flex-col h-full">
         {/* ── Header ───────────────────────────────────────── */}
         <div className="flex items-start justify-between min-h-[80px] mb-4">
           {/* title + category badge */}
           <div className="flex-1 space-y-2">
-            <Skeleton className="h-6 w-4/5" />         {/* title */}
-            <Skeleton className="h-5 w-28 rounded-md" />{/* category */}
+            <Skeleton className="h-6 w-4/5 bg-muted dark:bg-muted" />         {/* title */}
+            <Skeleton className="h-5 w-28 rounded-md bg-muted dark:bg-muted" />{/* category */}
           </div>
           {/* price badge */}
-          <Skeleton className="h-10 w-24 rounded-lg" />
+          <Skeleton className="h-10 w-24 rounded-lg bg-muted dark:bg-muted" />
         </div>
 
         {/* ── Description (2 lines) ───────────────────────── */}
-        <Skeleton className="h-4 w-full mb-2" />
-        <Skeleton className="h-4 w-5/6 mb-6" />
+        <Skeleton className="h-4 w-full mb-2 bg-muted dark:bg-muted" />
+        <Skeleton className="h-4 w-5/6 mb-6 bg-muted dark:bg-muted" />
 
         {/* ── Provider block ──────────────────────────────── */}
         <div className="mb-4 h-[56px]">
-          <div className="flex items-center gap-2 p-3 bg-gray-50 rounded-lg h-full">
-            <Skeleton className="h-8 w-8 rounded-full flex-shrink-0" />
+          <div className="flex items-center gap-2 p-3 bg-muted dark:bg-muted rounded-lg h-full border border-border">
+            <Skeleton className="h-8 w-8 rounded-full flex-shrink-0 bg-muted dark:bg-muted" />
             <div className="flex-1 space-y-1">
-              <Skeleton className="h-3 w-24" />        {/* name */}
-              <Skeleton className="h-3 w-32" />        {/* degree */}
+              <Skeleton className="h-3 w-24 bg-muted dark:bg-muted" />        {/* name */}
+              <Skeleton className="h-3 w-32 bg-muted dark:bg-muted" />        {/* degree */}
             </div>
           </div>
         </div>
@@ -81,19 +81,19 @@ export function SkillSkeleton() {
         <div className="flex-1 mb-4 flex flex-col">
           {/* header row */}
           <div className="flex items-center gap-2 mb-3">
-            <Skeleton className="h-4 w-4 rounded" />
-            <Skeleton className="h-3 w-28" />
+            <Skeleton className="h-4 w-4 rounded bg-muted dark:bg-muted" />
+            <Skeleton className="h-3 w-28 bg-muted dark:bg-muted" />
           </div>
           {/* two slot rows + “more” tag */}
           <div className="space-y-2">
-            <Skeleton className="h-8 w-full rounded-lg" />
-            <Skeleton className="h-8 w-full rounded-lg" />
-            <Skeleton className="h-4 w-32 mx-auto rounded-full" />
+            <Skeleton className="h-8 w-full rounded-lg bg-muted dark:bg-muted" />
+            <Skeleton className="h-8 w-full rounded-lg bg-muted dark:bg-muted" />
+            <Skeleton className="h-4 w-32 mx-auto rounded-full bg-muted dark:bg-muted" />
           </div>
         </div>
 
         {/* ── CTA button ──────────────────────────────────── */}
-        <Skeleton className="h-10 w-full mt-auto rounded-md" />
+        <Skeleton className="h-10 w-full mt-auto rounded-md bg-muted dark:bg-muted" />
       </CardContent>
     </Card>
   );
@@ -158,38 +158,38 @@ export function SkillListGridSkeleton() {
 
 export function JobSkeleton() {
   return (
-    <Card className="group bg-white rounded-xl py-0 shadow-sm border border-gray-200 overflow-hidden h-full flex flex-col">
+    <Card className="group bg-card dark:bg-card rounded-xl py-0 shadow-sm border border-border overflow-hidden h-full flex flex-col">
       <CardContent className="p-6 flex flex-col h-full">
         {/* ── Header ─────────────────────────────────────── */}
         <div className="flex items-start justify-between mb-4">
           <div className="flex-1 space-y-2">
             {/* title (2 lines max height) */}
-            <Skeleton className="h-6 w-4/5" />
-            <Skeleton className="h-6 w-3/5" />
+            <Skeleton className="h-6 w-4/5 bg-muted dark:bg-muted" />
+            <Skeleton className="h-6 w-3/5 bg-muted dark:bg-muted" />
             {/* location badge */}
-            <Skeleton className="h-5 w-28 rounded-md" />
+            <Skeleton className="h-5 w-28 rounded-md bg-muted dark:bg-muted" />
           </div>
         </div>
 
         {/* ── Description (2 lines) ──────────────────────── */}
-        <Skeleton className="h-4 w-full mb-2" />
-        <Skeleton className="h-4 w-5/6 mb-6" />
+        <Skeleton className="h-4 w-full mb-2 bg-muted dark:bg-muted" />
+        <Skeleton className="h-4 w-5/6 mb-6 bg-muted dark:bg-muted" />
 
         {/* ── Contact / salary block ─────────────────────── */}
         <div className="space-y-3 mb-4">
           {/* user + email row */}
-          <div className="flex items-center gap-2 p-3 bg-gray-50 rounded-lg min-h-[3.5rem]">
-            <Skeleton className="h-8 w-8 rounded-full flex-shrink-0" />
+          <div className="flex items-center gap-2 p-3 bg-muted dark:bg-muted rounded-lg min-h-[3.5rem] border border-border">
+            <Skeleton className="h-8 w-8 rounded-full flex-shrink-0 bg-muted dark:bg-muted" />
             <div className="flex-1 space-y-1">
-              <Skeleton className="h-3 w-24" />
-              <Skeleton className="h-3 w-32" />
+              <Skeleton className="h-3 w-24 bg-muted dark:bg-muted" />
+              <Skeleton className="h-3 w-32 bg-muted dark:bg-muted" />
             </div>
           </div>
 
           {/* salary row */}
-          <div className="flex items-center gap-2 p-2 bg-gray-50 rounded-lg border border-gray-200 min-h-[2.5rem]">
-            <Skeleton className="h-3 w-16" />
-            <Skeleton className="h-3 w-20" />
+          <div className="flex items-center gap-2 p-2 bg-muted dark:bg-muted rounded-lg border border-border min-h-[2.5rem]">
+            <Skeleton className="h-3 w-16 bg-muted dark:bg-muted" />
+            <Skeleton className="h-3 w-20 bg-muted dark:bg-muted" />
           </div>
         </div>
 
@@ -197,15 +197,15 @@ export function JobSkeleton() {
         <div className="mt-auto w-full">
           {/* date header */}
           <div className="flex items-center gap-2 mb-2">
-            <Skeleton className="h-4 w-4 rounded" />
-            <Skeleton className="h-3 w-24" />
+            <Skeleton className="h-4 w-4 rounded bg-muted dark:bg-muted" />
+            <Skeleton className="h-3 w-24 bg-muted dark:bg-muted" />
           </div>
 
           {/* date pill */}
-          <Skeleton className="h-8 w-full rounded-lg mb-4" />
+          <Skeleton className="h-8 w-full rounded-lg mb-4 bg-muted dark:bg-muted" />
 
           {/* action button */}
-          <Skeleton className="h-10 w-full rounded-md" />
+          <Skeleton className="h-10 w-full rounded-md bg-muted dark:bg-muted" />
         </div>
       </CardContent>
     </Card>

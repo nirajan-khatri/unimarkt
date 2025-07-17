@@ -41,7 +41,7 @@ export function ProfileJobCard({ job }: ProfileJobCardProps) {
         {/* Header Section */}
         <div className="flex items-start justify-between mb-4">
           <div className="flex-1">
-            <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2 group-hover:text-gray-700 transition-colors min-h-[3.5rem] leading-tight">
+            <h3 className="text-xl font-bold text-foreground dark:text-foreground mb-2 line-clamp-2 group-hover:text-muted-foreground transition-colors min-h-[3.5rem] leading-tight">
               {job.title}
             </h3>
             <div className="flex gap-2">
@@ -69,22 +69,22 @@ export function ProfileJobCard({ job }: ProfileJobCardProps) {
 
         {/* Description - Fixed height */}
         <div className="mb-4 flex-grow">
-          <p className="text-gray-600 text-sm leading-relaxed line-clamp-2 h-[2.5rem] overflow-hidden">
+          <p className="text-muted-foreground text-sm leading-relaxed line-clamp-2 h-[2.5rem] overflow-hidden">
             {job.description}
           </p>
         </div>
 
         {/* Contact Info - Fixed height section */}
         <div className="space-y-3 mb-4">
-          <div className="flex items-center gap-2 p-3 bg-gray-50 rounded-lg min-h-[3.5rem]">
-            <div className="w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center flex-shrink-0">
+          <div className="flex items-center gap-2 p-3 bg-muted rounded-lg min-h-[3.5rem] border border-border">
+            <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center flex-shrink-0">
               <User size={16} className="text-white" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="font-medium text-gray-900 text-sm truncate">
+              <p className="font-medium text-foreground text-sm truncate">
                 {job.user.name}
               </p>
-              <p className="text-xs text-gray-500 truncate">
+              <p className="text-xs text-muted-foreground truncate">
                 {job.contact_email}
               </p>
             </div>
@@ -94,7 +94,7 @@ export function ProfileJobCard({ job }: ProfileJobCardProps) {
           {salary && (
             <div className="flex items-center gap-2 p-2 bg-gray-50 rounded-lg border border-border">
               <span className="flex-shrink-0">Salary:</span>
-              <span className="text-sm text-gray-800 font-medium">
+              <span className="text-sm text-foreground font-medium">
                 €{salary}/hr
               </span>
             </div>
@@ -102,10 +102,10 @@ export function ProfileJobCard({ job }: ProfileJobCardProps) {
         </div>
 
         {/* Date Section - Fixed at bottom */}
-        <div className="mt-auto">
+        <div className="mt-auto w-full">
           <div className="flex items-center gap-2 mb-2">
-            <CalendarDays size={16} className="text-gray-400" />
-            <span className="text-sm font-medium text-gray-700">
+            <CalendarDays size={16} className="text-muted-foreground" />
+            <span className="text-sm font-medium text-foreground">
               Posted Date
             </span>
           </div>

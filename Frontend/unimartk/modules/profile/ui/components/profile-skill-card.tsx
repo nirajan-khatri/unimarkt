@@ -49,7 +49,7 @@ export function ProfileServiceCard({ service }: ServiceCardProps) {
         {/* Header Section - Fixed Height */}
         <div className="flex items-start justify-between min-h-[80px]">
           <div className="flex-1">
-            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2 line-clamp-2 group-hover:text-gray-700 transition-colors">
+            <h3 className="text-xl font-bold text-foreground dark:text-foreground mb-2 line-clamp-2 group-hover:text-muted-foreground transition-colors">
               {service.module.charAt(0).toUpperCase() + service.module.slice(1)}
             </h3>
             <div className="flex gap-2 mt-2">
@@ -84,7 +84,7 @@ export function ProfileServiceCard({ service }: ServiceCardProps) {
 
         {/* Description - Fixed Height */}
         <div className="mb-4 h-[40px] flex items-start">
-          <p className="text-gray-600 dark:text-white/90 text-sm leading-relaxed line-clamp-2">
+          <p className="text-muted-foreground dark:text-muted-foreground text-sm leading-relaxed line-clamp-2">
             {service.description}
           </p>
         </div>

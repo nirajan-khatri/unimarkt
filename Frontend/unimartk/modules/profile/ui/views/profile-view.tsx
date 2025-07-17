@@ -413,13 +413,6 @@ const ProfileView = () => {
         <div className="flex justify-between gap-3">
           <p className="text-2xl">Your Listings</p>
           <div className="flex flex-row gap-3">
-            <Button
-              variant="outline"
-              className="border-primary text-primary"
-              asChild
-            >
-              <Link href={"profile/sold"}>Show Sold Listings</Link>
-            </Button>
             <Button asChild>
               <Link href={"profile/create"}>Create a new Listing</Link>
             </Button>

@@ -34,7 +34,7 @@ export const ProfileProductCard = ({ product }: { product: Product }) => {
       onClick={handleClick}
     >
       {/* Image Container */}
-      <div className="relative h-48 bg-gradient-to-br from-gray-50 to-gray-100 overflow-hidden">
+      <div className="relative h-48 bg-muted dark:bg-muted overflow-hidden">
         <Image
           src={product.images[0]}
           alt={product.name}
