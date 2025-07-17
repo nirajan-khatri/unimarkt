@@ -39,14 +39,14 @@ export function ProfileJobCard({ job }: ProfileJobCardProps) {
 
   return (
     <Card
-      className="group bg-card text-foreground rounded-xl py-0 shadow-sm border border-border overflow-hidden cursor-pointer transition-all duration-300 hover:shadow-lg hover:-translate-y-1 h-full flex flex-col"
+      className="group bg-card dark:bg-card text-foreground dark:text-foreground rounded-xl py-0 shadow-sm border border-border overflow-hidden cursor-pointer transition-all duration-300 hover:shadow-lg hover:-translate-y-1 h-full flex flex-col"
       onClick={handleClick}
     >
       <CardContent className="p-6 flex flex-col h-full">
         {/* Header Section */}
         <div className="flex items-start justify-between mb-4">
           <div className="flex-1">
-            <h3 className="text-xl font-bold text-foreground mb-2 line-clamp-2 group-hover:text-muted-foreground transition-colors min-h-[3.5rem] leading-tight">
+            <h3 className="text-xl font-bold text-foreground dark:text-foreground mb-2 line-clamp-2 group-hover:text-muted-foreground transition-colors min-h-[3.5rem] leading-tight">
               {job.title}
             </h3>
             <div className="flex gap-2">
@@ -78,56 +78,60 @@ export function ProfileJobCard({ job }: ProfileJobCardProps) {
         </div>
 
         {/* Contact Info - Fixed height section */}
-        <div className="flex items-center gap-2 p-3 bg-muted rounded-lg min-h-[3.5rem] border border-border">
-          <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center flex-shrink-0">
-            <User size={16} className="text-white" />
+        <div className="space-y-3 mb-4">
+          <div className="flex items-center gap-2 p-3 bg-muted rounded-lg min-h-[3.5rem] border border-border">
+            <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center flex-shrink-0">
+              <User size={16} className="text-white" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="font-medium text-foreground text-sm truncate">
+                {job.user.name}
+              </p>
+              <p className="text-xs text-muted-foreground truncate">
+                {job.contact_email}
+              </p>
+            </div>
           </div>
-          <div className="flex-1 min-w-0">
-            <p className="font-medium text-foreground text-sm truncate">
-              {job.user.name}
-            </p>
-            <p className="text-xs text-muted-foreground truncate">
-              {job.contact_email}
-            </p>
-          </div>
-        </div>
 
-        {/* Salary Info */}
-        {salary && (
-          <div className="flex items-center gap-2 p-2 bg-muted rounded-lg border border-border">
-            <span className="flex-shrink-0">Salary:</span>
-            <span className="text-sm text-foreground font-medium">
-              €{salary}/hr
-            </span>
-          </div>
-        )}
+          {/* Salary Info */}
+          {salary && (
+            <div className="flex items-center gap-2 p-2 bg-muted rounded-lg border border-border min-h-[2.5rem]">
+              <span className="flex-shrink-0">Salary:</span>
+              <span className="text-sm text-foreground font-medium">
+                €{salary}/hr
+              </span>
+            </div>
+          )}
+        </div>
 
         {/* Date Section - Fixed at bottom */}
-        <div className="flex items-center gap-2 mb-2">
-          <CalendarDays size={16} className="text-muted-foreground" />
-          <span className="text-sm font-medium text-foreground">
-            Posted Date
-          </span>
-        </div>
+        <div className="mt-auto w-full">
+          <div className="flex items-center gap-2 mb-2">
+            <CalendarDays size={16} className="text-muted-foreground" />
+            <span className="text-sm font-medium text-foreground">
+              Posted Date
+            </span>
+          </div>
 
-        <div className="p-2 bg-muted rounded-lg border border-border mb-4">
-          <span className="text-sm text-foreground">
-            {new Date(job.created_at).toLocaleDateString("en-US", {
-              weekday: "long",
-              year: "numeric",
-              month: "long",
-              day: "numeric",
-            })}
-          </span>
-        </div>
+          <div className="p-2 bg-muted rounded-lg border border-border mb-4">
+            <span className="text-sm text-foreground">
+              {new Date(job.created_at).toLocaleDateString("en-US", {
+                weekday: "long",
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              })}
+            </span>
+          </div>
 
-        {/* Action Button */}
-        <Button
-          size="lg"
-          className="w-full font-medium bg-primary hover:bg-primary/90 text-white shadow-sm hover:shadow-md transition-all duration-200"
-        >
-          View Job Details
-        </Button>
+          {/* Action Button */}
+          <Button
+            size="lg"
+            className="w-full font-medium bg-gray-800 hover:bg-gray-900 text-white shadow-sm hover:shadow-md transition-all duration-200"
+          >
+            View Job Details
+          </Button>
+        </div>
       </CardContent>
     </Card>
   );

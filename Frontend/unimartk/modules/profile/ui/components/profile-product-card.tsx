@@ -30,11 +30,11 @@ export const ProfileProductCard = ({ product }: { product: Product }) => {
 
   return (
     <Card
-      className="group bg-card text-foreground gap-0 rounded-xl py-0 shadow-sm border border-border overflow-hidden cursor-pointer transition-all duration-300 hover:shadow-xl hover:-translate-y-2 h-full flex flex-col"
+      className="group bg-card dark:bg-card text-foreground dark:text-foreground gap-0 rounded-xl py-0 shadow-sm border border-border overflow-hidden cursor-pointer transition-all duration-300 hover:shadow-xl hover:-translate-y-2 h-full flex flex-col"
       onClick={handleClick}
     >
       {/* Image Container */}
-      <div className="relative h-48 bg-muted overflow-hidden">
+      <div className="relative h-48 bg-muted dark:bg-muted overflow-hidden">
         <Image
           src={product.images[0]}
           alt={product.name}
@@ -55,65 +55,72 @@ export const ProfileProductCard = ({ product }: { product: Product }) => {
           </Badge>
         </div>
         <div className="absolute top-3 right-3 flex flex-col gap-2 items-end">
-          <Badge className="bg-card text-foreground border-0 font-medium backdrop-blur-sm shadow-sm">
+          <Badge className="bg-card/90 text-foreground dark:bg-card/90 dark:text-foreground border-0 font-medium backdrop-blur-sm shadow-sm">
             {product.category?.name || 'Electronics'}
           </Badge>
         </div>
 
         {/* Price Badge - Floating */}
-        <div className="bg-card px-3 py-1.5 rounded-lg shadow-md backdrop-blur-sm border border-border">
-          <span className="text-lg font-bold text-foreground">
-            €{price.toFixed(2)}
-          </span>
+        <div className="absolute bottom-3 left-3">
+          <div className="bg-card/95 dark:bg-card/95 px-3 py-1.5 rounded-lg shadow-md backdrop-blur-sm border border-border">
+            <span className="text-lg font-bold text-foreground dark:text-foreground">
+              €{price.toFixed(2)}
+            </span>
+          </div>
         </div>
       </div>
 
       <CardContent className="p-5 flex flex-col flex-grow">
         {/* Header Section */}
         <div className="">
-          <h3 className="text-lg font-bold text-foreground line-clamp-1 leading-tight min-h-[1.5rem]">
+          <h3 className="text-lg font-bold text-foreground dark:text-foreground line-clamp-1 leading-tight min-h-[1.5rem]">
             {product.name || 'Sample Product'}
           </h3>
         </div>
 
         {/* Description - Fixed height */}
         <div className="mb-4 flex-grow">
-          <p className="text-muted-foreground text-sm leading-relaxed line-clamp-2 h-[2.5rem] overflow-hidden">
+          <p className="text-muted-foreground dark:text-muted-foreground text-sm leading-relaxed line-clamp-2 h-[2.5rem] overflow-hidden">
             {product.description || 'High-quality product with excellent features and modern design. Perfect for everyday use with premium materials.'}
           </p>
         </div>
 
         {/* Details Section */}
-        {/* Location Info */}
-        <div className="flex items-center gap-3 p-3 bg-muted border border-border rounded-lg">
-          <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center flex-shrink-0">
-            <MapPin size={14} className="text-white" />
+        <div className="space-y-3 mb-4">
+          {/* Location Info */}
+          <div className="flex items-center gap-3 p-3 bg-muted dark:bg-muted border border-border rounded-lg">
+            <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center flex-shrink-0">
+              <MapPin size={14} className="text-white" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="font-medium text-foreground dark:text-foreground text-sm">Pickup Location</p>
+              <p className="text-xs text-muted-foreground dark:text-muted-foreground truncate">{product.pickup_location || 'Amsterdam, Netherlands'}</p>
+            </div>
           </div>
-          <div className="flex-1 min-w-0">
-            <p className="font-medium text-foreground text-sm">Pickup Location</p>
-            <p className="text-xs text-muted-foreground truncate">{product.pickup_location || 'Amsterdam, Netherlands'}</p>
+
+          {/* Date Section */}
+          <div className="flex items-center gap-3 p-3 bg-muted rounded-lg border border-border dark:bg-muted dark:border-border">
+            <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center flex-shrink-0">
+              <Calendar size={14} className="text-white" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="font-medium text-foreground dark:text-foreground text-sm">Listed</p>
+              <p className="text-xs text-muted-foreground dark:text-muted-foreground">
+                {product.created_at
+                  ? new Date(product.created_at).toLocaleDateString('en-US', {
+                    month: 'short',
+                    day: 'numeric',
+                    year: 'numeric'
+                  })
+                  : 'Dec 24, 2024'
+                }
+              </p>
+            </div>
           </div>
         </div>
 
-        {/* Date Section */}
-        <div className="flex items-center gap-3 p-3 bg-muted border border-border rounded-lg">
-          <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center flex-shrink-0">
-            <Calendar size={14} className="text-white" />
-          </div>
-          <div className="flex-1 min-w-0">
-            <p className="font-medium text-foreground text-sm">Listed</p>
-            <p className="text-xs text-muted-foreground">
-              {product.created_at
-                ? new Date(product.created_at).toLocaleDateString('en-US', {
-                  month: 'short',
-                  day: 'numeric',
-                  year: 'numeric'
-                })
-                : 'Dec 24, 2024'
-              }
-            </p>
-          </div>
-        </div>
+        {/* Action Button - Fixed at bottom */}
+        {/* (Remove the Button component for 'View Details') */}
       </CardContent>
     </Card>
   );

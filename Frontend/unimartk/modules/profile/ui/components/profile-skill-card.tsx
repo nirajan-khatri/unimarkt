@@ -42,18 +42,18 @@ export function ProfileServiceCard({ service }: ServiceCardProps) {
 
   return (
     <Card
-      className="group bg-card text-foreground py-0 rounded-xl shadow-sm border border-border overflow-hidden cursor-pointer transition-all duration-300 hover:shadow-lg hover:-translate-y-1 h-[450px] flex flex-col"
+      className="group bg-card dark:bg-card text-foreground dark:text-foreground py-0 rounded-xl shadow-sm border border-border overflow-hidden cursor-pointer transition-all duration-300 hover:shadow-lg hover:-translate-y-1 h-[450px] flex flex-col"
       onClick={handleClick}
     >
       <CardContent className="p-6 flex flex-col h-full">
         {/* Header Section - Fixed Height */}
         <div className="flex items-start justify-between min-h-[80px]">
           <div className="flex-1">
-            <h3 className="text-xl font-bold text-foreground mb-2 line-clamp-2 group-hover:text-muted-foreground transition-colors">
+            <h3 className="text-xl font-bold text-foreground dark:text-foreground mb-2 line-clamp-2 group-hover:text-muted-foreground transition-colors">
               {service.module.charAt(0).toUpperCase() + service.module.slice(1)}
             </h3>
             <div className="flex gap-2 mt-2">
-              <Badge variant="secondary" className="bg-muted text-foreground border-border font-medium">
+              <Badge variant="secondary" className="bg-muted text-foreground dark:bg-muted dark:text-foreground border-border font-medium">
                 {service.skill_category.name}
               </Badge>
               {/* Status Pill */}
@@ -67,64 +67,68 @@ export function ProfileServiceCard({ service }: ServiceCardProps) {
             </div>
           </div>
           {/* Price Badge */}
-          <div className="bg-muted px-4 py-2 rounded-lg border border-border flex-shrink-0">
-            <span className="text-2xl font-bold text-foreground">
+          <div className="bg-muted px-4 py-2 rounded-lg border border-border flex-shrink-0 dark:bg-muted">
+            <span className="text-2xl font-bold text-foreground dark:text-foreground">
               €{hourlyRate}
             </span>
-            <span className="text-sm text-muted-foreground font-medium">/hr</span>
+            <span className="text-sm text-muted-foreground dark:text-muted-foreground font-medium">/hr</span>
           </div>
         </div>
 
         {/* Description - Fixed Height */}
-        <p className="text-muted-foreground text-sm leading-relaxed line-clamp-2">
-          {service.description}
-        </p>
+        <div className="mb-4 h-[40px] flex items-start">
+          <p className="text-muted-foreground dark:text-muted-foreground text-sm leading-relaxed line-clamp-2">
+            {service.description}
+          </p>
+        </div>
 
         {/* Provider Info - Fixed Height */}
         <div className="mb-4 h-[56px]">
-          <div className="flex items-center gap-2 p-3 bg-muted text-foreground border border-border rounded-lg h-full">
+          <div className="flex items-center gap-2 p-3 bg-muted dark:bg-muted dark:text-foreground border border-border rounded-lg h-full">
             <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center flex-shrink-0">
               <User size={16} className="text-white" />
             </div>
             <div className="flex-1 min-w-0">
-              <p className="font-medium text-foreground text-sm truncate">{service.user.name}</p>
-              <p className="text-xs text-muted-foreground truncate">{service.degree.name}</p>
+              <p className="font-medium text-foreground dark:text-foreground text-sm truncate">{service.user.name}</p>
+              <p className="text-xs text-muted-foreground dark:text-muted-foreground truncate">{service.degree.name}</p>
             </div>
           </div>
         </div>
 
         {/* Availability Section - Flexible Height */}
-        <div className="flex items-center gap-2 mb-3">
-          <Calendar size={16} className="text-muted-foreground" />
-          <span className="text-sm font-medium text-foreground">Available Times</span>
-        </div>
-        <div className="flex-1 flex flex-col justify-start">
-          {service.available_time_week.length > 0 ? (
-            <div className="space-y-2">
-              {service.available_time_week.slice(0, 2).map((slot, index) => (
-                <div 
-                  key={index} 
-                  className="flex items-center justify-between p-2 bg-muted rounded-lg border border-border"
-                >
-                  <span className="text-sm font-medium text-foreground">{slot.day}</span>
-                  <span className="text-xs text-muted-foreground">
-                    {formatTime(slot.start_time)} - {formatTime(slot.end_time)}
-                  </span>
-                </div>
-              ))}
-              {service.available_time_week.length > 2 && (
-                <div className="text-center">
-                  <span className="text-xs text-muted-foreground bg-muted px-3 py-1 rounded-full border border-border">
-                    +{service.available_time_week.length - 2} more slots available
-                  </span>
-                </div>
-              )}
-            </div>
-          ) : (
-            <div className="p-3 bg-destructive/10 rounded-lg border border-destructive/20 text-center">
-              <span className="text-sm text-destructive">No available slots</span>
-            </div>
-          )}
+        <div className="flex-1 mb-4 flex flex-col">
+          <div className="flex items-center gap-2 mb-3">
+            <Calendar size={16} className="text-muted-foreground" />
+            <span className="text-sm font-medium text-foreground dark:text-foreground">Available Times</span>
+          </div>
+          <div className="flex-1 flex flex-col justify-start">
+            {service.available_time_week.length > 0 ? (
+              <div className="space-y-2">
+                {service.available_time_week.slice(0, 2).map((slot, index) => (
+                  <div 
+                    key={index} 
+                    className="flex items-center justify-between p-2 bg-muted rounded-lg border border-border dark:bg-muted dark:border-border"
+                  >
+                    <span className="text-sm font-medium text-foreground dark:text-foreground">{slot.day}</span>
+                    <span className="text-xs text-muted-foreground dark:text-muted-foreground">
+                      {formatTime(slot.start_time)} - {formatTime(slot.end_time)}
+                    </span>
+                  </div>
+                ))}
+                {service.available_time_week.length > 2 && (
+                  <div className="text-center">
+                    <span className="text-xs text-muted-foreground bg-muted px-3 py-1 rounded-full dark:bg-muted dark:border-border dark:text-foreground">
+                      +{service.available_time_week.length - 2} more slots available
+                    </span>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="p-3 bg-red-50 rounded-lg border border-red-100 text-center">
+                <span className="text-sm text-red-600">No available slots</span>
+              </div>
+            )}
+          </div>
         </div>
       </CardContent>
     </Card>
