@@ -30,11 +30,11 @@ export const ProfileProductCard = ({ product }: { product: Product }) => {
 
   return (
     <Card
-      className="group bg-white dark:bg-accent dard:text-white gap-0 rounded-xl py-0 shadow-sm border border-gray-200 overflow-hidden cursor-pointer transition-all duration-300 hover:shadow-xl hover:-translate-y-2 h-full flex flex-col"
+      className="group bg-card text-foreground gap-0 rounded-xl py-0 shadow-sm border border-border overflow-hidden cursor-pointer transition-all duration-300 hover:shadow-xl hover:-translate-y-2 h-full flex flex-col"
       onClick={handleClick}
     >
       {/* Image Container */}
-      <div className="relative h-48 bg-gradient-to-br from-gray-50 to-gray-100 overflow-hidden">
+      <div className="relative h-48 bg-muted overflow-hidden">
         <Image
           src={product.images[0]}
           alt={product.name}
@@ -55,72 +55,65 @@ export const ProfileProductCard = ({ product }: { product: Product }) => {
           </Badge>
         </div>
         <div className="absolute top-3 right-3 flex flex-col gap-2 items-end">
-          <Badge className="bg-white/90 text-gray-700 dark:bg-accent dark:text-white border-0 font-medium backdrop-blur-sm shadow-sm">
+          <Badge className="bg-card text-foreground border-0 font-medium backdrop-blur-sm shadow-sm">
             {product.category?.name || 'Electronics'}
           </Badge>
         </div>
 
         {/* Price Badge - Floating */}
-        <div className="absolute bottom-3 left-3">
-          <div className="bg-white/95 dark:bg-accent px-3 py-1.5 rounded-lg shadow-md backdrop-blur-sm border border-white/20">
-            <span className="text-lg font-bold text-gray-900  dark:text-white">
-              €{price.toFixed(2)}
-            </span>
-          </div>
+        <div className="bg-card px-3 py-1.5 rounded-lg shadow-md backdrop-blur-sm border border-border">
+          <span className="text-lg font-bold text-foreground">
+            €{price.toFixed(2)}
+          </span>
         </div>
       </div>
 
       <CardContent className="p-5 flex flex-col flex-grow">
         {/* Header Section */}
         <div className="">
-          <h3 className="text-lg font-bold text-gray-900 dark:text-white line-clamp-1 leading-tight min-h-[1.5rem]">
+          <h3 className="text-lg font-bold text-foreground line-clamp-1 leading-tight min-h-[1.5rem]">
             {product.name || 'Sample Product'}
           </h3>
         </div>
 
         {/* Description - Fixed height */}
         <div className="mb-4 flex-grow">
-          <p className="text-gray-600 dark:text-white/80 text-sm leading-relaxed line-clamp-2 h-[2.5rem] overflow-hidden">
+          <p className="text-muted-foreground text-sm leading-relaxed line-clamp-2 h-[2.5rem] overflow-hidden">
             {product.description || 'High-quality product with excellent features and modern design. Perfect for everyday use with premium materials.'}
           </p>
         </div>
 
         {/* Details Section */}
-        <div className="space-y-3 mb-4">
-          {/* Location Info */}
-          <div className="flex items-center gap-3 p-3 bg-gray-50 dark:bg-accent dark:border dark:border-gray-100 rounded-lg">
-            <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center flex-shrink-0">
-              <MapPin size={14} className="text-white" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="font-medium text-gray-900 dark:text-white text-sm">Pickup Location</p>
-              <p className="text-xs text-gray-600 dark:text-white/90 truncate">{product.pickup_location || 'Amsterdam, Netherlands'}</p>
-            </div>
+        {/* Location Info */}
+        <div className="flex items-center gap-3 p-3 bg-muted border border-border rounded-lg">
+          <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center flex-shrink-0">
+            <MapPin size={14} className="text-white" />
           </div>
-
-          {/* Date Section */}
-          <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg border border-gray-100 dark:bg-accent dark:border dark:border-gray-100">
-            <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center flex-shrink-0">
-              <Calendar size={14} className="text-white" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="font-medium text-gray-900 dark:text-white text-sm">Listed</p>
-              <p className="text-xs text-gray-600 dark:text-white/90">
-                {product.created_at
-                  ? new Date(product.created_at).toLocaleDateString('en-US', {
-                    month: 'short',
-                    day: 'numeric',
-                    year: 'numeric'
-                  })
-                  : 'Dec 24, 2024'
-                }
-              </p>
-            </div>
+          <div className="flex-1 min-w-0">
+            <p className="font-medium text-foreground text-sm">Pickup Location</p>
+            <p className="text-xs text-muted-foreground truncate">{product.pickup_location || 'Amsterdam, Netherlands'}</p>
           </div>
         </div>
 
-        {/* Action Button - Fixed at bottom */}
-        {/* (Remove the Button component for 'View Details') */}
+        {/* Date Section */}
+        <div className="flex items-center gap-3 p-3 bg-muted border border-border rounded-lg">
+          <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center flex-shrink-0">
+            <Calendar size={14} className="text-white" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="font-medium text-foreground text-sm">Listed</p>
+            <p className="text-xs text-muted-foreground">
+              {product.created_at
+                ? new Date(product.created_at).toLocaleDateString('en-US', {
+                  month: 'short',
+                  day: 'numeric',
+                  year: 'numeric'
+                })
+                : 'Dec 24, 2024'
+              }
+            </p>
+          </div>
+        </div>
       </CardContent>
     </Card>
   );
