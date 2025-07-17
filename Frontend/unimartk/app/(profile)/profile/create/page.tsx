@@ -26,6 +26,8 @@ const Page = () => {
     parseAsStringEnum(["job", "skill", "product"]).withDefault("product")
   );
 
+  console.log(hasRole("faculty"));
+
   return (
     <div className="max-w-7xl w-full mx-auto p-6">
       <Card className="border-border">
@@ -61,7 +63,7 @@ const Page = () => {
             <SelectContent className="border-border">
               <SelectItem value="product">Product</SelectItem>
               <SelectItem value="skill">Skill</SelectItem>
-              {hasRole("user") && <SelectItem value="job">Job</SelectItem>}
+              {!hasRole("user") && <SelectItem value="job">Job</SelectItem>}
             </SelectContent>
           </Select>
         </CardHeader>

@@ -133,7 +133,6 @@ export const Navbar = () => {
               onCheckedChange={(checked) =>
                 setTheme(checked ? "dark" : "light")
               }
-              aria-label="Toggle dark mode"
             />
             <Moon className="h-4 w-4" />
           </div>
