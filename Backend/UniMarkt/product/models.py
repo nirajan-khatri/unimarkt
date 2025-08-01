@@ -37,6 +37,12 @@ class Product(models.Model):
     description = models.TextField()
     price = models.DecimalField(max_digits=10, decimal_places=2)
     images = models.JSONField(default=list, blank=True)
+    discount = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True, help_text='Discount percentage or amount')
+
+    def save(self, *args, **kwargs):
+        if self.discount is None:
+            self.discount = self.price
+        super().save(*args, **kwargs)
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='products')
     status = models.TextField(default='Pending')
     pickup_location = models.CharField(max_length=255, blank=True, null=True)

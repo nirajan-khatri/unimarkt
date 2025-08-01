@@ -11,10 +11,10 @@ from rest_framework.permissions import IsAuthenticated
 
 from .filters import ProductFilter
 from .models import Product,Category,SubCategory, Wishlist
+from django.db import models
 from .serializers import ProductSerializer, SubCategorySerializer, CategorySerializer, ProductCreateSerializer, \
     ProductUpdateSerializer, WishlistSerializer
 
-# Suggestion: Use constants instead of hardcoded values for pagination
 class StandardResultsSetPagination(PageNumberPagination):
     page_size = 9
     page_size_query_param = 'page_size'
@@ -29,10 +29,27 @@ class StandardResultsSetPagination(PageNumberPagination):
             'results': data
         })
 
-# Suggestion: To avoid repeating tags on every method, apply the swagger_auto_schema
-# decorator with tags at the class level. Then only use method-level decorators for
-# additional parameters or descriptions beyond the default.
 class ProductViewSet(viewsets.ModelViewSet):
+    @action(
+        detail=False,
+        methods=['get'],
+        url_path='discounted',
+        url_name='discounted_products',
+        permission_classes=[]
+    )
+    @swagger_auto_schema(
+        tags=["Products"],
+        operation_description="Fetch products with a discount less than price",
+        responses={200: ProductSerializer(many=True)}
+    )
+    def discounted_products(self, request):
+        discounted = Product.objects.filter(discount__lt=models.F('price'))
+        page = self.paginate_queryset(discounted)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+        serializer = self.get_serializer(discounted, many=True)
+        return Response(serializer.data)
     http_method_names = ['get', 'post', 'put', 'delete']
     queryset = Product.objects.filter()
     serializer_class = ProductSerializer
