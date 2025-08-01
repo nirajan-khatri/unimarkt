@@ -54,6 +54,7 @@ import { useContentModeration } from "@/hooks/useContentModeration";
 
 interface Props {
   productId?: string;
+  isEdit?: boolean;
 }
 
 const uploadImageToAWS = async (file: File): Promise<string> => {
@@ -139,7 +140,7 @@ const useAIDescriptionGeneration = () => {
   });
 };
 
-const CreateProductForm = ({ productId }: Props) => {
+const CreateProductForm = ({ productId, isEdit }: Props) => {
   const router = useRouter();
   const { isAuthenticated, user, isInitialized } = useAuth();
   const [uploadingImages, setUploadingImages] = useState(false);
@@ -158,7 +159,7 @@ const CreateProductForm = ({ productId }: Props) => {
     isModeratingAny,
   } = useContentModeration();
 
-  if ((!isAuthenticated || !user) && isInitialized) {
+  if (isInitialized && !isAuthenticated) {
     redirect("/sign-in");
   }
 
@@ -187,25 +188,9 @@ const CreateProductForm = ({ productId }: Props) => {
       pickup_location: "",
       price: "",
       images: [],
+      discountPercent: "",
     },
   });
-
-  // Update form and preview images when product data is loaded
-  useEffect(() => {
-    if (product) {
-      form.reset({
-        name: product?.name || "",
-        description: product?.description || "",
-        images: product?.images || [],
-        price: product?.price.toString() || "",
-        pickup_location: product?.pickup_location || "",
-        category_id: product?.category?.id?.toString() || "",
-        sub_category_id: product?.sub_category?.id?.toString() || "",
-      });
-
-      setPreviewImages(product?.images || []);
-    }
-  }, [product, form]);
 
   const {
     data: categoryData,
@@ -224,6 +209,24 @@ const CreateProductForm = ({ productId }: Props) => {
     queryKey: ["subCategories"],
     queryFn: fetchProductSubcategories,
   });
+
+  // Update form and preview images when product data is loaded
+  useEffect(() => {
+    if (product) {
+      form.reset({
+        name: product?.name || "",
+        description: product?.description || "",
+        images: product?.images || [],
+        price: product?.price.toString() || "",
+        pickup_location: product?.pickup_location || "",
+        category_id: product?.category?.id.toString() || "",
+        sub_category_id: product?.sub_category?.id?.toString() || "",
+        discountPercent: product?.discount?.toString() || "",
+      });
+
+      setPreviewImages(product?.images || []);
+    }
+  }, [isEdit, product, categoryData, subCategoryData, form]);
 
   const mutation = useMutation({
     mutationFn: (newProduct: ProductFormData) => {
@@ -429,6 +432,7 @@ const CreateProductForm = ({ productId }: Props) => {
       // Rest remains the same
       const payload = {
         ...data,
+        discount: data.discountPercent,
         price: data.price,
         user_id: user!.id,
         category_id: data.category_id,
@@ -456,6 +460,12 @@ const CreateProductForm = ({ productId }: Props) => {
       toast.error("Failed to submit product");
     }
   };
+
+  if (isEdit && (!product || !categoryData || !subCategoryData)) {
+    return <LoadingPage />;
+  }
+
+  console.log(form.formState.defaultValues);
 
   return (
     <div className="">
@@ -492,9 +502,9 @@ const CreateProductForm = ({ productId }: Props) => {
                     <Select
                       onValueChange={(value) => {
                         field.onChange(value);
-                        form.setValue("sub_category_id", "");
+                        form.setValue("sub_category_id", ""); // Clear subcategory when category changes
                       }}
-                      value={field.value}
+                      value={field.value || ""}
                     >
                       <FormControl className="w-full">
                         <SelectTrigger>
@@ -529,9 +539,8 @@ const CreateProductForm = ({ productId }: Props) => {
                       <span className="text-red-500 -ml-1.5">*</span>
                     </FormLabel>
                     <Select
-                      disabled={form.watch("category_id") === ""}
                       onValueChange={field.onChange}
-                      value={field.value}
+                      value={field.value || ""}
                     >
                       <FormControl className="w-full">
                         <SelectTrigger>
@@ -629,31 +638,58 @@ const CreateProductForm = ({ productId }: Props) => {
             />
 
             {/* Price */}
-            <FormField
-              control={form.control}
-              name="price"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>
-                    Price<span className="text-red-500 -ml-1.5">*</span>
-                  </FormLabel>
-                  <FormControl>
-                    <div className="relative">
-                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm">
-                        €
-                      </span>
-                      <Input
-                        type="number"
-                        placeholder="0.00"
-                        {...field}
-                        className="pl-7"
-                      />
-                    </div>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
+            <div className="flex gap-3">
+              <FormField
+                control={form.control}
+                name="price"
+                render={({ field }) => (
+                  <FormItem className="flex-1">
+                    <FormLabel>
+                      Price<span className="text-red-500 -ml-1.5">*</span>
+                    </FormLabel>
+                    <FormControl>
+                      <div className="relative">
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm">
+                          €
+                        </span>
+                        <Input
+                          type="number"
+                          placeholder="0.00"
+                          {...field}
+                          className="pl-7"
+                        />
+                      </div>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              {isEdit && (
+                <FormField
+                  control={form.control}
+                  name="discountPercent"
+                  render={({ field }) => (
+                    <FormItem className="flex-1">
+                      <FormLabel>Discount</FormLabel>
+                      <FormControl>
+                        <div className="relative">
+                          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-sm">
+                            %
+                          </span>
+                          <Input
+                            type="number"
+                            placeholder="0.00"
+                            {...field}
+                            className="pl-7"
+                          />
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               )}
-            />
+            </div>
 
             <FormField
               control={form.control}

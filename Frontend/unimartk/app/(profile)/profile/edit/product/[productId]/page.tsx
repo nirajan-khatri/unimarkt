@@ -39,7 +39,7 @@ const Page = async ({ params }: Props) => {
           <CardTitle>Edit Product</CardTitle>
         </CardHeader>
         <CardContent>
-          <CreateProductForm productId={productId} />
+          <CreateProductForm productId={productId} isEdit={true} />
         </CardContent>
       </Card>
     </div>
