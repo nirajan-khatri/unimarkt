@@ -34,7 +34,7 @@ export const DiscountCarousel = () => {
     <div className="relative">
       <Carousel
         opts={{ loop: true }}
-        className="w-full max-w-7xl mx-auto overflow-hidden"
+        className="w-full mx-auto overflow-hidden"
       >
         <CarouselContent>
           {discountedProducts?.results?.map((product) => {
@@ -46,7 +46,7 @@ export const DiscountCarousel = () => {
             return (
               <CarouselItem
                 key={product.product_id}
-                className="relative h-[400px] md:h-[500px] group"
+                className="relative h-[400px] md:h-[600px] group"
               >
                 {/* Background Image */}
                 <img
