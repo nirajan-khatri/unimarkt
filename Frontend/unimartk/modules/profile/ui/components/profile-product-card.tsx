@@ -62,12 +62,30 @@ export const ProfileProductCard = ({ product }: { product: Product }) => {
         </div>
 
         {/* Price Badge - Floating */}
-        <div className="absolute bottom-3 left-3">
+        <div className="absolute bottom-3 left-3 z-10 flex items-end gap-2">
           <div className="bg-white/95 dark:bg-accent px-3 py-1.5 rounded-lg shadow-md backdrop-blur-sm border border-border">
-            <span className="text-lg font-bold text-gray-900  dark:text-white">
-              €{price.toFixed(2)}
-            </span>
+            {product.discount && product.discount > 0 ? (
+              <div className="flex flex-col sm:flex-row sm:items-center sm:gap-2">
+                <span className="text-sm line-through text-gray-500">
+                  €{price.toFixed(2)}
+                </span>
+                <span className="text-lg font-bold text-red-600 dark:text-red-400">
+                  €{(price * (1 - product.discount / 100)).toFixed(2)}
+                </span>
+              </div>
+            ) : (
+              <span className="text-lg font-bold text-gray-900 dark:text-white">
+                €{price.toFixed(2)}
+              </span>
+            )}
           </div>
+
+          {/* Discount badge */}
+          {product.discount && product.discount > 0 && (
+            <div className="bg-red-500 text-white text-xs px-2 py-1 rounded shadow-md font-medium">
+              -{product.discount}%
+            </div>
+          )}
         </div>
       </div>
 

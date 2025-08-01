@@ -110,7 +110,7 @@ export const ProductCard = ({ product }: ProductCardProps) => {
         {/* Price Section */}
         <div className="absolute bottom-3 left-3 z-10 flex items-end gap-2">
           <div className="bg-white/95 dark:bg-accent px-3 py-1.5 rounded-lg shadow-md backdrop-blur-sm border border-border">
-            {product.discount ? (
+            {product.discount && product.discount > 0 ? (
               <div className="flex flex-col sm:flex-row sm:items-center sm:gap-2">
                 <span className="text-sm line-through text-gray-500">
                   €{price.toFixed(2)}
@@ -127,7 +127,7 @@ export const ProductCard = ({ product }: ProductCardProps) => {
           </div>
 
           {/* Discount badge */}
-          {product.discount && (
+          {product.discount && product.discount > 0 && (
             <div className="bg-red-500 text-white text-xs px-2 py-1 rounded shadow-md font-medium">
               -{product.discount}%
             </div>
