@@ -47,6 +47,7 @@ class ProductSerializer(serializers.ModelSerializer):
             'product_id', 'name', 'category', 'category_id',
             'sub_category', 'sub_category_id',
             'description', 'price', 'images',
+            'discount',
             'user', 'user_id', 'status', 'created_at', 'pickup_location' ,'isArchived'
         ]
 
@@ -62,9 +63,10 @@ class ProductCreateSerializer(serializers.ModelSerializer):
     user_id = serializers.PrimaryKeyRelatedField(
         queryset=User.objects.all(), source='user', write_only=True
     )
+    discount = serializers.DecimalField(max_digits=10, decimal_places=2, required=False, allow_null=True)
     class Meta:
         model = Product
-        fields = ['name', 'description', 'price', 'category_id', 'sub_category_id', 'user_id', 'images', 'pickup_location', 'status']
+        fields = ['name', 'description', 'price', 'discount', 'category_id', 'sub_category_id', 'user_id', 'images', 'pickup_location', 'status']
 
 class ProductUpdateSerializer(serializers.ModelSerializer):
     category_id = serializers.PrimaryKeyRelatedField(
@@ -77,9 +79,11 @@ class ProductUpdateSerializer(serializers.ModelSerializer):
     user_id = serializers.PrimaryKeyRelatedField(
         queryset=User.objects.all(), source='user', write_only=True
     )
+    discount = serializers.DecimalField(max_digits=10, decimal_places=2, required=False, allow_null=True)
     class Meta:
         model = Product
-        fields = ['name', 'description', 'price', 'category_id', 'sub_category_id', 'user_id', 'images', 'pickup_location', 'status']
+        fields = ['name', 'description', 'price', 'discount', 'category_id', 'sub_category_id', 'user_id', 'images', 'pickup_location', 'status']
+
         
     def update(self, instance, validated_data):
         # Force status to 'pending' on update, regardless of input
