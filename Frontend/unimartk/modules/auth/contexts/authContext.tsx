@@ -132,14 +132,31 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   const logout = () => {
-    setTokens(null);
-    setUser(null);
-    setIsAuthenticated(false);
+    try {
+      // Clear state first
+      setTokens(null);
+      setUser(null);
+      setIsAuthenticated(false);
 
-    removeCookie("accessToken");
-    removeCookie("refreshToken");
-    removeCookie("tokenTimestamp");
-    removeCookie("userId");
+      // Clear all cookies
+      removeCookie("accessToken");
+      removeCookie("refreshToken");
+      removeCookie("tokenTimestamp");
+      removeCookie("userId");
+      
+      // Additional cleanup for any localStorage items that might exist
+      if (typeof window !== "undefined") {
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        localStorage.removeItem("auth");
+      }
+    } catch (error) {
+      console.error("Error during logout:", error);
+      // Force clear everything even if there's an error
+      setTokens(null);
+      setUser(null);
+      setIsAuthenticated(false);
+    }
   };
 
   const updateTokens = (access: string, refresh?: string) => {

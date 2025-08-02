@@ -160,7 +160,8 @@ const CreateProductForm = ({ productId, isEdit }: Props) => {
   } = useContentModeration();
 
   if (isInitialized && !isAuthenticated) {
-    redirect("/sign-in");
+    router.replace("/sign-in");
+    return null;
   }
 
   const queryClient = useQueryClient();

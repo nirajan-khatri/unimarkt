@@ -19,6 +19,7 @@ import { User } from "@/modules/profile/types";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { useAuth } from "@/modules/auth/contexts/authContext";
 import { redirect } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 const WhatsAppMessaging = () => {
   const [isMobile, setIsMobile] = useState(false);
@@ -32,6 +33,7 @@ const WhatsAppMessaging = () => {
   const [socket, setSocket] = useState<WebSocket | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const { isAuthenticated, user, isInitialized } = useAuth();
+  const router = useRouter();
 
   const isAdminMessage = (message: string): boolean => {
     return message.includes(
@@ -51,7 +53,8 @@ const WhatsAppMessaging = () => {
   };
 
   if (isInitialized && !isAuthenticated) {
-    redirect("/sign-in");
+    router.replace("/sign-in");
+    return null;
   }
 
   useEffect(() => {
@@ -72,13 +75,15 @@ const WhatsAppMessaging = () => {
   } = useQuery({
     queryKey: ["uniqueUsers", user?.id],
     queryFn: async () => {
+      if (!user?.id) return [];
       const response = await axios.get(
-        `chat/unique-users/?user_id=${user?.id}`
+        `chat/unique-users/?user_id=${user.id}`
       );
       return response.data.map((user: User) => ({
         ...user,
       }));
     },
+    enabled: !!user?.id, // Only run if user is defined
   });
 
   const scrollToBottom = () => {
@@ -91,44 +96,42 @@ const WhatsAppMessaging = () => {
 
   // WebSocket connection
   useEffect(() => {
-    if (selectedConversation) {
-      // Close existing socket if any
-      if (socket) {
-        socket.close();
-      }
-
-      // Create new WebSocket connection
-      const wsBaseUrl =
-        process.env.NEXT_PUBLIC_WS_URL || "ws://localhost:8000/ws/";
-      const wsUrl = `${wsBaseUrl}chat/${user?.id}/${selectedConversation}/`;
-      console.log("Connecting to WebSocket:", wsUrl);
-      const newSocket = new WebSocket(wsUrl);
-
-      newSocket.onmessage = (event) => {
-        try {
-          const data = JSON.parse(event.data);
-
-          setMessages((prev) => [...prev, data]);
-        } catch (err) {
-          console.error("Error parsing WebSocket message:", err);
-        }
-      };
-
-      newSocket.onclose = () => {
-        console.log("WebSocket disconnected");
-      };
-
-      newSocket.onerror = (error) => {
-        console.error("WebSocket error:", error);
-      };
-
-      setSocket(newSocket);
-
-      // Cleanup on unmount or conversation change
-      return () => {
-        newSocket.close();
-      };
+    if (!user?.id || !selectedConversation) return;
+    // Close existing socket if any
+    if (socket) {
+      socket.close();
     }
+
+    // Create new WebSocket connection
+    const wsBaseUrl =
+      process.env.NEXT_PUBLIC_WS_URL || "ws://localhost:8000/ws/";
+    const wsUrl = `${wsBaseUrl}chat/${user.id}/${selectedConversation}/`;
+    console.log("Connecting to WebSocket:", wsUrl);
+    const newSocket = new WebSocket(wsUrl);
+
+    newSocket.onmessage = (event) => {
+      try {
+        const data = JSON.parse(event.data);
+        setMessages((prev) => [...prev, data]);
+      } catch (err) {
+        console.error("Error parsing WebSocket message:", err);
+      }
+    };
+
+    newSocket.onclose = () => {
+      console.log("WebSocket disconnected");
+    };
+
+    newSocket.onerror = (error) => {
+      console.error("WebSocket error:", error);
+    };
+
+    setSocket(newSocket);
+
+    // Cleanup on unmount or conversation change
+    return () => {
+      newSocket.close();
+    };
   }, [selectedConversation, user?.id]);
 
   // Cleanup socket on unmount

@@ -33,6 +33,7 @@ const navbarItems = [
   { href: "/", label: "Home", slug: "home" },
   { href: "/skills", label: "Skills", slug: "skills" },
   { href: "/jobs", label: "Jobs", slug: "jobs" },
+  { href: "/discounted", label: "Discounted", slug: "discounted" },
 ];
 
 const ClientLink = dynamic(
@@ -56,9 +57,17 @@ export const Navbar = () => {
   const handleProfile = () => router.push("/profile");
   const handleAdminDashboard = () => router.push("/admin");
   const handleLogout = () => {
-    logout();
-    setUserProfile(null);
-    router.push("/");
+    try {
+      logout();
+      setUserProfile(null);
+      // Use replace instead of push to prevent back navigation to authenticated pages
+      router.replace("/");
+    } catch (error) {
+      console.error("Error during logout:", error);
+      // Force redirect even if logout fails
+      setUserProfile(null);
+      router.replace("/");
+    }
   };
 
   return (
@@ -90,7 +99,9 @@ export const Navbar = () => {
                 : item.slug === "jobs"
                   ? pathname.startsWith("/jobs") ||
                     pathname.startsWith("/jobDetail")
-                  : pathname === "/";
+                  : item.slug === "discounted"
+                    ? pathname.startsWith("/discounted")
+                    : pathname === "/";
             return (
               <li key={item.href} className="relative">
                 <Link

@@ -22,13 +22,37 @@ export const DiscountCarousel = () => {
     isLoading: productsLoading,
     error: productsError,
   } = useQuery({
-    queryKey: ["discountedProducts"],
-    queryFn: fetchDiscountedProducts,
+    queryKey: ["discountedProductsCarousel"],
+    queryFn: () => fetchDiscountedProducts(),
   });
 
-  console.log(discountedProducts);
-  if (!discountedProducts || discountedProducts.results.length === 0)
+  console.log('Carousel data:', discountedProducts);
+  console.log('Carousel loading:', productsLoading);
+  console.log('Carousel error:', productsError);
+  
+  if (productsLoading) {
+    return (
+      <div className="px-4 lg:px-12 py-8">
+        <div className="h-[400px] bg-gray-200 animate-pulse rounded-lg"></div>
+      </div>
+    );
+  }
+  
+  if (productsError) {
+    console.error('Carousel error:', productsError);
+    return (
+      <div className="px-4 lg:px-12 py-8">
+        <div className="h-[400px] bg-red-100 rounded-lg flex items-center justify-center">
+          <p className="text-red-600">Failed to load discounted products</p>
+        </div>
+      </div>
+    );
+  }
+  
+  if (!discountedProducts || discountedProducts.results.length === 0) {
+    console.log('No discounted products found');
     return null;
+  }
 
   return (
     <div className="relative">
@@ -57,6 +81,17 @@ export const DiscountCarousel = () => {
 
                 {/* Gradient Overlay */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/30 to-transparent z-10" />
+
+                {/* Top Right Button */}
+                <div className="absolute top-6 right-6 z-30">
+                  <Button
+                    variant="outline"
+                    onClick={() => router.push('/discounted')}
+                    className="bg-gradient-to-r from-red-500 to-pink-500 text-white border-0 hover:from-red-600 hover:to-pink-600 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 font-semibold px-4 py-2 rounded-full text-sm"
+                  >
+                    View All Discounted
+                  </Button>
+                </div>
 
                 {/* Content */}
                 <div className="relative z-20 h-full flex flex-col justify-end p-6 sm:p-10 text-white">

@@ -52,9 +52,17 @@ export const NavbarSidebar = ({ items, onOpenChange, open }: Props) => {
   const handleProfile = () => router.push("/profile");
   const handleAdminDashboard = () => router.push("/admin");
   const handleLogout = () => {
-    logout();
-    setUserProfile(null);
-    router.push("/");
+    try {
+      logout();
+      setUserProfile(null);
+      // Use replace instead of push to prevent back navigation to authenticated pages
+      router.replace("/");
+    } catch (error) {
+      console.error("Error during logout:", error);
+      // Force redirect even if logout fails
+      setUserProfile(null);
+      router.replace("/");
+    }
   };
 
   return (
@@ -81,7 +89,9 @@ export const NavbarSidebar = ({ items, onOpenChange, open }: Props) => {
                   : item.slug === "jobs"
                     ? pathname.startsWith("/jobs") ||
                       pathname.startsWith("/jobDetail")
-                    : pathname === "/";
+                    : item.slug === "discounted"
+                      ? pathname.startsWith("/discounted")
+                      : pathname === "/";
               return (
                 <Link
                   key={item.href}
