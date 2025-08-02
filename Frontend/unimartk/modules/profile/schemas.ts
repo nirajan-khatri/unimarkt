@@ -43,6 +43,7 @@ export const productSchema = z.object({
     .refine((files) => files.length <= 6, {
       message: "You can upload up to 6 images.",
     }),
+  discountPercent: z.string().optional(),
 });
 
 export const skillSchema = z.object({

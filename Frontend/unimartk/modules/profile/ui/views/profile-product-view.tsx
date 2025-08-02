@@ -179,7 +179,6 @@ export const ProfileProductView = ({ productId }: Props) => {
     queryKey: ["product", productId],
     queryFn: () => fetchProductById(productId),
   });
-  console.log(data);
 
   const images = useMemo(() => {
     if (data.images?.length > 0) {

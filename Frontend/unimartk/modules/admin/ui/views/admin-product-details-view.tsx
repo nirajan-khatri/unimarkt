@@ -27,15 +27,6 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Badge } from "@/components/ui/badge";
 
-const images = [
-  "https://images.pexels.com/photos/31173368/pexels-photo-31173368/free-photo-of-colorful-facades-along-amsterdam-canal.jpeg?auto=compress&cs=tinysrgb&w=1200&lazy=load",
-  "https://images.pexels.com/photos/30675194/pexels-photo-30675194/free-photo-of-creative-watercolor-art-workspace-with-supplies.jpeg?auto=compress&cs=tinysrgb&w=1200&lazy=load",
-  "https://images.pexels.com/photos/29213973/pexels-photo-29213973/free-photo-of-picturesque-village-with-foggy-morning-landscape.jpeg?auto=compress&cs=tinysrgb&w=1200&lazy=load",
-  "https://images.pexels.com/photos/30973670/pexels-photo-30973670/free-photo-of-curious-ginger-kitten-in-wicker-basket.jpeg?auto=compress&cs=tinysrgb&w=1200&lazy=load",
-  "https://images.pexels.com/photos/32268896/pexels-photo-32268896/free-photo-of-charming-bookshop-exterior-in-clisson-france.jpeg?auto=compress&cs=tinysrgb&w=1200&lazy=load",
-  "https://images.pexels.com/photos/30563259/pexels-photo-30563259/free-photo-of-footprints-in-sand-beach-serenity.jpeg?auto=compress&cs=tinysrgb&w=1200&lazy=load",
-];
-
 interface Props {
   productId: string;
 }
@@ -300,7 +291,7 @@ export const ProductDetailsView = ({ productId }: Props) => {
                     onClick={openModal}
                   >
                     <Image
-                      src={images[selectedImage]}
+                      src={data.images[selectedImage]}
                       alt={data.name}
                       fill
                       className="object-cover "
@@ -313,7 +304,7 @@ export const ProductDetailsView = ({ productId }: Props) => {
 
                 <div className="w-full sm:w-20 bg-gray-100 order-1 sm:order-2">
                   <div className="flex sm:flex-col gap-2 p-2 overflow-x-none sm:overflow-none justify-between sm:justify-start">
-                    {images.map((imageUrl, index) => (
+                    {data.images.map((imageUrl, index) => (
                       <div
                         key={index}
                         className={`
@@ -423,7 +414,7 @@ export const ProductDetailsView = ({ productId }: Props) => {
       <ImageModal
         isOpen={isModalOpen}
         onClose={closeModal}
-        images={images}
+        images={data.images}
         currentIndex={selectedImage}
         onIndexChange={setSelectedImage}
       />
