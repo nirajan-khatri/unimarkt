@@ -68,9 +68,20 @@ export async function fetchFilteredProducts(
 }
 
 export const fetchDiscountedProducts =
-  async (): Promise<PaginatedProductsResponse> => {
-    // add logic to ckeck if user is actually superadmin
-    const response = await axios.get(`/products/discounted/`);
+  async (searchTerm?: string, ordering?: string): Promise<PaginatedProductsResponse> => {
+    const params = new URLSearchParams();
+    
+    if (searchTerm && searchTerm.trim()) {
+      params.append('name', searchTerm.trim());
+    }
+    
+    if (ordering && ordering.trim()) {
+      params.append('ordering', ordering.trim());
+    }
+    
+    const queryString = params.toString();
+    const url = queryString ? `/products/discounted/?${queryString}` : `/products/discounted/`;
+    const response = await axios.get(url);
     return response.data;
   };
 

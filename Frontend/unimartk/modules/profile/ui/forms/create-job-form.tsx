@@ -49,7 +49,8 @@ const CreateJobForm = ({ jobId }: Props) => {
   const { isAuthenticated, user, isInitialized } = useAuth();
 
   if ((!isAuthenticated || !user) && isInitialized) {
-    redirect("/sign-in");
+    router.replace("/sign-in");
+    return null;
   }
 
   const queryClient = useQueryClient();

@@ -1,5 +1,6 @@
 export { useFilters } from './useFilters';
 export { useProducts } from './useProducts';
+export { useDiscountedProducts } from './useDiscountedProducts';
 export { useCategoryState } from './useCategoryState';
 export { usePagination } from './usePagination';
 export { useServices } from './useServices';

@@ -385,7 +385,8 @@ const ProfileView = () => {
   // }
 
   if (isInitialized && !isAuthenticated) {
-    redirect("/sign-in");
+    router.replace("/sign-in");
+    return null;
   }
 
   return (

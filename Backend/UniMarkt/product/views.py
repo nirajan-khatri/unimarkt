@@ -43,7 +43,20 @@ class ProductViewSet(viewsets.ModelViewSet):
         responses={200: ProductSerializer(many=True)}
     )
     def discounted_products(self, request):
+        # Start with discounted products filter
         discounted = Product.objects.filter(discount__lt=models.F('price'))
+        
+        # Apply search filter if provided
+        search_term = request.query_params.get('name', '')
+        if search_term:
+            discounted = discounted.filter(name__icontains=search_term)
+        
+        # Apply ordering
+        ordering = request.query_params.get('ordering', '-created_at')
+        if ordering:
+            discounted = discounted.order_by(ordering)
+        
+        # Apply pagination
         page = self.paginate_queryset(discounted)
         if page is not None:
             serializer = self.get_serializer(page, many=True)

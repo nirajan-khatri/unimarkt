@@ -13,11 +13,8 @@ export default function AdminAccess({ children }: { children: React.ReactNode })
 
   useEffect(() => {
     if (isInitialized && (!isAuthenticated || (user !== null && (user.role !== "admin" && user.role !== "superuser")))) {
-      router.back();
-      const timeout = setTimeout(() => {
-        router.replace("/");
-      }, 500);
-      return () => clearTimeout(timeout);
+      // Use replace instead of back to avoid navigation issues during logout
+      router.replace("/");
     }
   }, [isInitialized, isAuthenticated, user, router]);
 

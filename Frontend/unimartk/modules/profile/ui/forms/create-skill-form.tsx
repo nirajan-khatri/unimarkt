@@ -40,7 +40,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { useAuth } from "@/modules/auth/contexts/authContext";
-import { redirect } from "next/navigation";
+import { redirect, useRouter } from "next/navigation";
 import { fetchSkillById } from "@/services/products";
 import { fetchDegrees, fetchDepartments } from "../../api";
 import LoadingPage from "@/app/(admin)/admin/loader";
@@ -54,9 +54,11 @@ interface Props {
 
 const CreateSkillForm = ({ skillId }: Props) => {
   const { isAuthenticated, user, isInitialized } = useAuth();
+  const router = useRouter();
 
   if ((!isAuthenticated || !user) && isInitialized) {
-    redirect("/sign-in");
+    router.replace("/sign-in");
+    return null;
   }
 
   const queryClient = useQueryClient();
