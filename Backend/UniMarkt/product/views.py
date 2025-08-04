@@ -43,12 +43,19 @@ class ProductViewSet(viewsets.ModelViewSet):
         responses={200: ProductSerializer(many=True)}
     )
     def discounted_products(self, request):
+        # Get the current user ID from the request
+        current_user_id = request.user.id if request.user.is_authenticated else None
+
         # Start with discounted products filter and include only approved products
         discounted = Product.objects.filter(
-            discount__lt=models.F('price'),
+            discount__gt=0,  # Get products with any discount greater than 0
             status='approved',  # Only return approved products
             isArchived=False    # Exclude archived products
         )
+        
+        # Exclude products from the current user if they are logged in
+        if current_user_id:
+            discounted = discounted.exclude(user_id=current_user_id)
         
         # Apply search filter if provided
         search_term = request.query_params.get('name', '')
