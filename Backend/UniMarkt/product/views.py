@@ -43,8 +43,12 @@ class ProductViewSet(viewsets.ModelViewSet):
         responses={200: ProductSerializer(many=True)}
     )
     def discounted_products(self, request):
-        # Start with discounted products filter
-        discounted = Product.objects.filter(discount__lt=models.F('price'))
+        # Start with discounted products filter and include only approved products
+        discounted = Product.objects.filter(
+            discount__lt=models.F('price'),
+            status='approved',  # Only return approved products
+            isArchived=False    # Exclude archived products
+        )
         
         # Apply search filter if provided
         search_term = request.query_params.get('name', '')
