@@ -28,7 +28,10 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <head>
         {/* Google Analytics */}
-        <script async src="https://www.googletagmanager.com/gtag/js?id=G-XE9JJ3R2RX"></script>
+        <script
+          async
+          src="https://www.googletagmanager.com/gtag/js?id=G-XE9JJ3R2RX"
+        ></script>
         <script
           dangerouslySetInnerHTML={{
             __html: `
@@ -45,8 +48,7 @@ export default function RootLayout({
       >
         <ThemeProvider
           attribute="class"
-          defaultTheme="system"
-          enableSystem
+          defaultTheme="light"
           disableTransitionOnChange
         >
           <TanstackProviders>

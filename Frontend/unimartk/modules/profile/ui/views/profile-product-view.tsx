@@ -313,10 +313,26 @@ export const ProfileProductView = ({ productId }: Props) => {
                     <span className="text-sm">{data.pickup_location}</span>
                   </div>
                 </div>
-                <div className="mb-4">
-                  <span className="text-xl sm:text-2xl font-bold ">
-                    {data.price}€
-                  </span>
+                <div className="flex gap-2">
+                  {data.discount && data.discount > 0 ? (
+                    <div className="flex flex-col sm:flex-row sm:items-center sm:gap-2">
+                      <span className="text-sm line-through text-gray-500">
+                        €{data.price}
+                      </span>
+                      <span className="text-lg font-bold text-red-600 dark:text-red-400">
+                        €{(data.price * (1 - data.discount / 100))?.toFixed(2)}
+                      </span>
+                    </div>
+                  ) : (
+                    <span className="text-lg font-bold text-gray-900 dark:text-white">
+                      €{data.price}
+                    </span>
+                  )}
+                  {data.discount && data.discount > 0 && (
+                    <div className="bg-red-500 text-white text-xs px-2 py-1 rounded shadow-md font-medium">
+                      -{data.discount}%
+                    </div>
+                  )}
                 </div>
               </div>
               {/* Description */}

@@ -433,7 +433,7 @@ const CreateProductForm = ({ productId, isEdit }: Props) => {
       // Rest remains the same
       const payload = {
         ...data,
-        discount: data.discountPercent,
+        discount: data.discountPercent || 0,
         price: data.price,
         user_id: user!.id,
         category_id: data.category_id,
