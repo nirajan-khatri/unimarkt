@@ -26,10 +26,6 @@ export const DiscountCarousel = () => {
     queryFn: () => fetchDiscountedProducts(),
   });
 
-  console.log('Carousel data:', discountedProducts);
-  console.log('Carousel loading:', productsLoading);
-  console.log('Carousel error:', productsError);
-  
   if (productsLoading) {
     return (
       <div className="px-4 lg:px-12 py-8">
@@ -37,9 +33,9 @@ export const DiscountCarousel = () => {
       </div>
     );
   }
-  
+
   if (productsError) {
-    console.error('Carousel error:', productsError);
+    console.error("Carousel error:", productsError);
     return (
       <div className="px-4 lg:px-12 py-8">
         <div className="h-[400px] bg-red-100 rounded-lg flex items-center justify-center">
@@ -48,9 +44,9 @@ export const DiscountCarousel = () => {
       </div>
     );
   }
-  
+
   if (!discountedProducts || discountedProducts.results.length === 0) {
-    console.log('No discounted products found');
+    console.log("No discounted products found");
     return null;
   }
 
@@ -70,7 +66,7 @@ export const DiscountCarousel = () => {
             return (
               <CarouselItem
                 key={product.product_id}
-                className="relative h-[400px] md:h-[600px] group"
+                className="relative h-[400px] md:h-[500px] group"
               >
                 {/* Background Image */}
                 <img
@@ -86,7 +82,7 @@ export const DiscountCarousel = () => {
                 <div className="absolute top-6 right-6 z-30">
                   <Button
                     variant="outline"
-                    onClick={() => router.push('/discounted')}
+                    onClick={() => router.push("/discounted")}
                     className="bg-gradient-to-r from-red-500 to-pink-500 text-white border-0 hover:from-red-600 hover:to-pink-600 shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 font-semibold px-4 py-2 rounded-full text-sm"
                   >
                     View All Discounted

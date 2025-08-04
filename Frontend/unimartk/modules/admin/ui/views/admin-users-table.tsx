@@ -133,28 +133,6 @@ const UsersTable = () => {
   });
 
   const columns: ColumnDef<User>[] = [
-    // {
-    //   id: "select",
-    //   header: ({ table }) => (
-    //     <Checkbox
-    //       checked={
-    //         table.getIsAllPageRowsSelected() ||
-    //         (table.getIsSomePageRowsSelected() && "indeterminate")
-    //       }
-    //       onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-    //       aria-label="Select all"
-    //     />
-    //   ),
-    //   cell: ({ row }) => (
-    //     <Checkbox
-    //       checked={row.getIsSelected()}
-    //       onCheckedChange={(value) => row.toggleSelected(!!value)}
-    //       aria-label="Select row"
-    //     />
-    //   ),
-    //   enableSorting: false,
-    //   enableHiding: false,
-    // },
     {
       accessorKey: "name",
       header: ({ column }) => (
@@ -364,50 +342,6 @@ const UsersTable = () => {
           className="max-w-sm"
         />
         <div className="flex flex-row gap-4">
-          {/* {table.getSelectedRowModel().rows.length > 0 && (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" className="">
-                  Bulk Actions <ChevronDown className="ml-2 h-4 w-4" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="start">
-                <DropdownMenuItem
-                  onClick={() => {
-                    const selected = table
-                      .getSelectedRowModel()
-                      .rows.map((row) => row.original);
-                    console.log("Approving selected:", selected);
-                    // call your approve API here
-                  }}
-                >
-                  Approve Selected
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => {
-                    const selected = table
-                      .getSelectedRowModel()
-                      .rows.map((row) => row.original);
-                    console.log("Rejecting selected:", selected);
-                    // call your reject API here
-                  }}
-                >
-                  Reject Selected
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => {
-                    const selected = table
-                      .getSelectedRowModel()
-                      .rows.map((row) => row.original);
-                    console.log("Deleting selected:", selected);
-                    // call your delete API here
-                  }}
-                >
-                  Delete Selected
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          )} */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" className="ml-auto border-border">
