@@ -98,7 +98,7 @@ export const TwoFactorVerification = ({
           <CardHeader>
             <CardTitle>Two-Factor Authentication</CardTitle>
             <CardDescription>
-              Enter the 6-digit code from your Google Authenticator app
+              Enter the 6-digit code from your Authenticator app
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">

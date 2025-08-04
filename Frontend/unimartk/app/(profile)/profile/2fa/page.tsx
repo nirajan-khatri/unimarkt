@@ -115,12 +115,17 @@ export default function TwoFactorAuthPage() {
     disableMutation.mutate({ user_id: parseInt(user.id), code: disableCode });
   };
 
-  const handleCopyCodes = () => {
+  const handleCopyCodes = async () => {
     if (codes) {
-      navigator.clipboard.writeText(codes.join("\n"));
-      setCopied(true);
-      setTimeout(() => setCopied(false), 1500);
-      setSuccessMsg(""); // Remove old success message
+      try {
+        await navigator.clipboard.writeText(codes.join("\n"));
+        setCopied(true);
+        setTimeout(() => setCopied(false), 1500);
+        setSuccessMsg("Backup codes copied to clipboard");
+      } catch (error) {
+        setErrorMsg("Unable to copy to clipboard. Please use the download option instead.");
+        console.error("Clipboard error:", error);
+      }
     }
   };
 
@@ -365,7 +370,8 @@ export default function TwoFactorAuthPage() {
               <CardHeader>
                 <CardTitle>Your Backup Codes</CardTitle>
                 <CardDescription>
-                  Save these codes in a secure place. Each code can be used once. You will not be able to see them again.
+                  Important: Save these codes in a secure place. Each code can be used once if you can't access your authenticator app. You will not be able to see them again.
+                  You can either copy them to your clipboard or download them as a text file.
                 </CardDescription>
               </CardHeader>
               <CardContent>
