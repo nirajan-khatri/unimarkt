@@ -17,12 +17,12 @@ UniMarkt is a secure, peer-to-peer marketplace web application built exclusively
 ## 📸 App Screenshots
 
 <p align="center">
-  <img src="./app-screenshots/Screenshot 2026-03-22 at 10.41.55.png" width="45%" alt="Screenshot 1" />
-  <img src="./app-screenshots/Screenshot 2026-03-22 at 10.42.12.png" width="45%" alt="Screenshot 2" />
-  <img src="./app-screenshots/Screenshot 2026-03-22 at 10.42.32.png" width="45%" alt="Screenshot 3" />
-  <img src="./app-screenshots/Screenshot 2026-03-22 at 10.43.33.png" width="45%" alt="Screenshot 4" />
-  <img src="./app-screenshots/Screenshot 2026-03-22 at 10.44.28.png" width="45%" alt="Screenshot 5" />
-  <img src="./app-screenshots/Screenshot 2026-03-22 at 22.23.58.png" width="45%" alt="Screenshot 6" />
+  <img src="./app-screenshots/Screenshot 2026-03-22 at 10.41.55-cropped.png" width="45%" alt="Screenshot 1" />
+  <img src="./app-screenshots/Screenshot 2026-03-22 at 10.42.12-cropped.png" width="45%" alt="Screenshot 2" />
+  <img src="./app-screenshots/Screenshot 2026-03-22 at 10.42.32-cropped.png" width="45%" alt="Screenshot 3" />
+  <img src="./app-screenshots/Screenshot 2026-03-22 at 10.43.33-cropped.png" width="45%" alt="Screenshot 4" />
+  <img src="./app-screenshots/Screenshot 2026-03-22 at 10.44.28-cropped.png" width="45%" alt="Screenshot 5" />
+  <img src="./app-screenshots/Screenshot 2026-03-22 at 22.23.58-cropped.png" width="45%" alt="Screenshot 6" />
 </p>
 
 ---
