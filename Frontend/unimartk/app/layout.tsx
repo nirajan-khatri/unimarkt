@@ -9,6 +9,18 @@ import TanstackProviders from "./providers/tanstack-provider";
 import { ThemeProvider } from "./providers/theme-provider";
 import { AuthProvider } from "../modules/auth/contexts/authContext";
 
+if (typeof window === 'undefined') {
+  // Polyfill for Node 22 global localStorage issue that crashes SSR libraries
+  (global as any).localStorage = {
+    getItem: () => null,
+    setItem: () => {},
+    removeItem: () => {},
+    clear: () => {},
+    length: 0,
+    key: () => null,
+  };
+}
+
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],

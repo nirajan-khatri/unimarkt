@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Menu, MessageCircle, User, X } from 'lucide-react';
 
-export function Header({isSidebarOpen, setIsSidebarOpen}) {
+export function Header({isSidebarOpen, setIsSidebarOpen}: {isSidebarOpen: boolean; setIsSidebarOpen: (v: boolean) => void}) {
   const pathname = usePathname();
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur">

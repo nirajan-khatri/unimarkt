@@ -162,7 +162,9 @@
       "sub_category": 1,
       "description": "Latest Apple iPhone 13",
       "price": "799.99",
-      "images": ["https://unimarkt-bucket.s3.eu-central-1.amazonaws.com/uploads/iphone13pro.jpg"],
+      "images": [
+        "/images/electronics.png"
+      ],
       "user": 2,
       "status": "approved",
       "pickup_location": "Fulda, Germany",
@@ -179,7 +181,9 @@
       "description": "Classic novel by F. Scott Fitzgerald",
       "price": "15.00",
       "discount": "10.00",
-      "images": ["https://unimarkt-bucket.s3.eu-central-1.amazonaws.com/uploads/book.jpg"],
+      "images": [
+        "/images/books.png"
+      ],
       "user": 2,
       "status": "approved",
       "pickup_location": "Frankfurt, Germany",
@@ -196,7 +200,9 @@
       "description": "Comfortable cotton t-shirt",
       "price": "20.00",
       "discount": "15.00",
-      "images": ["https://unimarkt-bucket.s3.eu-central-1.amazonaws.com/uploads/tshirt.jpg"],
+      "images": [
+        "/images/clothing.png"
+      ],
       "user": 4,
       "status": "approved",
       "pickup_location": "Kasele, Germany",
@@ -212,7 +218,9 @@
       "sub_category": 4,
       "description": "Ergonomic office chair",
       "price": "150.00",
-      "images": ["https://unimarkt-bucket.s3.eu-central-1.amazonaws.com/uploads/office+chair.jpg"],
+      "images": [
+        "/images/furniture.png"
+      ],
       "user": 4,
       "status": "approved",
       "pickup_location": "Fulda, Germany",
@@ -228,7 +236,9 @@
       "sub_category": 5,
       "description": "4-person outdoor camping tent",
       "price": "120.00",
-      "images": ["https://unimarkt-bucket.s3.eu-central-1.amazonaws.com/uploads/tent.jpg"],
+      "images": [
+        "/images/sports.png"
+      ],
       "user": 2,
       "status": "approved",
       "pickup_location": "Fulda, Germany",
@@ -244,10 +254,12 @@
       "sub_category": 1,
       "description": "High-performance Android smartphone",
       "price": "699.99",
-      "images": ["https://unimarkt-bucket.s3.eu-central-1.amazonaws.com/uploads/s22.jpg"],
+      "images": [
+        "/images/electronics.png"
+      ],
       "user": 2,
       "status": "approved",
-      "pickup_location": "München, Germany",
+      "pickup_location": "M\u00fcnchen, Germany",
       "created_at": "2025-05-06T11:30:00Z"
     }
   },
@@ -260,7 +272,9 @@
       "sub_category": 6,
       "description": "Apple MacBook Pro with M2 chip",
       "price": "1899.00",
-      "images": ["https://unimarkt-bucket.s3.eu-central-1.amazonaws.com/uploads/macbook.jpg"],
+      "images": [
+        "/images/electronics.png"
+      ],
       "user": 2,
       "status": "approved",
       "pickup_location": "Berlin, Germany",
@@ -276,7 +290,9 @@
       "sub_category": 2,
       "description": "Dystopian novel by George Orwell",
       "price": "12.50",
-      "images": ["https://unimarkt-bucket.s3.eu-central-1.amazonaws.com/uploads/book1.jpg"],
+      "images": [
+        "/images/books.png"
+      ],
       "user": 2,
       "status": "pending",
       "pickup_location": "Hamburg, Germany",
@@ -292,10 +308,12 @@
       "sub_category": 7,
       "description": "A Brief History of Humankind by Yuval Noah Harari",
       "price": "18.00",
-      "images": ["https://unimarkt-bucket.s3.eu-central-1.amazonaws.com/uploads/book.jpg"],
+      "images": [
+        "/images/books.png"
+      ],
       "user": 4,
       "status": "rejected",
-      "pickup_location": "Köln, Germany",
+      "pickup_location": "K\u00f6ln, Germany",
       "created_at": "2025-05-09T16:20:00Z"
     }
   },
@@ -308,7 +326,9 @@
       "sub_category": 8,
       "description": "High-waisted skinny jeans, size 28",
       "price": "45.00",
-      "images": ["https://unimarkt-bucket.s3.eu-central-1.amazonaws.com/uploads/jeans.jpg"],
+      "images": [
+        "/images/clothing.png"
+      ],
       "user": 2,
       "status": "approved",
       "pickup_location": "Stuttgart, Germany",
@@ -324,10 +344,12 @@
       "sub_category": 3,
       "description": "Genuine leather jacket, worn condition",
       "price": "89.00",
-      "images": ["https://unimarkt-bucket.s3.eu-central-1.amazonaws.com/uploads/leather+coat.jpg"],
+      "images": [
+        "/images/clothing.png"
+      ],
       "user": 3,
       "status": "pending",
-      "pickup_location": "Düsseldorf, Germany",
+      "pickup_location": "D\u00fcsseldorf, Germany",
       "created_at": "2025-05-11T14:15:00Z"
     }
   },
@@ -340,7 +362,9 @@
       "sub_category": 9,
       "description": "3-seater fabric sofa, light gray",
       "price": "299.00",
-      "images": ["https://unimarkt-bucket.s3.eu-central-1.amazonaws.com/uploads/sofa.jpg"],
+      "images": [
+        "/images/furniture.png"
+      ],
       "user": 2,
       "status": "rejected",
       "pickup_location": "Hannover, Germany",
@@ -356,7 +380,9 @@
       "sub_category": 4,
       "description": "Adjustable height standing desk",
       "price": "320.00",
-      "images": ["https://unimarkt-bucket.s3.eu-central-1.amazonaws.com/uploads/height+table+stand.jpg"],
+      "images": [
+        "/images/furniture.png"
+      ],
       "user": 2,
       "status": "approved",
       "pickup_location": "Fulda, Germany",
@@ -372,10 +398,12 @@
       "sub_category": 5,
       "description": "Trek mountain bike, 21-speed",
       "price": "450.00",
-      "images": ["https://unimarkt-bucket.s3.eu-central-1.amazonaws.com/uploads/mountainbike.jpg"],
+      "images": [
+        "/images/sports.png"
+      ],
       "user": 1,
       "status": "pending",
-      "pickup_location": "Nürnberg, Germany",
+      "pickup_location": "N\u00fcrnberg, Germany",
       "created_at": "2025-05-14T15:30:00Z"
     }
   },
@@ -388,7 +416,9 @@
       "sub_category": 10,
       "description": "Premium non-slip yoga mat, 6mm thick",
       "price": "35.00",
-      "images": ["https://unimarkt-bucket.s3.eu-central-1.amazonaws.com/uploads/yoga+matt.jpg"],
+      "images": [
+        "/images/sports.png"
+      ],
       "user": 2,
       "status": "rejected",
       "pickup_location": "Bremen, Germany",
@@ -404,7 +434,9 @@
       "sub_category": 1,
       "description": "Wireless gaming headset with noise cancellation",
       "price": "129.00",
-      "images": ["https://unimarkt-bucket.s3.eu-central-1.amazonaws.com/uploads/headphone.jpg"],
+      "images": [
+        "/images/electronics.png"
+      ],
       "user": 2,
       "status": "approved",
       "pickup_location": "Leipzig, Germany",
@@ -420,7 +452,9 @@
       "sub_category": 7,
       "description": "Set of 5 Italian cooking books",
       "price": "42.00",
-      "images": ["https://unimarkt-bucket.s3.eu-central-1.amazonaws.com/uploads/book.jpg"],
+      "images": [
+        "/images/books.png"
+      ],
       "user": 2,
       "status": "pending",
       "pickup_location": "Dresden, Germany",
@@ -436,7 +470,9 @@
       "sub_category": 3,
       "description": "Warm winter parka, size L",
       "price": "75.00",
-      "images": ["https://unimarkt-bucket.s3.eu-central-1.amazonaws.com/uploads/winter+coat.jpg"],
+      "images": [
+        "/images/clothing.png"
+      ],
       "user": 1,
       "status": "rejected",
       "pickup_location": "Dortmund, Germany",
@@ -452,7 +488,9 @@
       "sub_category": 9,
       "description": "Wooden coffee table with storage",
       "price": "180.00",
-      "images": ["https://unimarkt-bucket.s3.eu-central-1.amazonaws.com/uploads/coffee+table.jpg"],
+      "images": [
+        "/images/furniture.png"
+      ],
       "user": 3,
       "status": "approved",
       "pickup_location": "Essen, Germany",
@@ -468,7 +506,9 @@
       "sub_category": 10,
       "description": "Adjustable dumbbells, 5-50 lbs each",
       "price": "220.00",
-      "images": ["https://unimarkt-bucket.s3.eu-central-1.amazonaws.com/uploads/dumble+set.jpg"],
+      "images": [
+        "/images/sports.png"
+      ],
       "user": 2,
       "status": "pending",
       "pickup_location": "Wiesbaden, Germany",
